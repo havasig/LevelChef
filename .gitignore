@@ -1,0 +1,13 @@
+.gradle/
+build/
+.idea/
+.kotlin/
+local.properties
+*.iml
+*.hprof
+*.log
+.DS_Store
+captures/
+
+# Claude Code — share settings.json / agents / skills, keep personal overrides local
+.claude/settings.local.json

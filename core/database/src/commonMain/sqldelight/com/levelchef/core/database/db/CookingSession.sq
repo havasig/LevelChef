@@ -1,0 +1,29 @@
+CREATE TABLE cookingSession (
+    id TEXT NOT NULL PRIMARY KEY,
+    recipeId TEXT NOT NULL,
+    recipeName TEXT NOT NULL,
+    cookedAt TEXT NOT NULL,
+    xpEarned INTEGER NOT NULL,
+    rating INTEGER,
+    improvementNote TEXT,
+    kcal INTEGER,
+    proteinGrams INTEGER,
+    carbsGrams INTEGER,
+    fatGrams INTEGER
+);
+
+selectAll:
+SELECT * FROM cookingSession ORDER BY cookedAt DESC;
+
+selectRecent:
+SELECT * FROM cookingSession ORDER BY cookedAt DESC LIMIT 1;
+
+insertSession:
+INSERT INTO cookingSession(id, recipeId, recipeName, cookedAt, xpEarned, rating, improvementNote, kcal, proteinGrams, carbsGrams, fatGrams)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+totalXp:
+SELECT IFNULL(SUM(xpEarned), 0) FROM cookingSession;
+
+sessionCount:
+SELECT COUNT(*) FROM cookingSession;
