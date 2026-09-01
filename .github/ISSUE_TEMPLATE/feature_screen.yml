@@ -1,0 +1,31 @@
+name: Feature screen
+description: Build one of the stub feature screens from its Figma node.
+title: "feat(<module>): build <screen> screen from Figma"
+labels: [ feature-screen ]
+body:
+  - type: dropdown
+    id: screen
+    attributes:
+      label: Screen
+      options:
+        - "feature:recipedetail — Recipe Detail — node 371:728"
+        - "feature:mealreview — Meal Review — node 385:586"
+        - "feature:trophyroom — Trophy Room — node 504:1026"
+        - "feature:cookinglog — Cooking Log — node 489:1362"
+        - "feature:onboarding — Onboarding (4 steps) — nodes 296:1679, 296:1678, 296:1729, 465:645, 480:631"
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope / notes
+      description: New design-system components, domain interfaces, or nav wiring expected. Anything to leave stubbed.
+    validations:
+      required: false
+  - type: checkboxes
+    id: workflow
+    attributes:
+      label: Workflow
+      options:
+        - label: Use the `new-feature-screen` skill and follow the `feature:home` pattern
+        - label: Present a plan before implementing

@@ -29,9 +29,10 @@ core:database  ◀── data only
 - **`feature:*`** — one Android-library module per screen. **No feature module depends on another.**
   `feature:home` is fully built from Figma node `296:1929`; the rest are `PlaceholderScreen` stubs.
 
-Hard rules:
+Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/levelchef/konsist/`):
 - Never add a `feature:* → feature:*` dependency.
-- Never make `domain` or `core:model` depend on Android or Compose.
+- Never make `domain` or `core:model` depend on Android, Compose, Koin, Ktor or SQLDelight.
+- `domain` depends only on `core:model`; `core:database` is imported from `data` only.
 - Keep the dependency direction one-way. If a screen needs cross-feature navigation, wire it in `androidApp`'s NavHost.
 
 ## Working practices
@@ -44,6 +45,11 @@ Hard rules:
 - **Track approved work with a todo list.** Once a plan is accepted, create a todo list (Claude Code:
   the `TodoWrite` tool), keep exactly one item `in_progress`, and mark items done as you go.
 - Prefer small, verifiable steps: change one module, build it, move on.
+- **Git workflow** (see `CONTRIBUTING.md`): work on a short-lived `feat/…` `fix/…` `chore/…`
+  branch off `main`, open a PR, squash-merge. `main` is protected. Commit subjects and PR titles
+  are [Conventional Commits](https://www.conventionalcommits.org/) — `type(scope): subject`,
+  lowercase, no trailing period (e.g. `feat(home): add weekly challenge card`); the
+  `.githooks/commit-msg` hook and CI both enforce this.
 - **End every response with a short "Prompt tips" section** — 1–3 specific bullets on how the user
   could have phrased the request for a better/faster result (missing context, ambiguity, scope,
   constraints, output format). Tie them to the actual message; if the prompt was already clear and
@@ -64,15 +70,24 @@ Hard rules:
 ## Build & test commands
 
 ```bash
-./gradlew build                         # full build
+./gradlew build                         # full build (compiles every module + lint + unit tests)
 ./gradlew :feature:home:assembleDebug   # one module
 ./gradlew :domain:allTests              # KMP module tests
 ./gradlew :domain:testDebugUnitTest     # Android-variant unit tests
 ./gradlew lint
+./gradlew detekt                        # static analysis + ktlint + Compose lint rules (root aggregate task)
+./gradlew detekt --auto-correct         # auto-fix formatting
+./gradlew :konsist:test                 # architecture tests enforcing the module rules above
 ./gradlew :androidApp:installDebug      # deploy to a connected device/emulator
 ```
 
-Requires the Android SDK locally (`local.properties` → `sdk.dir`). `compileSdk = 36`, `minSdk = 26`, JVM target 11.
+Run `./gradlew build detekt :konsist:test` before every push (CI runs the same). detekt config
+lives in `config/detekt/detekt.yml`; it is applied only to the root project (detekt 2.0-alpha's
+Gradle plugin is not compatible with Kotlin Gradle Plugin 2.0.x when combined with the Android
+plugin), so there are no per-module detekt tasks — just the root `detekt`.
+
+Requires the Android SDK locally (`local.properties` → `sdk.dir`). `compileSdk = 36`, `minSdk = 26`,
+JVM target 11. JDK 17+ to run Gradle (the toolchain resolver fetches JDK 17 for `build-logic`).
 
 ## Building a screen from Figma
 

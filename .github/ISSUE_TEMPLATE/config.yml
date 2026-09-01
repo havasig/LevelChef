@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: LevelChef Figma file
+    url: https://www.figma.com/design/GymJ5JNm5GDL6RqkS4X2OG/LevelChef
+    about: The source of truth for all screen designs and design tokens.

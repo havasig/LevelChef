@@ -1,0 +1,8 @@
+# <type>(<scope>): <subject>            <-- max ~72 chars, lowercase, no trailing period
+#
+# type:  feat | fix | chore | docs | refactor | test | build | ci | perf | style | revert
+# scope: a module — (home), (core:designsystem), (data), (domain) …  (optional)
+#
+# Body (optional): what & why, not how. Wrap at 72.
+#
+# Footer (optional): "Closes #123", "BREAKING CHANGE: ..."

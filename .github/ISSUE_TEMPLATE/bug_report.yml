@@ -1,0 +1,32 @@
+name: Bug report
+description: Something behaves incorrectly.
+title: "fix: "
+labels: [ bug ]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Expected vs. actual behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: input
+    id: module
+    attributes:
+      label: Module / screen
+      placeholder: "feature:home"
+    validations:
+      required: false
+  - type: input
+    id: env
+    attributes:
+      label: Device / API level
+      placeholder: "Pixel 7, API 34"
+    validations:
+      required: false

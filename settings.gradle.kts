@@ -7,6 +7,10 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
+}
+
 dependencyResolutionManagement {
     repositories {
         google()
@@ -25,6 +29,8 @@ include(":core:designsystem")
 
 include(":domain")
 include(":data")
+
+include(":konsist")
 
 include(":feature:home")
 include(":feature:recipedetail")
