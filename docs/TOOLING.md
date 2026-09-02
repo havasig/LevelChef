@@ -1,0 +1,150 @@
+# Tooling & automation reference
+
+An inventory of every tool, check, and automation wired into this repo — build system,
+static analysis, CI, Git and GitHub automation, and the AI-agent setup. **This is a list.**
+Each entry is one line now; explanations can be filled in per entry later.
+
+For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
+*day-to-day Git workflow* see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+
+---
+
+## 1. Build system
+
+- **Gradle wrapper** — `gradlew` / `gradlew.bat`, pinned to Gradle **9.0.0** (`gradle/wrapper/gradle-wrapper.properties`).
+- **Version catalog** — `gradle/libs.versions.toml`: every dependency version and coordinate lives here, referenced as `libs.*`. No hardcoded coordinates in module build files.
+- **Convention plugins** — `build-logic/convention/src/main/kotlin/`, applied instead of repeating config:
+  - `levelchef.android.application` — the `androidApp` module (compileSdk/minSdk, Compose, JVM target).
+  - `levelchef.android.library` — plain Android library modules (`core:ui`, `core:designsystem`).
+  - `levelchef.android.feature` — feature modules; layers `core:ui` + `core:designsystem` + Compose tooling on top of `android.library`.
+  - `levelchef.kmp.library` — Kotlin Multiplatform modules (`core:model`, `core:database`, `domain`, `data`).
+- **foojay toolchain resolver** — `settings.gradle.kts` + `build-logic/settings.gradle.kts`; lets Gradle auto-download the JDK a build needs (JDK 17 for `build-logic`) so any JDK 17+ can run the build.
+- **`.editorconfig`** — repo-root; drives IntelliJ + ktlint formatting (4-space indent, 120 col, LF, final newline, trailing commas allowed; CRLF for `*.bat`).
+- **`gradle.properties`** — `-Xmx2048M`, `kotlin.code.style=official`, `android.useAndroidX`, `android.nonTransitiveRClass`, KMP android source-set layout v2.
+
+## 2. Static analysis & formatting
+
+- **detekt** — Kotlin static analysis; single root aggregate task `./gradlew detekt` scanning every module's `.kt`/`.kts` (applied only to the root project — detekt `2.0.0-alpha.6`'s plugin is incompatible with Kotlin Gradle Plugin 2.0.x when combined with the Android plugin).
+- **`config/detekt/detekt.yml`** — the rule config: deviations from detekt defaults only (Compose-friendly complexity thresholds, 120-col lines, PascalCase composables & design tokens).
+- **detekt-rules-ktlint-wrapper** — ktlint formatting rules run inside detekt; `./gradlew detekt --auto-correct` fixes formatting in place.
+- **compose-rules** (`io.nlopez.compose.rules:detekt` `0.6.6`) — Compose-specific lint: `Modifier` defaults & naming, param ordering, state hoisting, preview naming, unstable collections, etc.
+- **Android Lint** — bundled with AGP; runs per Android module as part of `./gradlew build` (or `./gradlew lint`). HTML reports under `<module>/build/reports/`.
+- Current status: **0 detekt findings**, lint clean.
+
+## 3. Architecture enforcement — Konsist
+
+- **`:konsist` module** — a test-only JVM module (`konsist/`) that parses the whole source tree and fails the build on architecture-rule violations. Runs via `./gradlew :konsist:test` (and as part of `build`). **14 tests.**
+- **`ModuleBoundaryKonsistTest`** — the one-way dependency rules:
+  - no `feature:*` module imports another `feature:*` module;
+  - `domain` and `core:model` import no Android / Compose / Koin / Ktor / SQLDelight;
+  - `domain` imports only `core:model` (within the project);
+  - `core:database` is imported by `data` only.
+- **`ComposeScreenKonsistTest`** — the screen pattern from `AGENTS.md`:
+  - every top-level `*Screen` / `*Route` function is `@Composable`;
+  - every `*UiState` is a `data class` with **every** constructor parameter defaulted, living in a `feature:*` package.
+- **`ConventionsKonsistTest`** — naming & packaging:
+  - all source is under `com.levelchef`;
+  - `@Test` function names are `snake_case`, no backticks;
+  - `*ViewModel` classes live in a `feature:*` package;
+  - `*Repository` interfaces live in `domain`, `*RepositoryImpl` in `data`;
+  - `core:model` files declare exactly one public top-level type.
+
+## 4. Testing
+
+- **`kotlin.test` + `commonTest`** — KMP module unit tests (`kotlin.test.Test`, `assertEquals`); coroutines via `runTest` (`kotlinx-coroutines-test`).
+- **Hand-written fakes** — `private class Fake…Repository` implementing the domain interface (see `domain/src/commonTest/.../GetChefLevelUseCaseTest.kt`).
+- **JUnit 5** — used only by the `:konsist` module (`org.junit.jupiter`, `junit-platform-launcher`).
+- Commands: `./gradlew :domain:allTests` (KMP), `./gradlew :domain:testDebugUnitTest` (Android variant), `./gradlew :konsist:test`.
+
+## 5. CI pipeline — `.github/workflows/ci.yml`
+
+- **Triggers** — every push to `main` and every PR targeting `main`; in-progress runs for the same ref are cancelled.
+- **Runner** — `ubuntu-latest`, 30-min timeout, permissions `contents: read` + `checks: write`.
+- **Steps, in order:**
+  1. `actions/checkout@v4`.
+  2. `actions/setup-java@v4` — Temurin JDK 21 (foojay fetches JDK 17 for `build-logic`).
+  3. `gradle/actions/setup-gradle@v4` with `validate-wrappers: true` — restores the Gradle cache **and** verifies `gradle-wrapper.jar` checksums (supply-chain check).
+  4. `./gradlew build detekt :konsist:test --stacktrace --no-daemon` — compile every module + Android lint + unit tests + detekt + architecture tests, in one invocation.
+  5. `mikepenz/action-junit-report@v5` — turns `**/build/test-results/**/TEST-*.xml` into PR check annotations.
+  6. `actions/upload-artifact@v4` — uploads `build-reports` (all `build/reports/**` + `build/test-results/**`), kept 7 days.
+- **Cold run ≈ 11 min** (no cache). Warm runs are much faster.
+
+## 6. PR-title check — `.github/workflows/pr-title.yml`
+
+- **`amannn/action-semantic-pull-request@v5`** — validates the PR **title** is a Conventional Commit; runs on PR open/edit/synchronize/reopen.
+- Allowed types: `feat fix chore docs refactor test build ci perf style revert`. Scope optional. Subject must start lowercase and not end with a period.
+- Why: PRs are **squash-merged**, so the PR title becomes the commit subject on `main`.
+- Note: only runs on PRs once this workflow file is on `main` (it wasn't present for PR #1, which introduced it).
+
+## 7. Branch protection — GitHub ruleset `main` (id `22110858`)
+
+- **Pull request required** — no direct pushes to `main` (0 approvals required, solo repo).
+- **Status check `build` required**, strict — the branch must be up to date and CI green to merge.
+- **Linear history** — no merge commits.
+- **Squash merge only** — merge & rebase buttons disabled.
+- **Force-push and branch deletion blocked.**
+- Verified: a direct `git push origin main` is rejected by the server.
+- Change it: `gh api -X PUT/DELETE repos/havasig/LevelChef/rulesets/22110858` or GitHub → Settings → Rules → Rulesets.
+- (Requires the repo to be **public** or on GitHub Pro — it is currently public.)
+
+## 8. Git conventions & automation
+
+- **Conventional Commits** — `type(scope): subject`. Examples: `feat(home): add weekly challenge card`, `fix(data): handle empty recipe list`, `chore: bump detekt`.
+- **`.githooks/commit-msg`** — POSIX-sh hook that rejects non-conforming commit subjects locally (no Node/tooling needed). Allows `Merge`/`Revert`/`fixup!` messages.
+- **`.gitmessage`** — commit-message template (the format reminder appears in your editor).
+- **One-time activation per clone:** `git config core.hooksPath .githooks && git config commit.template .gitmessage` (documented in `CONTRIBUTING.md`; already active in this clone).
+- **Branch naming** — `feat/…`, `fix/…`, `chore/…`, `docs/…`, `ci/…`, `refactor/…`; short-lived, one concern each.
+- **`.gitattributes`** — normalizes line endings (LF in repo, CRLF for `*.bat`/`*.cmd`, binary assets untouched).
+- **`.gitignore`** — build outputs, IDE files, `local.properties`, `.claude/settings.local.json`.
+
+## 9. GitHub templates
+
+- **`.github/pull_request_template.md`** — Summary · Modules touched · Screenshots (required for `feature:*` UI changes) · checklist (build+detekt+konsist pass, no feature→feature dep, domain/model purity, English-only text, nav wired, tests).
+- **`.github/ISSUE_TEMPLATE/feature_screen.yml`** — form for building a stub screen; dropdown pre-filled with the 5 remaining screens and their Figma node IDs.
+- **`.github/ISSUE_TEMPLATE/bug_report.yml`**, **`chore.yml`** — structured forms; titles pre-seeded with `fix:` / `chore:`.
+- **`.github/ISSUE_TEMPLATE/config.yml`** — disables blank issues; adds a link to the Figma file.
+- **`.github/CODEOWNERS`** — `* @havasig` (auto-requests review).
+
+## 10. AI agent setup
+
+- **`AGENTS.md`** — the single source of truth for any AI coding agent: module rules, the Compose screen pattern, conventions, build commands, Git workflow.
+- **`CLAUDE.md`** — imports `AGENTS.md` (`@AGENTS.md`); holds Claude-Code-specific notes only.
+- **`.github/copilot-instructions.md`** — one-line pointer to `AGENTS.md` so GitHub Copilot reads the same rules.
+- **`.claude/settings.json`** — committed Claude Code config; a permission allowlist for `./gradlew` and safe `git` subcommands so routine commands don't prompt.
+- **`.claude/settings.local.json`** — personal Claude Code overrides, gitignored.
+- **`.claude/skills/new-feature-screen/SKILL.md`** — a reusable workflow ("skill") for turning a Figma node into a full Compose feature screen following the `feature:home` pattern.
+- **Figma MCP** (user-level, not in the repo) — lets the agent pull designs, screenshots and design tokens from the LevelChef Figma file during screen work.
+- **Claude Code memory** (user-level) — persists facts about the project across sessions (e.g. "portfolio project, optimize for interview quality", "English-only codebase").
+
+## 11. Command cheat-sheet
+
+```bash
+./gradlew build                      # compile everything + Android lint + unit tests
+./gradlew detekt                     # static analysis + ktlint + Compose rules (root task)
+./gradlew detekt --auto-correct      # auto-fix formatting
+./gradlew :konsist:test              # architecture rule tests
+./gradlew :domain:allTests           # KMP module tests
+./gradlew lint                       # Android lint only
+./gradlew :androidApp:installDebug   # deploy to a connected device/emulator
+
+./gradlew build detekt :konsist:test # run before every push (same as CI)
+
+# one-time, per clone:
+git config core.hooksPath .githooks
+git config commit.template .gitmessage
+```
+
+## 12. Not set up yet (roadmap)
+
+- **Gradle build cache + configuration cache** — `org.gradle.caching=true`, `org.gradle.configuration-cache=true` in `gradle.properties`; would roughly halve CI time.
+- **Kover** — Kotlin/KMP-native code-coverage report + PR comment.
+- **Roborazzi / Paparazzi** — screenshot tests that pixel-diff Compose screens against golden images in CI (strong fit given the Figma-derived UI).
+- **`com.autonomousapps.dependency-analysis`** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
+- **Renovate** (or Dependabot) — automated dependency-update PRs, grouped for the version catalog.
+- **CodeQL** — GitHub-native security scanning for Kotlin/Java.
+- **release-drafter** — auto-generate changelog + release notes from Conventional Commits.
+- **Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
+- **`LICENSE`** — expected on a public portfolio repo (e.g. MIT).
+- **Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
+- **Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
+- **Turbine** — ergonomic `Flow` / `StateFlow` testing for ViewModels.
