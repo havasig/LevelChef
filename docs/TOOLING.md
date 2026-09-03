@@ -136,15 +136,17 @@ git config commit.template .gitmessage
 
 ## 12. Not set up yet (roadmap)
 
-- **Gradle build cache + configuration cache** — `org.gradle.caching=true`, `org.gradle.configuration-cache=true` in `gradle.properties`; would roughly halve CI time.
-- **Kover** — Kotlin/KMP-native code-coverage report + PR comment.
-- **Roborazzi / Paparazzi** — screenshot tests that pixel-diff Compose screens against golden images in CI (strong fit given the Figma-derived UI).
-- **`com.autonomousapps.dependency-analysis`** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
-- **Renovate** (or Dependabot) — automated dependency-update PRs, grouped for the version catalog.
-- **CodeQL** — GitHub-native security scanning for Kotlin/Java.
-- **release-drafter** — auto-generate changelog + release notes from Conventional Commits.
-- **Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
-- **`LICENSE`** — expected on a public portfolio repo (e.g. MIT).
-- **Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
-- **Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
-- **Turbine** — ergonomic `Flow` / `StateFlow` testing for ViewModels.
+Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
+
+- **[#2](https://github.com/havasig/LevelChef/issues/2) Gradle build cache + configuration cache** — `org.gradle.caching`/`configuration-cache` in `gradle.properties`; cuts local + CI build time.
+- **[#3](https://github.com/havasig/LevelChef/issues/3) Kover** — Kotlin/KMP-native code-coverage report + PR comment.
+- **[#4](https://github.com/havasig/LevelChef/issues/4) Roborazzi screenshot tests** — pixel-diff Compose screens against golden images in CI (strong fit given the Figma-derived UI).
+- **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
+- **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
+- **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
+- **[#8](https://github.com/havasig/LevelChef/issues/8) release-drafter** — auto-generate changelog + release notes from Conventional Commits.
+- **[#9](https://github.com/havasig/LevelChef/issues/9) Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
+- **[#10](https://github.com/havasig/LevelChef/issues/10) `LICENSE`** — expected on a public portfolio repo (e.g. MIT).
+- **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
+- **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
+- **[#13](https://github.com/havasig/LevelChef/issues/13) Turbine** — ergonomic `Flow` / `StateFlow` testing for ViewModels.
