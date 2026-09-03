@@ -1,5 +1,6 @@
 plugins {
     id("levelchef.kmp.library")
+    alias(libs.plugins.kover)
 }
 
 kotlin {
@@ -21,6 +22,15 @@ kotlin {
             implementation(libs.sqldelight.android.driver)
             implementation(libs.ktor.client.android)
             implementation(libs.koin.android)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
+        }
+        // JVM SQLite driver for exercising the real SQLDelight schema in unit tests.
+        getByName("androidUnitTest").dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
         }
     }
 }

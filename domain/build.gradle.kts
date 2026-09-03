@@ -1,5 +1,6 @@
 plugins {
     id("levelchef.kmp.library")
+    alias(libs.plugins.kover)
 }
 
 kotlin {

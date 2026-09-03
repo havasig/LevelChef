@@ -65,7 +65,8 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **Compose screen pattern** (see `feature:home`): stateless `XScreen(state, on…)` + stateful `XRoute(viewModel = koinViewModel())` that collects `uiState`. UI state is a single `XUiState` data class with sensible defaults. Section composables live in `XScreenSections.kt`.
 - **DI** — each feature that needs a ViewModel exposes a Koin `xModule` (`di/XModule.kt`) with `viewModel { … }`; register it in `LevelChefApplication.startKoin { modules(…) }`.
 - **Theme** — dark only. No gradients, no shadows/elevation. 0.5px borders (`BorderDefault`), 12px card radius (`LevelChefShapes.small/medium`). Use the named colors in `core.ui.theme.Color`, not raw `Color(0x…)`.
-- **Tests** — `commonTest` with `kotlin("test")` (`kotlin.test.Test`, `assertEquals`). Coroutines via `runTest`. Fakes are hand-written `private class Fake…Repository` implementing the domain interface (see `GetChefLevelUseCaseTest`). Test names use `snake_case_backtick_free` style: `returns_kitchen_novice_below_first_threshold`.
+- **Tests** — `commonTest` with `kotlin("test")` (`kotlin.test.Test`, `assertEquals`). Coroutines via `runTest`; `Flow`/`StateFlow` assertions via **Turbine** (`flow.test { awaitItem() }`). Fakes are hand-written `private class Fake…Repository` implementing the domain interface (see `GetChefLevelUseCaseTest`). Test names use `snake_case_backtick_free` style: `returns_kitchen_novice_below_first_threshold`.
+- **Coverage** — **Kover**, 90% line-coverage gate (`./gradlew koverVerify`) over the *logic* layer only: `com.levelchef.domain.usecase.*`, `com.levelchef.data.repository.*`, feature `*ViewModel` + `*DomainMappersKt`. Compose UI is excluded (left to future screenshot tests). Config is at the repo-root `build.gradle.kts`; Kover is applied per-module (`alias(libs.plugins.kover)`) — when a feature module gains a ViewModel, add that line to its build file **and** `kover(project(":feature:<name>"))` to the root `dependencies {}`.
 
 ## Build & test commands
 
@@ -78,10 +79,12 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 ./gradlew detekt                        # static analysis + ktlint + Compose lint rules (root aggregate task)
 ./gradlew detekt --auto-correct         # auto-fix formatting
 ./gradlew :konsist:test                 # architecture tests enforcing the module rules above
+./gradlew koverVerify                    # fail if logic-layer line coverage < 90%
+./gradlew koverHtmlReport               # build/reports/kover/html/index.html
 ./gradlew :androidApp:installDebug      # deploy to a connected device/emulator
 ```
 
-Run `./gradlew build detekt :konsist:test` before every push (CI runs the same). detekt config
+Run `./gradlew build detekt :konsist:test koverVerify` before every push (CI runs the same). detekt config
 lives in `config/detekt/detekt.yml`; it is applied only to the root project (detekt 2.0-alpha's
 Gradle plugin is not compatible with Kotlin Gradle Plugin 2.0.x when combined with the Android
 plugin), so there are no per-module detekt tasks — just the root `detekt`.

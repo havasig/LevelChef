@@ -29,7 +29,8 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - **detekt-rules-ktlint-wrapper** — ktlint formatting rules run inside detekt; `./gradlew detekt --auto-correct` fixes formatting in place.
 - **compose-rules** (`io.nlopez.compose.rules:detekt` `0.6.6`) — Compose-specific lint: `Modifier` defaults & naming, param ordering, state hoisting, preview naming, unstable collections, etc.
 - **Android Lint** — bundled with AGP; runs per Android module as part of `./gradlew build` (or `./gradlew lint`). HTML reports under `<module>/build/reports/`.
-- Current status: **0 detekt findings**, lint clean.
+- **Kover** (`org.jetbrains.kotlinx.kover` `0.9.9`) — code coverage, aggregated at the repo root. `./gradlew koverVerify` **fails if line coverage of the logic layer drops below 90%**; `./gradlew koverHtmlReport` → `build/reports/kover/html/index.html`. Scope = `com.levelchef.domain.usecase.*`, `com.levelchef.data.repository.*`, feature `*ViewModel` + `*DomainMappersKt`; all `@Composable` code is excluded (Kover 0.9 can't filter individual verify rules, so the reports carry the same scope). The plugin is applied per-module — add `alias(libs.plugins.kover)` + a root `kover(project(...))` entry when a feature gets a ViewModel. Currently **100%**.
+- Current status: **0 detekt findings**, lint clean, coverage 100% of the logic layer.
 
 ## 3. Architecture enforcement — Konsist
 
@@ -52,21 +53,26 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 ## 4. Testing
 
 - **`kotlin.test` + `commonTest`** — KMP module unit tests (`kotlin.test.Test`, `assertEquals`); coroutines via `runTest` (`kotlinx-coroutines-test`).
+- **Turbine** (`app.cash.turbine` `1.2.1`) — `Flow` / `StateFlow` assertions: `flow.test { awaitItem(); … }`. Used in `CookingSessionRepositoryImplTest` (SQLDelight `observeAll()`) and `HomeViewModelTest` (`uiState`).
 - **Hand-written fakes** — `private class Fake…Repository` implementing the domain interface (see `domain/src/commonTest/.../GetChefLevelUseCaseTest.kt`).
+- **In-memory SQLDelight** — `CookingSessionRepositoryImplTest` runs the real schema via `JdbcSqliteDriver(IN_MEMORY)` (`app.cash.sqldelight:sqlite-driver`, in `data`'s `androidUnitTest`).
 - **JUnit 5** — used only by the `:konsist` module (`org.junit.jupiter`, `junit-platform-launcher`).
-- Commands: `./gradlew :domain:allTests` (KMP), `./gradlew :domain:testDebugUnitTest` (Android variant), `./gradlew :konsist:test`.
+- **Coverage gate** — see Kover under §2; `./gradlew koverVerify` (90% logic-layer line coverage).
+- Commands: `./gradlew :domain:allTests` (KMP), `./gradlew :domain:testDebugUnitTest` (Android variant), `./gradlew :konsist:test`, `./gradlew koverVerify`.
 
 ## 5. CI pipeline — `.github/workflows/ci.yml`
 
 - **Triggers** — every push to `main` and every PR targeting `main`; in-progress runs for the same ref are cancelled.
-- **Runner** — `ubuntu-latest`, 30-min timeout, permissions `contents: read` + `checks: write`.
+- **Runner** — `ubuntu-latest`, 30-min timeout, permissions `contents: read` + `checks: write` + `pull-requests: write`.
 - **Steps, in order:**
   1. `actions/checkout@v4`.
   2. `actions/setup-java@v4` — Temurin JDK 21 (foojay fetches JDK 17 for `build-logic`).
   3. `gradle/actions/setup-gradle@v4` with `validate-wrappers: true` — restores the Gradle cache **and** verifies `gradle-wrapper.jar` checksums (supply-chain check).
-  4. `./gradlew build detekt :konsist:test --stacktrace --no-daemon` — compile every module + Android lint + unit tests + detekt + architecture tests, in one invocation.
+  4. `./gradlew build detekt :konsist:test koverXmlReport koverHtmlReport --stacktrace --no-daemon` — compile every module + Android lint + unit tests + detekt + architecture tests + coverage reports.
   5. `mikepenz/action-junit-report@v5` — turns `**/build/test-results/**/TEST-*.xml` into PR check annotations.
-  6. `actions/upload-artifact@v4` — uploads `build-reports` (all `build/reports/**` + `build/test-results/**`), kept 7 days.
+  6. `madrapps/jacoco-report@v1.7.1` (PRs only) — posts/updates a **Logic-layer coverage** comment from `build/reports/kover/report.xml`.
+  7. `./gradlew koverVerify` — **the coverage gate**; fails the `build` check (and blocks the PR) if logic-layer line coverage < 90%.
+  8. `actions/upload-artifact@v4` — uploads `build-reports` (all `build/reports/**` + `build/test-results/**`), kept 7 days.
 - **Cold run ≈ 11 min** (no cache). Warm runs are much faster.
 
 ## 6. PR-title check — `.github/workflows/pr-title.yml`
@@ -139,7 +145,6 @@ git config commit.template .gitmessage
 Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
 
 - **[#2](https://github.com/havasig/LevelChef/issues/2) Gradle build cache + configuration cache** — `org.gradle.caching`/`configuration-cache` in `gradle.properties`; cuts local + CI build time.
-- **[#3](https://github.com/havasig/LevelChef/issues/3) Kover** — Kotlin/KMP-native code-coverage report + PR comment.
 - **[#4](https://github.com/havasig/LevelChef/issues/4) Roborazzi screenshot tests** — pixel-diff Compose screens against golden images in CI (strong fit given the Figma-derived UI).
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
 - **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
@@ -149,4 +154,5 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 - **[#10](https://github.com/havasig/LevelChef/issues/10) `LICENSE`** — expected on a public portfolio repo (e.g. MIT).
 - **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
-- **[#13](https://github.com/havasig/LevelChef/issues/13) Turbine** — ergonomic `Flow` / `StateFlow` testing for ViewModels.
+
+**Done:** ~~#3 Kover~~ (90% logic gate, §2) · ~~#13 Turbine~~ (§4).

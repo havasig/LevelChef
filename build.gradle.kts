@@ -1,4 +1,5 @@
 import dev.detekt.gradle.Detekt
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 
 plugins {
     alias(libs.plugins.android.application) apply false
@@ -9,11 +10,46 @@ plugins {
     alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.detekt)
+    alias(libs.plugins.kover)
 }
 
 dependencies {
     detektPlugins(libs.detekt.ktlint.wrapper)
     detektPlugins(libs.detekt.rules.compose)
+
+    // Modules whose coverage is merged into the root report. Add a feature module here once
+    // it gains a ViewModel worth covering.
+    kover(project(":domain"))
+    kover(project(":data"))
+    kover(project(":feature:home"))
+}
+
+// Coverage — aggregated at the root; the plugin is applied per-module (see those build files).
+// Kover 0.9's verify rules can't be filtered individually, so the report scope *is* the gate
+// scope: reports and koverVerify both cover the "logic" layer only (use cases, repository
+// implementations, feature ViewModels & domain mappers). Compose UI is deliberately out —
+// it's left to future screenshot tests. See docs/TOOLING.md.
+kover {
+    reports {
+        filters {
+            includes {
+                classes(
+                    "com.levelchef.domain.usecase.*",
+                    "com.levelchef.data.repository.*",
+                    "com.levelchef.feature.*.*ViewModel",
+                    "com.levelchef.feature.*.*DomainMappersKt",
+                )
+            }
+            excludes {
+                annotatedBy("androidx.compose.runtime.Composable")
+            }
+        }
+        verify {
+            rule("Logic layer line coverage") {
+                minBound(90, CoverageUnit.LINE)
+            }
+        }
+    }
 }
 
 detekt {
