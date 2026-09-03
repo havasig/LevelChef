@@ -66,7 +66,8 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **DI** — each feature that needs a ViewModel exposes a Koin `xModule` (`di/XModule.kt`) with `viewModel { … }`; register it in `LevelChefApplication.startKoin { modules(…) }`.
 - **Theme** — dark only. No gradients, no shadows/elevation. 0.5px borders (`BorderDefault`), 12px card radius (`LevelChefShapes.small/medium`). Use the named colors in `core.ui.theme.Color`, not raw `Color(0x…)`.
 - **Tests** — `commonTest` with `kotlin("test")` (`kotlin.test.Test`, `assertEquals`). Coroutines via `runTest`; `Flow`/`StateFlow` assertions via **Turbine** (`flow.test { awaitItem() }`). Fakes are hand-written `private class Fake…Repository` implementing the domain interface (see `GetChefLevelUseCaseTest`). Test names use `snake_case_backtick_free` style: `returns_kitchen_novice_below_first_threshold`.
-- **Coverage** — **Kover**, 90% line-coverage gate (`./gradlew koverVerify`) over the *logic* layer only: `com.levelchef.domain.usecase.*`, `com.levelchef.data.repository.*`, feature `*ViewModel` + `*DomainMappersKt`. Compose UI is excluded (left to future screenshot tests). Config is at the repo-root `build.gradle.kts`; Kover is applied per-module (`alias(libs.plugins.kover)`) — when a feature module gains a ViewModel, add that line to its build file **and** `kover(project(":feature:<name>"))` to the root `dependencies {}`.
+- **Coverage** — **Kover**, 90% line-coverage gate (`./gradlew koverVerify`) over the *logic* layer only: `com.levelchef.domain.usecase.*`, `com.levelchef.data.repository.*`, feature `*ViewModel` + `*DomainMappersKt`. Compose UI is excluded (it is covered by screenshot tests instead). Config is at the repo-root `build.gradle.kts`; Kover is applied per-module (`alias(libs.plugins.kover)`) — when a feature module gains a ViewModel, add that line to its build file **and** `kover(project(":feature:<name>"))` to the root `dependencies {}`.
+- **Screenshot tests** — **Roborazzi** + **Robolectric** (JVM, no emulator). One `<Name>ScreenScreenshotTest.kt` per feature module rendering `LevelChefTheme { <Name>Screen(...) }` and calling `captureRoboImage()` (see `feature:home`). Baselines are committed under `feature/<name>/src/test/screenshots/`; regenerate with `./gradlew :feature:<name>:recordRoborazziDebug` and **review the PNG diff in the PR** — that is how a visual change is approved. The `Screenshots` GitHub workflow posts before/after/diff images as a PR comment but never blocks. Roborazzi is applied per-module (`alias(libs.plugins.roborazzi)` + the roborazzi/robolectric test deps + `testOptions { unitTests { isIncludeAndroidResources = true } }`).
 
 ## Build & test commands
 
@@ -81,6 +82,8 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 ./gradlew :konsist:test                 # architecture tests enforcing the module rules above
 ./gradlew koverVerify                    # fail if logic-layer line coverage < 90%
 ./gradlew koverHtmlReport               # build/reports/kover/html/index.html
+./gradlew :feature:home:recordRoborazziDebug   # (re)generate screenshot baselines
+./gradlew :feature:home:verifyRoborazziDebug   # fail if a screen no longer matches its baseline
 ./gradlew :androidApp:installDebug      # deploy to a connected device/emulator
 ```
 

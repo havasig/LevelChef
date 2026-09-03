@@ -1,0 +1,146 @@
+name: Screenshots
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'feature/**'
+      - 'core/ui/**'
+      - 'core/designsystem/**'
+      - 'gradle/libs.versions.toml'
+      - '.github/workflows/screenshots.yml'
+
+concurrency:
+  group: screenshots-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write        # only ever pushes to the `ci/screenshots` orphan branch
+  pull-requests: write
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Fork PRs get a read-only token; the publish/comment steps can't run. Solo repo → skip them.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          validate-wrappers: true
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      # Records the current render and diffs it against the committed baseline.
+      # Never fails on a difference — that is what the comment is for.
+      - name: Compare screenshots
+        run: ./gradlew :feature:home:compareRoborazziDebug --stacktrace
+
+      - name: Collect comparison images
+        id: collect
+        run: |
+          shopt -s nullglob
+          files=(feature/home/build/outputs/roborazzi/*_compare.png)
+          mkdir -p /tmp/shots
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            cp "${files[@]}" /tmp/shots/
+          fi
+
+      - name: Find existing comment
+        id: find
+        uses: peter-evans/find-comment@v3
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: '<!-- screenshots -->'
+
+      - name: Publish images to ci/screenshots
+        id: publish
+        if: steps.collect.outputs.changed == 'true'
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin ci/screenshots || true
+          if git show-ref --verify --quiet refs/remotes/origin/ci/screenshots; then
+            git worktree add /tmp/pages ci/screenshots
+          else
+            git worktree add --detach /tmp/pages "$GITHUB_SHA"
+            git -C /tmp/pages checkout --orphan ci/screenshots
+            git -C /tmp/pages rm -rf . > /dev/null 2>&1 || true
+          fi
+          rm -rf "/tmp/pages/pr-${PR}"
+          mkdir -p "/tmp/pages/pr-${PR}"
+          cp /tmp/shots/*.png "/tmp/pages/pr-${PR}/"
+          git -C /tmp/pages add -A
+          git -C /tmp/pages commit -m "screenshots: PR #${PR} (${GITHUB_SHA})"
+          git -C /tmp/pages push origin HEAD:ci/screenshots
+          echo "sha=$(git -C /tmp/pages rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build comment body
+        id: body
+        if: steps.collect.outputs.changed == 'true'
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ steps.publish.outputs.sha }}
+        run: |
+          {
+            echo 'body<<COMMENT_EOF'
+            echo '<!-- screenshots -->'
+            echo '### 📸 Screenshot changes'
+            echo
+            echo 'Each strip is **baseline | this PR | diff**.'
+            echo
+            for f in /tmp/shots/*.png; do
+              name=$(basename "$f" _compare.png)
+              url="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${SHA}/pr-${PR}/$(basename "$f")"
+              printf '**%s**\n\n![%s](%s)\n\n' "$name" "$name" "$url"
+            done
+            echo '---'
+            echo 'Intentional? Run `./gradlew :feature:home:recordRoborazziDebug` and commit the updated `src/test/screenshots/` PNGs.'
+            echo 'COMMENT_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Comment — changes
+        if: steps.collect.outputs.changed == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find.outputs.comment-id }}
+          body: ${{ steps.body.outputs.body }}
+          edit-mode: replace
+
+      - name: Comment — no changes
+        if: steps.collect.outputs.changed == 'false' && steps.find.outputs.comment-id != ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find.outputs.comment-id }}
+          body: |
+            <!-- screenshots -->
+            ### 📸 Screenshot changes
+
+            ✅ No visual changes on the latest commit.
+          edit-mode: replace
+
+      - name: Upload Roborazzi output
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: roborazzi
+          path: |
+            **/build/outputs/roborazzi/**
+            **/build/reports/roborazzi/**
+          retention-days: 7
+          if-no-files-found: ignore

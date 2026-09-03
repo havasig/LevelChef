@@ -56,6 +56,7 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - **Turbine** (`app.cash.turbine` `1.2.1`) — `Flow` / `StateFlow` assertions: `flow.test { awaitItem(); … }`. Used in `CookingSessionRepositoryImplTest` (SQLDelight `observeAll()`) and `HomeViewModelTest` (`uiState`).
 - **Hand-written fakes** — `private class Fake…Repository` implementing the domain interface (see `domain/src/commonTest/.../GetChefLevelUseCaseTest.kt`).
 - **In-memory SQLDelight** — `CookingSessionRepositoryImplTest` runs the real schema via `JdbcSqliteDriver(IN_MEMORY)` (`app.cash.sqldelight:sqlite-driver`, in `data`'s `androidUnitTest`).
+- **Roborazzi + Robolectric** (`1.73.0` / `4.16.1`) — screenshot tests, JVM, no emulator. `<Name>ScreenScreenshotTest` renders `LevelChefTheme { <Name>Screen(...) }` and calls `captureRoboImage()`. Baselines committed under `feature/<name>/src/test/screenshots/`. `./gradlew :feature:home:recordRoborazziDebug` regenerates them; `verifyRoborazziDebug` checks them; `compareRoborazziDebug` produces the `*_compare.png` strips. Applied per-module (`feature/home/build.gradle.kts`). Pilot: `feature:home`; each screen adds its own test as it is built.
 - **JUnit 5** — used only by the `:konsist` module (`org.junit.jupiter`, `junit-platform-launcher`).
 - **Coverage gate** — see Kover under §2; `./gradlew koverVerify` (90% logic-layer line coverage).
 - Commands: `./gradlew :domain:allTests` (KMP), `./gradlew :domain:testDebugUnitTest` (Android variant), `./gradlew :konsist:test`, `./gradlew koverVerify`.
@@ -74,6 +75,14 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
   7. `./gradlew koverVerify` — **the coverage gate**; fails the `build` check (and blocks the PR) if logic-layer line coverage < 90%.
   8. `actions/upload-artifact@v4` — uploads `build-reports` (all `build/reports/**` + `build/test-results/**`), kept 7 days.
 - **Cold run ≈ 6–11 min**; warm runs reuse the Gradle build + configuration cache and are much faster.
+
+## 6a. Screenshot comparison — `.github/workflows/screenshots.yml`
+
+- Runs on PRs that touch `feature/**`, `core/ui/**`, `core/designsystem/**` or the version catalog.
+- `./gradlew :feature:home:compareRoborazziDebug` renders each screen and diffs it against the committed baseline — **never fails**.
+- If any screen changed: the `*_compare.png` strips (baseline | this PR | diff) are pushed to the `ci/screenshots` orphan branch and posted as an **inline PR comment** (updated in place on each push).
+- To accept a change: run `./gradlew :feature:home:recordRoborazziDebug` locally and commit the new PNGs — the baseline update then rides through normal PR review.
+- Needs `contents: write` (only ever writes to `ci/screenshots`) + `pull-requests: write`. Skipped for fork PRs (read-only token).
 
 ## 6. PR-title check — `.github/workflows/pr-title.yml`
 
@@ -144,7 +153,6 @@ git config commit.template .gitmessage
 
 Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
 
-- **[#4](https://github.com/havasig/LevelChef/issues/4) Roborazzi screenshot tests** — pixel-diff Compose screens against golden images in CI (strong fit given the Figma-derived UI).
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
 - **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
 - **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
@@ -154,4 +162,4 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 - **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#13 Turbine~~ (§4).
