@@ -1,0 +1,57 @@
+# LevelChef detekt configuration (detekt 2.0).
+# Only deviations from detekt's bundled default config and the Compose / ktlint rule sets
+# pulled in via `detektPlugins` are listed here.
+# Reference: https://detekt.dev/docs/introduction/configurations
+
+config:
+  validation: true
+
+complexity:
+  LongMethod:
+    # @Composable screen/section functions are declarative and naturally long.
+    allowedLines: 90
+  LongParameterList:
+    allowedFunctionParameters: 8
+    allowedConstructorParameters: 9
+    ignoreDefaultParameters: true
+  TooManyFunctions:
+    allowedFunctionsPerFile: 20
+    ignoreAnnotatedFunctions: ['Composable', 'Preview']
+
+style:
+  MaxLineLength:
+    maxLineLength: 120
+  MagicNumber:
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+    ignoreAnnotated: ['Composable', 'Preview']
+  ReturnCount:
+    max: 3
+  ForbiddenComment:
+    comments:
+      - reason: 'Track outstanding work in issues, not the source tree.'
+        value: 'FIXME:'
+      - reason: 'Do not ship stopship markers.'
+        value: 'STOPSHIP:'
+
+naming:
+  FunctionNaming:
+    # Composables are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    # Compose design tokens (e.g. BorderDefault) are PascalCase, not SCREAMING_SNAKE.
+    constantPattern: '[A-Z][A-Za-z0-9]*'
+
+ktlint:
+  MaximumLineLength:
+    maxLineLength: 120
+  Filename:
+    # One-public-type-per-file is guarded by Konsist for core:model; elsewhere it is noise.
+    active: false
+
+Compose:
+  PreviewNaming:
+    active: true
+  UnstableCollections:
+    active: false

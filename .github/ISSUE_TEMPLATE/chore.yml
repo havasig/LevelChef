@@ -1,0 +1,18 @@
+name: Chore / tech task
+description: Tooling, refactor, dependency bump, infrastructure.
+title: "chore: "
+labels: [ chore ]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: What needs doing and why.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / acceptance criteria
+    validations:
+      required: false

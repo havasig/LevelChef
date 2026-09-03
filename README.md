@@ -1,6 +1,12 @@
 # LevelChef
 
+[![CI](https://github.com/havasig/LevelChef/actions/workflows/ci.yml/badge.svg)](https://github.com/havasig/LevelChef/actions/workflows/ci.yml)
+
 A gamified cooking tracker — KMP (Android now, iOS later), Jetpack Compose UI, SQLDelight local DB.
+
+Contributing / branch & commit workflow: see [`CONTRIBUTING.md`](CONTRIBUTING.md). Architecture
+and code conventions: see [`AGENTS.md`](AGENTS.md). Tooling, CI and automation reference:
+see [`docs/TOOLING.md`](docs/TOOLING.md).
 
 ## Status
 
