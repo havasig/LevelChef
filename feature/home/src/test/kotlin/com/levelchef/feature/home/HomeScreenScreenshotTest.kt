@@ -2,6 +2,8 @@ package com.levelchef.feature.home
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import com.dropbox.differ.SimpleImageComparator
+import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.levelchef.core.ui.theme.LevelChefTheme
 import org.junit.Rule
@@ -10,6 +12,17 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+
+/**
+ * Tolerance for sub-pixel antialiasing / font-hinting differences between the machine that
+ * recorded the baseline and the CI runner. A real layout or colour change is far above this.
+ */
+private val screenshotOptions = RoborazziOptions(
+    compareOptions = RoborazziOptions.CompareOptions(
+        changeThreshold = 0.02f,
+        imageComparator = SimpleImageComparator(maxDistance = 0.01f, hShift = 2, vShift = 2),
+    ),
+)
 
 /**
  * Screenshot baselines for the Home screen. Regenerate with
@@ -28,7 +41,7 @@ class HomeScreenScreenshotTest {
         compose.setContent {
             LevelChefTheme { HomeScreen() }
         }
-        compose.onRoot().captureRoboImage()
+        compose.onRoot().captureRoboImage(roborazziOptions = screenshotOptions)
     }
 
     @Test
@@ -47,6 +60,6 @@ class HomeScreenScreenshotTest {
                 )
             }
         }
-        compose.onRoot().captureRoboImage()
+        compose.onRoot().captureRoboImage(roborazziOptions = screenshotOptions)
     }
 }
