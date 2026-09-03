@@ -32,9 +32,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           validate-wrappers: true
+          # Persist the Gradle configuration cache across runs (it is stored encrypted).
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Build, lint, detekt, architecture tests & coverage reports
-        run: ./gradlew build detekt :konsist:test koverXmlReport koverHtmlReport --stacktrace --no-daemon
+        run: ./gradlew build detekt :konsist:test koverXmlReport koverHtmlReport --stacktrace
 
       - name: Publish test report
         uses: mikepenz/action-junit-report@v5
@@ -53,7 +55,7 @@ jobs:
           update-comment: true
 
       - name: Verify 90% logic-layer coverage
-        run: ./gradlew koverVerify --stacktrace --no-daemon
+        run: ./gradlew koverVerify --stacktrace
 
       - name: Upload reports
         uses: actions/upload-artifact@v4

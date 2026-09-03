@@ -20,7 +20,7 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
   - `levelchef.kmp.library` — Kotlin Multiplatform modules (`core:model`, `core:database`, `domain`, `data`).
 - **foojay toolchain resolver** — `settings.gradle.kts` + `build-logic/settings.gradle.kts`; lets Gradle auto-download the JDK a build needs (JDK 17 for `build-logic`) so any JDK 17+ can run the build.
 - **`.editorconfig`** — repo-root; drives IntelliJ + ktlint formatting (4-space indent, 120 col, LF, final newline, trailing commas allowed; CRLF for `*.bat`).
-- **`gradle.properties`** — `-Xmx2048M`, `kotlin.code.style=official`, `android.useAndroidX`, `android.nonTransitiveRClass`, KMP android source-set layout v2.
+- **`gradle.properties`** — `kotlin.code.style=official`, `android.useAndroidX`, `android.nonTransitiveRClass`, KMP android source-set layout v2; **`-Xmx4g`** heap; **`org.gradle.parallel`**, **`org.gradle.caching`** (build cache — task outputs reused across builds) and **`org.gradle.configuration-cache`** (config phase skipped when nothing structural changed) all on. CI persists both caches across runs via `gradle/actions/setup-gradle` (the config cache is encrypted with the `GRADLE_ENCRYPTION_KEY` repo secret).
 
 ## 2. Static analysis & formatting
 
@@ -67,13 +67,13 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - **Steps, in order:**
   1. `actions/checkout@v4`.
   2. `actions/setup-java@v4` — Temurin JDK 21 (foojay fetches JDK 17 for `build-logic`).
-  3. `gradle/actions/setup-gradle@v4` with `validate-wrappers: true` — restores the Gradle cache **and** verifies `gradle-wrapper.jar` checksums (supply-chain check).
-  4. `./gradlew build detekt :konsist:test koverXmlReport koverHtmlReport --stacktrace --no-daemon` — compile every module + Android lint + unit tests + detekt + architecture tests + coverage reports.
+  3. `gradle/actions/setup-gradle@v4` with `validate-wrappers: true` + `cache-encryption-key` — restores the Gradle build **and configuration** cache, and verifies `gradle-wrapper.jar` checksums (supply-chain check).
+  4. `./gradlew build detekt :konsist:test koverXmlReport koverHtmlReport --stacktrace` — compile every module + Android lint + unit tests + detekt + architecture tests + coverage reports.
   5. `mikepenz/action-junit-report@v5` — turns `**/build/test-results/**/TEST-*.xml` into PR check annotations.
   6. `madrapps/jacoco-report@v1.7.1` (PRs only) — posts/updates a **Logic-layer coverage** comment from `build/reports/kover/report.xml`.
   7. `./gradlew koverVerify` — **the coverage gate**; fails the `build` check (and blocks the PR) if logic-layer line coverage < 90%.
   8. `actions/upload-artifact@v4` — uploads `build-reports` (all `build/reports/**` + `build/test-results/**`), kept 7 days.
-- **Cold run ≈ 11 min** (no cache). Warm runs are much faster.
+- **Cold run ≈ 6–11 min**; warm runs reuse the Gradle build + configuration cache and are much faster.
 
 ## 6. PR-title check — `.github/workflows/pr-title.yml`
 
@@ -144,7 +144,6 @@ git config commit.template .gitmessage
 
 Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
 
-- **[#2](https://github.com/havasig/LevelChef/issues/2) Gradle build cache + configuration cache** — `org.gradle.caching`/`configuration-cache` in `gradle.properties`; cuts local + CI build time.
 - **[#4](https://github.com/havasig/LevelChef/issues/4) Roborazzi screenshot tests** — pixel-diff Compose screens against golden images in CI (strong fit given the Figma-derived UI).
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
 - **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
@@ -155,4 +154,4 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 - **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#3 Kover~~ (90% logic gate, §2) · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#13 Turbine~~ (§4).
