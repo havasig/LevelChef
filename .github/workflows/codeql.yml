@@ -43,8 +43,11 @@ jobs:
 
       # CodeQL's autobuild doesn't reliably handle AGP + KMP + convention-plugin setups; a plain
       # assemble of the app + the pure-Kotlin modules gives it enough compiled classes to analyze.
+      # `clean` + build cache off: CodeQL's tracer only sees code that's actually compiled during
+      # this invocation, and this repo's Gradle build cache (docs/TOOLING.md §1) would otherwise
+      # make compileKotlin a no-op FROM-CACHE hit with nothing to trace.
       - name: Build
-        run: ./gradlew :androidApp:assembleDebug :domain:assemble :data:assemble --stacktrace
+        run: ./gradlew clean :androidApp:assembleDebug :domain:assemble :data:assemble --no-build-cache --stacktrace
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v3
