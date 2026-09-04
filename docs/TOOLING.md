@@ -90,6 +90,12 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - `build-mode: manual` — CodeQL's autobuild doesn't reliably handle AGP + KMP + convention-plugin setups, so the workflow assembles `androidApp`, `domain` and `data` directly instead.
 - Findings surface under the repo's Security → Code scanning tab; `security-events: write` permission.
 
+## 6c. Release notes — `.github/workflows/release-drafter.yml`
+
+- On every push to `main`: drafts/updates a GitHub Release, categorizing merged (squash-merge) PR titles by Conventional Commit type — `feat` → Features, `fix` → Fixes, `perf`/`refactor` together, `test`, `docs`, `chore`/`ci`/`build`/`style` together (`.github/release-drafter.yml`).
+- Version bump: minor on any `feat`, patch otherwise (`major` needs an explicit `breaking` label).
+- Nothing is published automatically — the draft sits under Releases until someone hits publish.
+
 ## 6. PR-title check — `.github/workflows/pr-title.yml`
 
 - **`amannn/action-semantic-pull-request@v5`** — validates the PR **title** is a Conventional Commit; runs on PR open/edit/synchronize/reopen.
@@ -161,9 +167,8 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
 - **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
-- **[#8](https://github.com/havasig/LevelChef/issues/8) release-drafter** — auto-generate changelog + release notes from Conventional Commits.
 - **[#9](https://github.com/havasig/LevelChef/issues/9) Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
 - **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#7 CodeQL~~ (§6b) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#7 CodeQL~~ (§6b) · ~~#8 release-drafter~~ (§6c) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
