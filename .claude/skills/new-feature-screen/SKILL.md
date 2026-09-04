@@ -83,7 +83,26 @@ Keep all Compose imports explicit. Dark theme only — no shadows/elevation, 0.5
 ```
 
 Add `commonTest`-style tests for any non-trivial ViewModel/mapper logic, using hand-written fake
-repositories (see `domain/src/commonTest/.../GetChefLevelUseCaseTest.kt`).
+repositories (see `domain/src/commonTest/.../GetChefLevelUseCaseTest.kt`). A feature module with a
+ViewModel also needs `alias(libs.plugins.kover)` in its build file and `kover(project(":feature:<name>"))`
+in the root `build.gradle.kts` (the 90% logic-coverage gate covers `*ViewModel` + `*DomainMappersKt`).
+
+## 7b. Screenshot baseline
+
+Add a screenshot test so visual changes to this screen show up as PR comments (see
+`feature/home/src/test/.../HomeScreenScreenshotTest.kt` and `feature/home/build.gradle.kts`):
+
+- module build file: `alias(libs.plugins.roborazzi)`, `testOptions { unitTests { isIncludeAndroidResources = true } }`,
+  `roborazzi { outputDir.set(layout.projectDirectory.dir("src/test/screenshots")) }`, and the
+  `roborazzi*` / `robolectric` / `androidx.compose.ui.test.*` `testImplementation` deps.
+- `<Name>ScreenScreenshotTest.kt`: `@RunWith(RobolectricTestRunner)` + `@GraphicsMode(NATIVE)` +
+  `@Config(sdk = [34], qualifiers = "w411dp-h891dp-420dpi")`, render `LevelChefTheme { <Name>Screen(...) }`,
+  `compose.onRoot().captureRoboImage()` — one per meaningful state.
+- `./gradlew :feature:<name>:recordRoborazziDebug`, then commit `feature/<name>/src/test/screenshots/*.png`.
+- Add the path filter for the new module is already covered by `feature/**` in `.github/workflows/screenshots.yml`.
+
+Once ≥2 feature modules have this, promote the shared wiring to a `levelchef.roborazzi` convention
+plugin (watch for the precompiled-accessor issue that forced detekt to be root-only).
 
 ## 8. Report
 
