@@ -84,6 +84,12 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - To accept a change: run `./gradlew :feature:home:recordRoborazziDebug` locally and commit the new PNGs — the baseline update then rides through normal PR review.
 - Needs `contents: write` (only ever writes to `ci/screenshots`) + `pull-requests: write`. Skipped for fork PRs (read-only token).
 
+## 6d. Dependency updates — `renovate.json`
+
+- Config only — **activation needs installing the [Renovate GitHub App](https://github.com/apps/renovate)** on this repo (a repo token can't do that). Once installed, Renovate reads this file automatically.
+- `config:recommended` base ruleset, weekly (Monday) schedule, PRs only — no automerge.
+- Groups `org.jetbrains.kotlin*`/`kotlinx*` together, `androidx.compose*` together, and calls out `dev.detekt` bumps separately (the 2.0 alpha line is pinned deliberately here — see §2).
+
 ## 6. PR-title check — `.github/workflows/pr-title.yml`
 
 - **`amannn/action-semantic-pull-request@v5`** — validates the PR **title** is a Conventional Commit; runs on PR open/edit/synchronize/reopen.
@@ -154,11 +160,10 @@ git config commit.template .gitmessage
 Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
 
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
-- **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
 - **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
 - **[#8](https://github.com/havasig/LevelChef/issues/8) release-drafter** — auto-generate changelog + release notes from Conventional Commits.
 - **[#9](https://github.com/havasig/LevelChef/issues/9) Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
 - **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#6 Renovate~~ (§6d, needs the GitHub App installed) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
