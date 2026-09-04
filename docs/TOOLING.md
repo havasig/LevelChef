@@ -90,6 +90,11 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - Version bump: minor on any `feat`, patch otherwise (`major` needs an explicit `breaking` label).
 - Nothing is published automatically — the draft sits under Releases until someone hits publish.
 
+## 6e. Automated PR review — `Dangerfile.js`
+
+- `danger/danger-js` via `npx danger ci` on every PR (the only workflow with a Node toolchain — everything else stays Kotlin-only). Every check is `warn`, never a failure.
+- Warns on: a PR touching more than 40 files; `feature/*/src/main/**` changed with no matching `feature/*/src/test/screenshots/**` update; a new `*ViewModel.kt` with no matching `*ViewModelTest.kt`.
+
 ## 6. PR-title check — `.github/workflows/pr-title.yml`
 
 - **`amannn/action-semantic-pull-request@v5`** — validates the PR **title** is a Conventional Commit; runs on PR open/edit/synchronize/reopen.
@@ -162,7 +167,6 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
 - **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
 - **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
-- **[#9](https://github.com/havasig/LevelChef/issues/9) Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#8 release-drafter~~ (§6c) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#8 release-drafter~~ (§6c) · ~~#9 Danger~~ (§6e) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#13 Turbine~~ (§4).
