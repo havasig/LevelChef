@@ -84,6 +84,12 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - To accept a change: run `./gradlew :feature:home:recordRoborazziDebug` locally and commit the new PNGs — the baseline update then rides through normal PR review.
 - Needs `contents: write` (only ever writes to `ci/screenshots`) + `pull-requests: write`. Skipped for fork PRs (read-only token).
 
+## 6b. Security scanning — `.github/workflows/codeql.yml`
+
+- GitHub-native SAST (CodeQL) for `java-kotlin`. Runs on every push/PR to `main` plus a weekly Monday schedule.
+- `build-mode: manual` — CodeQL's autobuild doesn't reliably handle AGP + KMP + convention-plugin setups, so the workflow assembles `androidApp`, `domain` and `data` directly instead.
+- Findings surface under the repo's Security → Code scanning tab; `security-events: write` permission.
+
 ## 6. PR-title check — `.github/workflows/pr-title.yml`
 
 - **`amannn/action-semantic-pull-request@v5`** — validates the PR **title** is a Conventional Commit; runs on PR open/edit/synchronize/reopen.
@@ -155,10 +161,9 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
 - **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
-- **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
 - **[#8](https://github.com/havasig/LevelChef/issues/8) release-drafter** — auto-generate changelog + release notes from Conventional Commits.
 - **[#9](https://github.com/havasig/LevelChef/issues/9) Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
 - **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#7 CodeQL~~ (§6b) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
