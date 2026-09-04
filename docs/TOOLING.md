@@ -158,8 +158,7 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 - **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
 - **[#8](https://github.com/havasig/LevelChef/issues/8) release-drafter** — auto-generate changelog + release notes from Conventional Commits.
 - **[#9](https://github.com/havasig/LevelChef/issues/9) Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
-- **[#10](https://github.com/havasig/LevelChef/issues/10) `LICENSE`** — expected on a public portfolio repo (e.g. MIT).
 - **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
