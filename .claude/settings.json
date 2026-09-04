@@ -13,5 +13,19 @@
       "Bash(git restore:*)",
       "Bash(git stash:*)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./gradlew detekt --auto-correct -q >/tmp/levelchef-stop-detekt.log 2>&1 && echo '{\"systemMessage\":\"detekt --auto-correct: clean.\"}' || echo '{\"systemMessage\":\"detekt --auto-correct: found something to fix (see build/reports/detekt or /tmp/levelchef-stop-detekt.log). Non-blocking.\"}'",
+            "timeout": 180,
+            "statusMessage": "Running detekt --auto-correct..."
+          }
+        ]
+      }
+    ]
   }
 }
