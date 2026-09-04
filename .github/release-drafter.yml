@@ -1,0 +1,38 @@
+# Categorizes merged PRs by their (squash-merge) Conventional Commit title into a draft
+# GitHub Release, updated on every push to main. See docs/TOOLING.md.
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 Features'
+    title-regex: '^feat'
+  - title: '🐛 Fixes'
+    title-regex: '^fix'
+  - title: '⚡ Performance & refactors'
+    title-regex: '^(perf|refactor)'
+  - title: '✅ Tests'
+    title-regex: '^test'
+  - title: '📝 Docs'
+    title-regex: '^docs'
+  - title: '🧹 Chores & tooling'
+    title-regex: '^(chore|ci|build|style)'
+
+exclude-labels:
+  - 'skip-changelog'
+
+change-template: '- $TITLE (#$NUMBER)'
+change-title-escapes: '\<*_&#@'
+
+version-resolver:
+  major:
+    labels: [ 'breaking' ]
+  minor:
+    title-regex: '^feat'
+  patch:
+    title-regex: '^(fix|perf|refactor|test|docs|chore|ci|build|style)'
+  default: patch
+
+template: |
+  ## What's changed
+
+  $CHANGES
