@@ -137,7 +137,7 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - **`AGENTS.md`** — the single source of truth for any AI coding agent: module rules, the Compose screen pattern, conventions, build commands, Git workflow.
 - **`CLAUDE.md`** — imports `AGENTS.md` (`@AGENTS.md`); holds Claude-Code-specific notes only.
 - **`.github/copilot-instructions.md`** — one-line pointer to `AGENTS.md` so GitHub Copilot reads the same rules.
-- **`.claude/settings.json`** — committed Claude Code config; a permission allowlist for `./gradlew` and safe `git` subcommands so routine commands don't prompt.
+- **`.claude/settings.json`** — committed Claude Code config; a permission allowlist for `./gradlew` and safe `git` subcommands so routine commands don't prompt, plus a `Stop` hook that best-effort runs `./gradlew detekt --auto-correct -q` at the end of every session (formatting only, non-blocking — it reports what it found but never prevents the session from stopping).
 - **`.claude/settings.local.json`** — personal Claude Code overrides, gitignored.
 - **`.claude/skills/new-feature-screen/SKILL.md`** — a reusable workflow ("skill") for turning a Figma node into a full Compose feature screen following the `feature:home` pattern.
 - **Figma MCP** (user-level, not in the repo) — lets the agent pull designs, screenshots and design tokens from the LevelChef Figma file during screen work.
@@ -168,7 +168,6 @@ Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelCh
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
 - **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
 - **[#9](https://github.com/havasig/LevelChef/issues/9) Danger** — automated PR review comments (large PRs, missing screenshots, missing tests).
-- **[#11](https://github.com/havasig/LevelChef/issues/11) Claude Code hooks** — auto-run `detekt --auto-correct` on file save / before a session ends.
 - **[#12](https://github.com/havasig/LevelChef/issues/12) Koin `module.verify()` test** — cheap DI-graph check that catches broken wiring at build time.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#7 CodeQL~~ (§6b) · ~~#8 release-drafter~~ (§6c) · ~~#10 LICENSE~~ · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#7 CodeQL~~ (§6b) · ~~#8 release-drafter~~ (§6c) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#13 Turbine~~ (§4).
