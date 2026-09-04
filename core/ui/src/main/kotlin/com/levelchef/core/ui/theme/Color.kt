@@ -21,7 +21,11 @@ val BorderDefault = Color(0xFF424266)
 val SuccessGreen = Color(0xFF68D391)
 val WarningYellow = Color(0xFFF6AD55)
 
-// Tag colors
+// Destructive actions
+val DestructiveRed = Color(0xFFC81C1C)
+
+// Tag colors — fill hue, at the alpha the unselected/selected tag variants use
+val TagPurpleBase = Color(0xFF8B5CF6)
 val TagGreenBg = Color(0x3326B266)
 val TagGreenStroke = Color(0xFF26B266)
 val TagYellowBg = Color(0x33E5BF26)

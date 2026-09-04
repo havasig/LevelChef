@@ -1,0 +1,30 @@
+package com.levelchef.core.designsystem
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.levelchef.core.ui.theme.AccentPrimary
+import com.levelchef.core.ui.theme.BackgroundSurface
+import com.levelchef.core.ui.theme.LevelChefTextStyles
+import com.levelchef.core.ui.theme.TextPrimary
+
+/** The Snackbar extended component (Figma node 251:972) — a presentational message bar. */
+@Composable
+fun LevelChefSnackbar(message: String, modifier: Modifier = Modifier) {
+    Text(
+        text = message,
+        color = TextPrimary,
+        style = LevelChefTextStyles.bodyRegular,
+        modifier = modifier
+            .fillMaxWidth()
+            .background(BackgroundSurface, RoundedCornerShape(12.dp))
+            .border(1.dp, AccentPrimary, RoundedCornerShape(12.dp))
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+    )
+}

@@ -17,6 +17,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -25,6 +29,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import com.levelchef.android.ui.showcase.DesignSystemShowcaseScreen
 import com.levelchef.core.ui.theme.AccentPrimary
 import com.levelchef.core.ui.theme.BackgroundPrimary
 import com.levelchef.core.ui.theme.BackgroundSurface
@@ -49,10 +54,22 @@ private val bottomNavItems = listOf(
     LevelChefDestination.Log,
 )
 
+/** Hidden route for [DesignSystemShowcaseScreen] — not in [bottomNavItems], reachable only by
+ * tapping the Home nav item 5x quickly (see [rapidTapsToOpenShowcase] below). */
+private const val DESIGN_SYSTEM_SHOWCASE_ROUTE = "designSystemShowcase"
+
+/** Taps on the Home nav item within [RAPID_TAP_WINDOW_MS] of each other count toward the streak;
+ * a slower tap (or any tap on another item) resets it. Reaching [TAPS_TO_OPEN_SHOWCASE] opens the
+ * hidden showcase instead of navigating to Home. */
+private const val RAPID_TAP_WINDOW_MS = 600L
+private const val TAPS_TO_OPEN_SHOWCASE = 5
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LevelChefApp() {
     val navController = rememberNavController()
+    var homeTapCount by remember { mutableIntStateOf(0) }
+    var lastHomeTapTime by remember { mutableLongStateOf(0L) }
 
     Scaffold(
         containerColor = BackgroundPrimary,
@@ -71,7 +88,23 @@ fun LevelChefApp() {
                     val selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true
                     NavigationBarItem(
                         selected = selected,
-                        onClick = {
+                        onClick = onClick@{
+                            var openShowcase = false
+                            if (dest == LevelChefDestination.Home) {
+                                val now = System.currentTimeMillis()
+                                homeTapCount = if (now - lastHomeTapTime < RAPID_TAP_WINDOW_MS) homeTapCount + 1 else 1
+                                lastHomeTapTime = now
+                                if (homeTapCount >= TAPS_TO_OPEN_SHOWCASE) {
+                                    homeTapCount = 0
+                                    openShowcase = true
+                                }
+                            } else {
+                                homeTapCount = 0
+                            }
+                            if (openShowcase) {
+                                navController.navigate(DESIGN_SYSTEM_SHOWCASE_ROUTE)
+                                return@onClick
+                            }
                             navController.navigate(dest.route) {
                                 popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                                 launchSingleTop = true
@@ -104,6 +137,9 @@ fun LevelChefApp() {
             composable(LevelChefDestination.Trophies.route) { TrophyRoomScreen() }
             composable(LevelChefDestination.Log.route) { CookingLogScreen() }
             composable("recipeDetail") { RecipeDetailScreen() }
+            composable(DESIGN_SYSTEM_SHOWCASE_ROUTE) {
+                DesignSystemShowcaseScreen(onBackClick = { navController.popBackStack() })
+            }
         }
     }
 }
