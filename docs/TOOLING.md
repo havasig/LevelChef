@@ -91,6 +91,12 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - Version bump: minor on any `feat`, patch otherwise (`major` needs an explicit `breaking` label).
 - Nothing is published automatically — the draft sits under Releases until someone hits publish.
 
+## 6d. Dependency updates — `renovate.json`
+
+- Config only — **activation needs installing the [Renovate GitHub App](https://github.com/apps/renovate)** on this repo (a repo token can't do that). Once installed, Renovate reads this file automatically.
+- `config:recommended` base ruleset, weekly (Monday) schedule, PRs only — no automerge.
+- Groups `org.jetbrains.kotlin*`/`kotlinx*` together, `androidx.compose*` together, and calls out `dev.detekt` bumps separately (the 2.0 alpha line is pinned deliberately here — see §2).
+
 ## 6e. Automated PR review — `Dangerfile.js`
 
 - `danger/danger-js` via `npx danger ci` on every PR (the only workflow with a Node toolchain — everything else stays Kotlin-only). Every check is `warn`, never a failure.
@@ -166,7 +172,6 @@ git config commit.template .gitmessage
 Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
 
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
-- **[#6](https://github.com/havasig/LevelChef/issues/6) Renovate** — automated dependency-update PRs, grouped for the version catalog.
 - **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#8 release-drafter~~ (§6c) · ~~#9 Danger~~ (§6e) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#12 Koin `module.verify()`~~ (§4) · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#6 Renovate~~ (§6d, needs the GitHub App installed) · ~~#8 release-drafter~~ (§6c) · ~~#9 Danger~~ (§6e) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#12 Koin `module.verify()`~~ (§4) · ~~#13 Turbine~~ (§4).

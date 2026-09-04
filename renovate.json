@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "timezone": "Europe/Budapest",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "labels": [ "dependencies" ],
+  "packageRules": [
+    {
+      "description": "Kotlin toolchain moves together — Kotlin, the Compose compiler plugin and kotlinx libraries all need to stay compatible.",
+      "matchPackageNames": [
+        "org.jetbrains.kotlin{/,}**",
+        "org.jetbrains.kotlinx{/,}**"
+      ],
+      "groupName": "kotlin"
+    },
+    {
+      "description": "Compose BOM + AndroidX Compose artifacts together.",
+      "matchPackageNames": [
+        "androidx.compose{/,}**"
+      ],
+      "groupName": "compose"
+    },
+    {
+      "description": "This project's own detekt (2.0 alpha) is pinned deliberately — see docs/TOOLING.md. Still take patch/alpha bumps, just called out for visibility.",
+      "matchPackageNames": [
+        "dev.detekt{/,}**"
+      ],
+      "groupName": "detekt"
+    }
+  ]
+}
