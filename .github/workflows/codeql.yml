@@ -1,0 +1,55 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Mondays, 03:17 UTC — off-peak, deliberately not top-of-hour.
+    - cron: '17 3 * * 1'
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+          build-mode: manual
+
+      # CodeQL's autobuild doesn't reliably handle AGP + KMP + convention-plugin setups; a plain
+      # assemble of the app + the pure-Kotlin modules gives it enough compiled classes to analyze.
+      # `clean` + build cache off: CodeQL's tracer only sees code that's actually compiled during
+      # this invocation, and this repo's Gradle build cache (docs/TOOLING.md §1) would otherwise
+      # make compileKotlin a no-op FROM-CACHE hit with nothing to trace.
+      - name: Build
+        run: ./gradlew clean :androidApp:assembleDebug :domain:assemble :data:assemble --no-build-cache --stacktrace
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:java-kotlin'

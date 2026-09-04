@@ -85,6 +85,12 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - To accept a change: run `./gradlew :feature:home:recordRoborazziDebug` locally and commit the new PNGs — the baseline update then rides through normal PR review.
 - Needs `contents: write` (only ever writes to `ci/screenshots`) + `pull-requests: write`. Skipped for fork PRs (read-only token).
 
+## 6b. Security scanning — `.github/workflows/codeql.yml`
+
+- GitHub-native SAST (CodeQL) for `java-kotlin`. Runs on every push/PR to `main` plus a weekly Monday schedule.
+- `build-mode: manual` — CodeQL's autobuild doesn't reliably handle AGP + KMP + convention-plugin setups, so the workflow assembles `androidApp`, `domain` and `data` directly instead.
+- Findings surface under the repo's Security → Code scanning tab; `security-events: write` permission.
+
 ## 6c. Release notes — `.github/workflows/release-drafter.yml`
 
 - On every push to `main`: drafts/updates a GitHub Release, categorizing merged (squash-merge) PR titles by Conventional Commit type — `feat` → Features, `fix` → Fixes, `perf`/`refactor` together, `test`, `docs`, `chore`/`ci`/`build`/`style` together (`.github/release-drafter.yml`).
@@ -172,6 +178,5 @@ git config commit.template .gitmessage
 Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
 
 - **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
-- **[#7](https://github.com/havasig/LevelChef/issues/7) CodeQL** — GitHub-native security scanning for Kotlin/Java.
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#6 Renovate~~ (§6d, needs the GitHub App installed) · ~~#8 release-drafter~~ (§6c) · ~~#9 Danger~~ (§6e) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#12 Koin `module.verify()`~~ (§4) · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#6 Renovate~~ (§6d, needs the GitHub App installed) · ~~#7 CodeQL~~ (§6b) · ~~#8 release-drafter~~ (§6c) · ~~#9 Danger~~ (§6e) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#12 Koin `module.verify()`~~ (§4) · ~~#13 Turbine~~ (§4).
