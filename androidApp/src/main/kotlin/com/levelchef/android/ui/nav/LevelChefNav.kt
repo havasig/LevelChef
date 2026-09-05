@@ -1,5 +1,6 @@
 package com.levelchef.android.ui.nav
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -22,6 +23,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -29,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
+import com.levelchef.android.R
 import com.levelchef.android.ui.showcase.DesignSystemShowcaseScreen
 import com.levelchef.core.ui.theme.AccentPrimary
 import com.levelchef.core.ui.theme.BackgroundPrimary
@@ -40,11 +43,11 @@ import com.levelchef.feature.home.HomeRoute
 import com.levelchef.feature.recipedetail.RecipeDetailScreen
 import com.levelchef.feature.trophyroom.TrophyRoomScreen
 
-sealed class LevelChefDestination(val route: String, val label: String) {
-    data object Home : LevelChefDestination("home", "Home")
-    data object Recipes : LevelChefDestination("recipes", "Recipes")
-    data object Trophies : LevelChefDestination("trophies", "Trophies")
-    data object Log : LevelChefDestination("log", "Log")
+sealed class LevelChefDestination(val route: String, @param:StringRes val labelRes: Int) {
+    data object Home : LevelChefDestination("home", R.string.nav_home)
+    data object Recipes : LevelChefDestination("recipes", R.string.nav_recipes)
+    data object Trophies : LevelChefDestination("trophies", R.string.nav_trophies)
+    data object Log : LevelChefDestination("log", R.string.nav_log)
 }
 
 private val bottomNavItems = listOf(
@@ -111,8 +114,8 @@ fun LevelChefApp() {
                                 restoreState = true
                             }
                         },
-                        icon = { Icon(iconFor(dest), contentDescription = dest.label) },
-                        label = { Text(dest.label) },
+                        icon = { Icon(iconFor(dest), contentDescription = stringResource(dest.labelRes)) },
+                        label = { Text(stringResource(dest.labelRes)) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = AccentPrimary,
                             selectedTextColor = AccentPrimary,

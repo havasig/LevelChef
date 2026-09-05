@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_home">Kezdőlap</string>
+    <string name="nav_recipes">Receptek</string>
+    <string name="nav_trophies">Trófeák</string>
+    <string name="nav_log">Napló</string>
+</resources>

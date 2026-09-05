@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_home">Home</string>
+    <string name="nav_recipes">Recipes</string>
+    <string name="nav_trophies">Trophies</string>
+    <string name="nav_log">Log</string>
+</resources>
