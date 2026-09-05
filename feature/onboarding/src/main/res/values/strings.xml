@@ -1,4 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="onboarding_title">Onboarding</string>
+    <!-- Wizard chrome -->
+    <string name="onboarding_step_counter">%1$d of %2$d</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_finish">Let\'s cook</string>
+
+    <!-- Welcome -->
+    <string name="onboarding_welcome_title">LevelChef</string>
+    <string name="onboarding_welcome_tagline">Cook consciously. Improve every time.</string>
+    <string name="onboarding_welcome_body">Answer a few quick questions so we can tailor recipes, XP and macros to you.</string>
+    <string name="onboarding_welcome_cta">Get started</string>
+
+    <!-- Cooking level -->
+    <string name="onboarding_experience_title">What\'s your cooking level?</string>
+    <string name="onboarding_experience_subtitle">We\'ll match recipes to your skill.</string>
+    <string name="onboarding_experience_never">Never cooked</string>
+    <string name="onboarding_experience_never_desc">I\'m starting from scratch</string>
+    <string name="onboarding_experience_beginner">Beginner</string>
+    <string name="onboarding_experience_beginner_desc">I can follow a recipe</string>
+    <string name="onboarding_experience_comfortable">Comfortable</string>
+    <string name="onboarding_experience_comfortable_desc">I cook a few times a week</string>
+    <string name="onboarding_experience_confident">Confident</string>
+    <string name="onboarding_experience_confident_desc">I improvise without a recipe</string>
+    <string name="onboarding_experience_pro">Pro</string>
+    <string name="onboarding_experience_pro_desc">I\'ve cooked professionally</string>
+
+    <!-- Diet -->
+    <string name="onboarding_diet_title">How do you eat?</string>
+    <string name="onboarding_diet_subtitle">Pick the closest fit.</string>
+    <string name="onboarding_diet_omnivore">Omnivore</string>
+    <string name="onboarding_diet_omnivore_desc">I eat everything</string>
+    <string name="onboarding_diet_vegetarian">Vegetarian</string>
+    <string name="onboarding_diet_vegetarian_desc">No meat or fish</string>
+    <string name="onboarding_diet_vegan">Vegan</string>
+    <string name="onboarding_diet_vegan_desc">No animal products</string>
+    <string name="onboarding_diet_pescatarian">Pescatarian</string>
+    <string name="onboarding_diet_pescatarian_desc">Fish, but no other meat</string>
+    <string name="onboarding_diet_flexitarian">Flexitarian</string>
+    <string name="onboarding_diet_flexitarian_desc">Mostly plants, meat sometimes</string>
+
+    <!-- Allergies -->
+    <string name="onboarding_allergens_title">Any allergies or avoidances?</string>
+    <string name="onboarding_allergens_subtitle">We\'ll keep these out of every recipe.</string>
+    <string name="onboarding_allergens_none">No allergies</string>
+    <string name="onboarding_allergen_gluten">Gluten</string>
+    <string name="onboarding_allergen_dairy">Dairy</string>
+    <string name="onboarding_allergen_nuts">Nuts</string>
+    <string name="onboarding_allergen_eggs">Eggs</string>
+    <string name="onboarding_allergen_shellfish">Shellfish</string>
+    <string name="onboarding_allergen_soy">Soy</string>
+
+    <!-- Cuisines -->
+    <string name="onboarding_cuisines_title">Which cuisines do you love?</string>
+    <string name="onboarding_cuisines_subtitle">Choose at least one.</string>
+    <string name="onboarding_cuisine_italian">Italian</string>
+    <string name="onboarding_cuisine_asian">Asian</string>
+    <string name="onboarding_cuisine_mexican">Mexican</string>
+    <string name="onboarding_cuisine_indian">Indian</string>
+    <string name="onboarding_cuisine_mediterranean">Mediterranean</string>
+    <string name="onboarding_cuisine_american">American</string>
+    <string name="onboarding_cuisine_middle_eastern">Middle Eastern</string>
+    <string name="onboarding_cuisine_french">French</string>
+
+    <!-- Spice -->
+    <string name="onboarding_spice_title">How much spice can you take?</string>
+    <string name="onboarding_spice_subtitle">Be honest.</string>
+    <string name="onboarding_spice_mild">Mild</string>
+    <string name="onboarding_spice_mild_desc">No heat, please</string>
+    <string name="onboarding_spice_medium">Medium</string>
+    <string name="onboarding_spice_medium_desc">A gentle kick is nice</string>
+    <string name="onboarding_spice_hot">Hot</string>
+    <string name="onboarding_spice_hot_desc">Bring the chillies</string>
+    <string name="onboarding_spice_fire">Fire</string>
+    <string name="onboarding_spice_fire_desc">The hotter the better</string>
+
+    <!-- Goal -->
+    <string name="onboarding_goal_title">What do you want to improve?</string>
+    <string name="onboarding_goal_subtitle">Pick one.</string>
+    <string name="onboarding_goal_more_variety">More variety</string>
+    <string name="onboarding_goal_more_variety_desc">Try different cuisines and ingredients</string>
+    <string name="onboarding_goal_quick_meals">Quick meals</string>
+    <string name="onboarding_goal_quick_meals_desc">Recipes under 30 minutes</string>
+    <string name="onboarding_goal_high_protein">High protein</string>
+    <string name="onboarding_goal_high_protein_desc">Macro-focused cooking</string>
+    <string name="onboarding_goal_healthier_eating">Healthier eating</string>
+    <string name="onboarding_goal_healthier_eating_desc">Balance nutrients, cut processed food</string>
+    <string name="onboarding_goal_budget_friendly">Budget friendly</string>
+    <string name="onboarding_goal_budget_friendly_desc">Great meals without overspending</string>
+
+    <!-- Weeknight time -->
+    <string name="onboarding_time_title">How long on a weeknight?</string>
+    <string name="onboarding_time_subtitle">The time you usually have to cook.</string>
+    <string name="onboarding_time_under_15">Under 15 minutes</string>
+    <string name="onboarding_time_15_30">15–30 minutes</string>
+    <string name="onboarding_time_30_60">30–60 minutes</string>
+    <string name="onboarding_time_over_60">Over an hour</string>
+
+    <!-- Household size -->
+    <string name="onboarding_household_title">How many people do you cook for?</string>
+    <string name="onboarding_household_subtitle">We\'ll size portions to match.</string>
+    <string name="onboarding_household_solo">Just me</string>
+    <string name="onboarding_household_two">Two</string>
+    <string name="onboarding_household_three_four">Three or four</string>
+    <string name="onboarding_household_five_plus">Five or more</string>
 </resources>

@@ -1,0 +1,13 @@
+-- v1 -> v2: add the first-launch survey response table (see SurveyResponse.sq for the queries).
+CREATE TABLE surveyResponse (
+    id INTEGER NOT NULL PRIMARY KEY,
+    completedAt TEXT NOT NULL,
+    cookingExperience TEXT NOT NULL,
+    dietaryPreference TEXT NOT NULL,
+    allergens TEXT NOT NULL,
+    cuisines TEXT NOT NULL,
+    spiceTolerance TEXT NOT NULL,
+    cookingGoal TEXT NOT NULL,
+    weeknightTime TEXT NOT NULL,
+    householdSize TEXT NOT NULL
+);

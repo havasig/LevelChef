@@ -1,0 +1,24 @@
+-- Single-row table (id is always 1): the user's answers to the mandatory first-launch survey.
+-- Enum values are stored as their `name`; the multi-select columns are comma-joined ("" = empty).
+CREATE TABLE surveyResponse (
+    id INTEGER NOT NULL PRIMARY KEY,
+    completedAt TEXT NOT NULL,
+    cookingExperience TEXT NOT NULL,
+    dietaryPreference TEXT NOT NULL,
+    allergens TEXT NOT NULL,
+    cuisines TEXT NOT NULL,
+    spiceTolerance TEXT NOT NULL,
+    cookingGoal TEXT NOT NULL,
+    weeknightTime TEXT NOT NULL,
+    householdSize TEXT NOT NULL
+);
+
+selectResponse:
+SELECT * FROM surveyResponse WHERE id = 1;
+
+hasResponse:
+SELECT EXISTS(SELECT * FROM surveyResponse WHERE id = 1);
+
+upsertResponse:
+INSERT OR REPLACE INTO surveyResponse(id, completedAt, cookingExperience, dietaryPreference, allergens, cuisines, spiceTolerance, cookingGoal, weeknightTime, householdSize)
+VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?);

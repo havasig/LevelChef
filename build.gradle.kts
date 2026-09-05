@@ -22,6 +22,7 @@ dependencies {
     kover(project(":domain"))
     kover(project(":data"))
     kover(project(":feature:home"))
+    kover(project(":feature:onboarding"))
 }
 
 // Coverage — aggregated at the root; the plugin is applied per-module (see those build files).
