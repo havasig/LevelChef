@@ -34,7 +34,16 @@ class OnboardingViewModel(
     init {
         viewModelScope.launch {
             surveyRepository.observeResponse().collect { response ->
-                _uiState.update { it.copy(loading = false, completed = response != null) }
+                _uiState.update { current ->
+                    if (response != null) {
+                        current.copy(loading = false, completed = true)
+                    } else {
+                        // No stored response — first launch, or "retake the survey" cleared it.
+                        // Reset to a fresh wizard so it starts from the first step, not wherever
+                        // this (retained) ViewModel was left after the previous run.
+                        OnboardingUiState(loading = false)
+                    }
+                }
             }
         }
     }

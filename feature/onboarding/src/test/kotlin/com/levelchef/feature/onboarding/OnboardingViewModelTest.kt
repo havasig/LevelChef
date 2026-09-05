@@ -29,6 +29,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -140,6 +141,35 @@ class OnboardingViewModelTest {
         vm.toggleCuisine(Cuisine.ASIAN)
         vm.toggleCuisine(Cuisine.ITALIAN)
         assertEquals(setOf(Cuisine.ASIAN), vm.uiState.value.cuisines)
+    }
+
+    @Test
+    fun clearing_the_response_restarts_the_wizard_from_the_first_step() = runTest(dispatcher) {
+        val repository = FakeSurveyRepository()
+        val vm = viewModel(repository)
+        advanceUntilIdle()
+
+        vm.next()
+        vm.selectExperience(CookingExperience.COMFORTABLE); vm.next()
+        vm.selectDiet(DietaryPreference.VEGAN); vm.next()
+        vm.setNoAllergies(); vm.next()
+        vm.toggleCuisine(Cuisine.MEXICAN); vm.next()
+        vm.selectSpice(SpiceTolerance.HOT); vm.next()
+        vm.selectGoal(CookingGoal.HIGH_PROTEIN); vm.next()
+        vm.selectTime(WeeknightTime.FROM_15_TO_30); vm.next()
+        vm.selectHousehold(HouseholdSize.TWO); vm.next() // last step -> submit
+        advanceUntilIdle()
+        assertTrue(vm.uiState.value.completed)
+        assertEquals(OnboardingStep.HOUSEHOLD, vm.uiState.value.currentStep)
+
+        repository.clear() // "retake the survey" from Settings
+
+        advanceUntilIdle()
+        val restarted = vm.uiState.value
+        assertFalse(restarted.completed)
+        assertEquals(0, restarted.stepIndex)
+        assertEquals(OnboardingStep.WELCOME, restarted.currentStep)
+        assertNull(restarted.cookingExperience)
     }
 
     @Test
