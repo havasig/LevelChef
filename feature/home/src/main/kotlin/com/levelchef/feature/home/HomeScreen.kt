@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.ButtonType
 import com.levelchef.core.designsystem.LevelChefButton
@@ -38,7 +39,7 @@ fun HomeScreen(
         item { LevelChefDivider() }
         item {
             LevelChefButton(
-                label = "Cook today — show me a recipe! 🍽",
+                label = stringResource(R.string.home_cook_today_cta),
                 type = ButtonType.PRIMARY,
                 onClick = onCookToday,
                 modifier = Modifier.fillMaxWidth(),
@@ -46,7 +47,11 @@ fun HomeScreen(
         }
         item { LevelChefDivider() }
         item {
-            Text("Recommended for you", color = TextPrimary, style = LevelChefTextStyles.bodyRegularBold)
+            Text(
+                stringResource(R.string.home_recommended_for_you),
+                color = TextPrimary,
+                style = LevelChefTextStyles.bodyRegularBold,
+            )
         }
         items(state.recommendations) { rec ->
             RecipeRecommendationCard(rec, onClick = { onRecipeClick(rec) })

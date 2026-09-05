@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PlaceholderScreen: shown in place of a stub feature screen not yet built from Figma. -->
+    <string name="placeholder_coming_next">%1$s — coming next</string>
+</resources>

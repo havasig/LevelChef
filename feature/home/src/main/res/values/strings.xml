@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_cook_today_cta">Cook today — show me a recipe! 🍽</string>
+    <string name="home_recommended_for_you">Recommended for you</string>
+    <string name="home_cooking_sessions_label">Cooking sessions</string>
+    <string name="home_ingredients_tried_label">Ingredients tried</string>
+    <string name="home_xp_to_next_level">%1$d / %2$d XP to next level</string>
+    <string name="home_challenge_done">Done</string>
+</resources>
