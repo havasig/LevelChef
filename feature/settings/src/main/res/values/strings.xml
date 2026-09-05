@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+
+    <string name="settings_appearance_section">Appearance</string>
+    <string name="settings_theme_label">Theme</string>
+    <string name="settings_theme_system">System default</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language_label">App language</string>
+    <string name="settings_language_system">System default</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_hungarian">Magyar</string>
+
+    <string name="settings_onboarding_section">Onboarding</string>
+    <string name="settings_retake_survey_description">Answer the taste survey again to refresh your recipe recommendations.</string>
+    <string name="settings_retake_survey">Retake the survey</string>
+    <string name="settings_retake_confirm_title">Retake the survey?</string>
+    <string name="settings_retake_confirm_message">Your current answers will be cleared and the survey will start over.</string>
+
+    <string name="settings_developer_section">Developer</string>
+    <string name="settings_clear_storage_description">Wipe the stored survey response so the first-launch flow runs again.</string>
+    <string name="settings_clear_storage">Clear onboarding storage</string>
+    <string name="settings_clear_storage_confirm_title">Clear onboarding storage?</string>
+    <string name="settings_clear_storage_confirm_message">The saved survey response will be deleted. The mandatory onboarding survey will appear again.</string>
+
+    <string name="settings_dialog_cancel">Cancel</string>
+    <string name="settings_dialog_confirm">Confirm</string>
+</resources>

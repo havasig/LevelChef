@@ -10,4 +10,7 @@ interface SurveyRepository {
 
     /** Stores (or overwrites) the single survey response. */
     suspend fun save(response: SurveyResponse)
+
+    /** Deletes the stored response, if any — the next observer sees `null` and onboarding re-runs. */
+    suspend fun clear()
 }

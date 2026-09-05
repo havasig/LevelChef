@@ -85,6 +85,20 @@ class SurveyResponseRepositoryImplTest {
     }
 
     @Test
+    fun clear_removes_the_stored_response() = runTest {
+        repository.save(response)
+
+        repository.observeResponse().test {
+            assertEquals(response, awaitItem())
+
+            repository.clear()
+
+            assertNull(awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun save_overwrites_the_previous_response() = runTest {
         repository.save(response)
         repository.save(response.copy(spiceTolerance = SpiceTolerance.FIRE, householdSize = HouseholdSize.SOLO))

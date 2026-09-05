@@ -28,6 +28,9 @@ private class FakeSurveyRepository : SurveyRepository {
     override suspend fun save(response: SurveyResponse) {
         saved = response
     }
+    override suspend fun clear() {
+        saved = null
+    }
 }
 
 private class FixedClock(private val instant: Instant) : Clock {

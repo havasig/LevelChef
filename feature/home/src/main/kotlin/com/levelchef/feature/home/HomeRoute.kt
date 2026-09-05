@@ -9,11 +9,13 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun HomeRoute(
     onRecipeClick: (RecipeRecommendation) -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     HomeScreen(
         state = state,
         onRecipeClick = onRecipeClick,
+        onSettingsClick = onSettingsClick,
     )
 }
