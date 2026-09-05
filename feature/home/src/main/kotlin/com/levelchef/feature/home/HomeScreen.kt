@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,7 +27,7 @@ fun HomeScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background),
+            .background(LevelChefTheme.colors.background),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
@@ -47,7 +46,11 @@ fun HomeScreen(
         }
         item { LevelChefDivider() }
         item {
-            Text("Recommended for you", color = LevelChefTheme.colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
+            Text(
+                "Recommended for you",
+                color = LevelChefTheme.colors.textPrimary,
+                style = LevelChefTextStyles.bodyRegularBold,
+            )
         }
         items(state.recommendations) { rec ->
             RecipeRecommendationCard(rec, onClick = { onRecipeClick(rec) })

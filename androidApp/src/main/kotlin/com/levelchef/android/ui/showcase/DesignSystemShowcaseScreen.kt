@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,6 +52,7 @@ import com.levelchef.core.designsystem.LevelChefTopAppBarHome
 import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.designsystem.LevelChefTopAppBarSearch
 import com.levelchef.core.designsystem.LevelChefWeeklyChallengeCard
+import com.levelchef.core.designsystem.RecipeCardTag
 import com.levelchef.core.designsystem.TagColor
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -60,27 +62,66 @@ import com.levelchef.core.ui.theme.LevelChefTheme
  * product, reachable only via the hidden 5-tap gesture on the Home bottom-nav item (see
  * `LevelChefNav.kt`).
  */
+@Suppress("LongMethod")
 @Composable
 fun DesignSystemShowcaseScreen(onBackClick: () -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         item { LevelChefTopAppBarInner(title = "Design System", onBackClick = onBackClick) }
         item {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
                 TypographySection()
                 ShowcaseSection("Buttons") { ButtonsSection() }
                 ShowcaseSection("Input Field") { InputFieldSection() }
-                ShowcaseSection("Avatar") { AvatarSection() }
+                ShowcaseSection("Avatar") { LevelChefAvatar(initials = "AB") }
                 ShowcaseSection("Divider") { LevelChefDivider() }
                 ShowcaseSection("Card") { CardSection() }
-                ShowcaseSection("Recipe Card") { RecipeCardSection() }
-                ShowcaseSection("Last Cooked Card") { LevelChefLastCookedCard(title = "Tofu stir-fry", time = "3 days ago", stars = 4) }
-                ShowcaseSection("Weekly Challenge Card") { WeeklyChallengeCardSection() }
-                ShowcaseSection("List") { ListSection() }
-                ShowcaseSection("Page Indicator") { PageIndicatorSection() }
-                ShowcaseSection("Badge") { BadgeSection() }
+                ShowcaseSection("Recipe Card") {
+                    LevelChefRecipeCard(
+                        emoji = "🥩",
+                        title = "Chicken curry with coconut milk",
+                        xp = 45,
+                        minutes = 25,
+                        difficulty = "Easy",
+                        onClick = {},
+                        tag = RecipeCardTag(label = "New ingredient", emoji = "🌿", color = TagColor.PURPLE),
+                    )
+                }
+                ShowcaseSection("Last Cooked Card") {
+                    LevelChefLastCookedCard(
+                        title = "Tofu stir-fry",
+                        time = "3 days ago",
+                        stars = 4,
+                    )
+                }
+                ShowcaseSection("Weekly Challenge Card") {
+                    LevelChefWeeklyChallengeCard(
+                        title = "Cook one Asian-inspired dish this week",
+                        xp = 200,
+                        inProgress = true,
+                        action = { LevelChefButton(label = "Done", type = ButtonType.SECONDARY, onClick = {}) },
+                    )
+                }
+                ShowcaseSection("List") {
+                    LevelChefList(
+                        entries = listOf(
+                            LevelChefListEntry("JA", "John Appleseed", "Product Designer"),
+                            LevelChefListEntry("SC", "Sarah Chen", "Engineer"),
+                            LevelChefListEntry("ML", "Marcus Lee", "Design Lead"),
+                        ),
+                    )
+                }
+                ShowcaseSection("Page Indicator") { LevelChefPageIndicator(pageCount = 4, currentPage = 1) }
+                ShowcaseSection("Badge") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        LevelChefBadge("Active", style = BadgeStyle.LIGHT)
+                        LevelChefBadge("Active", style = BadgeStyle.DARK)
+                    }
+                }
                 ShowcaseSection("Tag") { TagSection() }
                 ShowcaseSection("Checkbox") { CheckboxSection() }
                 ShowcaseSection("Radio Button") { RadioButtonSection() }
@@ -89,8 +130,19 @@ fun DesignSystemShowcaseScreen(onBackClick: () -> Unit) {
                 ShowcaseSection("Snackbar") { LevelChefSnackbar("Your profile has been updated.") }
                 ShowcaseSection("Modal") { ModalSection() }
                 ShowcaseSection("Top App Bar — Home") { LevelChefTopAppBarHome("LevelChef", onSettingsClick = {}) }
-                ShowcaseSection("Top App Bar — Inner") { LevelChefTopAppBarInner("Recipe details", onBackClick = {}, onSettingsClick = {}) }
-                ShowcaseSection("Top App Bar — Search") { LevelChefTopAppBarSearch("Search recipes...", onBackClick = {}) }
+                ShowcaseSection("Top App Bar — Inner") {
+                    LevelChefTopAppBarInner(
+                        "Recipe details",
+                        onBackClick = {},
+                        onSettingsClick = {},
+                    )
+                }
+                ShowcaseSection("Top App Bar — Search") {
+                    LevelChefTopAppBarSearch(
+                        "Search recipes...",
+                        onBackClick = {},
+                    )
+                }
                 ShowcaseSection("Bottom Navigation Bar") { BottomNavigationBarSection() }
                 ShowcaseSection("Tab Bar") { TabBarSection() }
                 ShowcaseSection("Search Bar") { SearchBarSection() }
@@ -115,13 +167,41 @@ private fun TypographySection() {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Heading/H1 — Page Title", color = textPrimary, style = LevelChefTextStyles.h1)
             Text("Heading/H2 — Section Header", color = textPrimary, style = LevelChefTextStyles.h2)
-            Text("Body/Large — Introductory paragraph text", color = textPrimary, style = LevelChefTextStyles.bodyLarge)
-            Text("Body/Large Bold — Emphasized large text", color = textPrimary, style = LevelChefTextStyles.bodyLargeBold)
-            Text("Body/Regular — Default body copy for content", color = textPrimary, style = LevelChefTextStyles.bodyRegular)
-            Text("Body/Regular Bold — Bold labels and actions", color = textPrimary, style = LevelChefTextStyles.bodyRegularBold)
-            Text("Body/Small — Supporting details and hints", color = textPrimary, style = LevelChefTextStyles.bodySmall)
-            Text("Body/Small Bold — Small bold labels", color = textPrimary, style = LevelChefTextStyles.bodySmallBold)
-            Text("Caption/Regular — Timestamps and metadata", color = textPrimary, style = LevelChefTextStyles.captionRegular)
+            Text(
+                "Body/Large — Introductory paragraph text",
+                color = textPrimary,
+                style = LevelChefTextStyles.bodyLarge,
+            )
+            Text(
+                "Body/Large Bold — Emphasized large text",
+                color = textPrimary,
+                style = LevelChefTextStyles.bodyLargeBold,
+            )
+            Text(
+                "Body/Regular — Default body copy for content",
+                color = textPrimary,
+                style = LevelChefTextStyles.bodyRegular,
+            )
+            Text(
+                "Body/Regular Bold — Bold labels and actions",
+                color = textPrimary,
+                style = LevelChefTextStyles.bodyRegularBold,
+            )
+            Text(
+                "Body/Small — Supporting details and hints",
+                color = textPrimary,
+                style = LevelChefTextStyles.bodySmall,
+            )
+            Text(
+                "Body/Small Bold — Small bold labels",
+                color = textPrimary,
+                style = LevelChefTextStyles.bodySmallBold,
+            )
+            Text(
+                "Caption/Regular — Timestamps and metadata",
+                color = textPrimary,
+                style = LevelChefTextStyles.captionRegular,
+            )
             Text("Caption/Bold — Tags and badges", color = textPrimary, style = LevelChefTextStyles.captionBold)
         }
     }
@@ -131,7 +211,11 @@ private fun TypographySection() {
 private fun ButtonsSection() {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         ButtonType.entries.forEach { type ->
-            LevelChefButton(label = type.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }, type = type, onClick = {})
+            LevelChefButton(
+                label = type.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() },
+                type = type,
+                onClick = {},
+            )
         }
     }
 }
@@ -139,14 +223,12 @@ private fun ButtonsSection() {
 @Composable
 private fun InputFieldSection() {
     var value by remember { mutableStateOf("") }
-    LevelChefInputField(label = "Label", value = value, onValueChange = { value = it }, placeholder = "Placeholder text")
-}
-
-@Composable
-private fun AvatarSection() {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        LevelChefAvatar(initials = "AB")
-    }
+    LevelChefInputField(
+        label = "Label",
+        value = value,
+        onValueChange = { value = it },
+        placeholder = "Placeholder text",
+    )
 }
 
 @Composable
@@ -154,56 +236,11 @@ private fun CardSection() {
     val colors = LevelChefTheme.colors
     LevelChefCard {
         Text("Card Title", color = colors.textPrimary, style = LevelChefTextStyles.bodyLargeBold)
-        Text("Description text goes here. This card can hold any content.", color = colors.textSecondary, style = LevelChefTextStyles.bodyRegular)
-    }
-}
-
-@Composable
-private fun RecipeCardSection() {
-    LevelChefRecipeCard(
-        emoji = "🥩",
-        title = "Chicken curry with coconut milk",
-        xp = 45,
-        minutes = 25,
-        difficulty = "Easy",
-        onClick = {},
-        tagLabel = "New ingredient",
-        tagEmoji = "🌿",
-        tagColor = TagColor.PURPLE,
-    )
-}
-
-@Composable
-private fun WeeklyChallengeCardSection() {
-    LevelChefWeeklyChallengeCard(
-        title = "Cook one Asian-inspired dish this week",
-        xp = 200,
-        inProgress = true,
-        action = { LevelChefButton(label = "Done", type = ButtonType.SECONDARY, onClick = {}) },
-    )
-}
-
-@Composable
-private fun ListSection() {
-    LevelChefList(
-        entries = listOf(
-            LevelChefListEntry("JA", "John Appleseed", "Product Designer"),
-            LevelChefListEntry("SC", "Sarah Chen", "Engineer"),
-            LevelChefListEntry("ML", "Marcus Lee", "Design Lead"),
-        ),
-    )
-}
-
-@Composable
-private fun PageIndicatorSection() {
-    LevelChefPageIndicator(pageCount = 4, currentPage = 1)
-}
-
-@Composable
-private fun BadgeSection() {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        LevelChefBadge("Active", style = BadgeStyle.LIGHT)
-        LevelChefBadge("Active", style = BadgeStyle.DARK)
+        Text(
+            "Description text goes here. This card can hold any content.",
+            color = colors.textSecondary,
+            style = LevelChefTextStyles.bodyRegular,
+        )
     }
 }
 
@@ -213,7 +250,14 @@ private fun TagSection() {
         TagColor.entries.forEach { color ->
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 LevelChefTag(label = "Tag Label", color = color, emoji = "⚡", selected = false)
-                LevelChefTag(label = "Tag Label", color = color, emoji = "⚡", selected = true, showClose = true, onClose = {})
+                LevelChefTag(
+                    label = "Tag Label",
+                    color = color,
+                    emoji = "⚡",
+                    selected = true,
+                    showClose = true,
+                    onClose = {},
+                )
             }
         }
     }
@@ -222,13 +266,21 @@ private fun TagSection() {
 @Composable
 private fun CheckboxSection() {
     var checked by remember { mutableStateOf(true) }
-    LevelChefCheckbox(checked = checked, onCheckedChange = { checked = it }, label = if (checked) "Checked" else "Unchecked")
+    LevelChefCheckbox(
+        checked = checked,
+        onCheckedChange = { checked = it },
+        label = if (checked) "Checked" else "Unchecked",
+    )
 }
 
 @Composable
 private fun RadioButtonSection() {
     var selected by remember { mutableStateOf(true) }
-    LevelChefRadioButton(selected = selected, onClick = { selected = !selected }, label = if (selected) "Selected" else "Unselected")
+    LevelChefRadioButton(
+        selected = selected,
+        onClick = { selected = !selected },
+        label = if (selected) "Selected" else "Unselected",
+    )
 }
 
 @Composable
@@ -240,8 +292,24 @@ private fun ToggleSection() {
 @Composable
 private fun IconButtonSection() {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        LevelChefIconButton(icon = Icons.Filled.Add, contentDescription = "Add", style = IconButtonStyle.FILLED, onClick = {})
-        LevelChefIconButton(icon = Icons.Filled.Settings, contentDescription = "Settings", style = IconButtonStyle.OUTLINED, onClick = {})
+        LevelChefIconButton(
+            icon = Icons.Filled.Add,
+            contentDescription = "Add",
+            style = IconButtonStyle.FILLED,
+            onClick = {},
+        )
+        LevelChefIconButton(
+            icon = Icons.Filled.Settings,
+            contentDescription = "Settings",
+            style = IconButtonStyle.OUTLINED,
+            onClick = {},
+        )
+        LevelChefIconButton(
+            icon = Icons.Filled.Settings,
+            contentDescription = "Settings",
+            style = IconButtonStyle.PLAIN,
+            onClick = {},
+        )
     }
 }
 
@@ -261,8 +329,12 @@ private fun ModalSection() {
 
 @Composable
 private fun BottomNavigationBarSection() {
-    var selected by remember { mutableStateOf(0) }
-    val tabs = listOf(Pair("Home", Icons.Filled.Home), Pair("Recipes", Icons.AutoMirrored.Filled.List), Pair("Trophies", Icons.Filled.Star))
+    var selected by remember { mutableIntStateOf(0) }
+    val tabs = listOf(
+        Pair("Home", Icons.Filled.Home),
+        Pair("Recipes", Icons.AutoMirrored.Filled.List),
+        Pair("Trophies", Icons.Filled.Star),
+    )
     LevelChefBottomNavigationBar(
         items = tabs.mapIndexed { index, (label, icon) ->
             LevelChefNavItem(icon = icon, label = label, selected = index == selected, onClick = { selected = index })
@@ -273,7 +345,11 @@ private fun BottomNavigationBarSection() {
 @Composable
 private fun TabBarSection() {
     var selected by remember { mutableStateOf(0) }
-    LevelChefTabBar(tabs = listOf("Details", "Security", "Billing"), selectedIndex = selected, onTabSelected = { selected = it })
+    LevelChefTabBar(
+        tabs = listOf("Details", "Security", "Billing"),
+        selectedIndex = selected,
+        onTabSelected = { selected = it },
+    )
 }
 
 @Composable
@@ -286,7 +362,12 @@ private fun SearchBarSection() {
 private fun DropdownSection() {
     var selected by remember { mutableStateOf("Development") }
     val options = listOf("Development", "Design", "Marketing")
-    LevelChefDropdown(label = "Category", selectedOption = selected, options = options, onOptionSelected = { selected = it })
+    LevelChefDropdown(
+        label = "Category",
+        selectedOption = selected,
+        options = options,
+        onOptionSelected = { selected = it },
+    )
 }
 
 @LevelChefPreview

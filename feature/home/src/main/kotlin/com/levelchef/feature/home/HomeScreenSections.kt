@@ -20,6 +20,7 @@ import com.levelchef.core.designsystem.LevelChefCard
 import com.levelchef.core.designsystem.LevelChefLastCookedCard
 import com.levelchef.core.designsystem.LevelChefRecipeCard
 import com.levelchef.core.designsystem.LevelChefWeeklyChallengeCard
+import com.levelchef.core.designsystem.RecipeCardTag
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 
@@ -91,9 +92,7 @@ internal fun RecipeRecommendationCard(rec: RecipeRecommendation, onClick: () -> 
         minutes = rec.minutes,
         difficulty = rec.difficulty,
         onClick = onClick,
-        tagLabel = rec.tagLabel,
-        tagEmoji = rec.tagEmoji,
-        tagColor = rec.tagColor,
+        tag = RecipeCardTag(label = rec.tagLabel, emoji = rec.tagEmoji, color = rec.tagColor),
     )
 }
 
