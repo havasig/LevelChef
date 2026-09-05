@@ -16,6 +16,12 @@ android {
             isMinifyEnabled = false
         }
     }
+
+    // Auto-generates a locale config from the values-*/ dirs present (en, hu), so Android 13+
+    // lists LevelChef in Settings > Apps > Language with a per-app override — no custom UI needed.
+    androidResources {
+        generateLocaleConfig = true
+    }
 }
 
 dependencies {

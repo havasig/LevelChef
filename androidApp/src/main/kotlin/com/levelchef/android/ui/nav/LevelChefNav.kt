@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -19,6 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.levelchef.android.R
 import com.levelchef.android.ui.showcase.DesignSystemShowcaseScreen
 import com.levelchef.core.designsystem.LevelChefBottomNavigationBar
 import com.levelchef.core.designsystem.LevelChefNavItem
@@ -106,7 +108,7 @@ fun LevelChefApp() {
                 // destination resolves has no bar yet.
                 DESIGN_SYSTEM_SHOWCASE_ROUTE, null -> Unit
                 RECIPE_DETAIL_ROUTE -> LevelChefTopAppBarInner(
-                    title = "Recipe",
+                    title = stringResource(R.string.nav_recipe_detail),
                     onBackClick = { navController.popBackStack() },
                     modifier = Modifier.statusBarsPadding(),
                 )
@@ -123,7 +125,7 @@ fun LevelChefApp() {
                     items = bottomNavItems.map { dest ->
                         LevelChefNavItem(
                             icon = iconFor(dest),
-                            label = dest.label,
+                            label = stringResource(dest.labelRes),
                             selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true,
                             onClick = { onNavItemClick(dest, navController, homeTapCounter) },
                         )
@@ -151,10 +153,11 @@ fun LevelChefApp() {
     }
 }
 
+@Composable
 private fun topBarTitleFor(route: String): String = when (route) {
-    LevelChefDestination.Recipes.route -> LevelChefDestination.Recipes.label
-    LevelChefDestination.Trophies.route -> LevelChefDestination.Trophies.label
-    LevelChefDestination.Log.route -> LevelChefDestination.Log.label
+    LevelChefDestination.Recipes.route -> stringResource(LevelChefDestination.Recipes.labelRes)
+    LevelChefDestination.Trophies.route -> stringResource(LevelChefDestination.Trophies.labelRes)
+    LevelChefDestination.Log.route -> stringResource(LevelChefDestination.Log.labelRes)
     else -> "LevelChef"
 }
 

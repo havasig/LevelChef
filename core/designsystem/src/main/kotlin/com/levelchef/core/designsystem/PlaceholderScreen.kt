@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -14,11 +15,9 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 /** Shared scaffolding for feature screens not yet built out from their Figma node. */
 @Composable
 fun PlaceholderScreen(title: String) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(24.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
         Text(
-            "$title — coming next",
+            stringResource(R.string.placeholder_coming_next, title),
             color = LevelChefTheme.colors.textSecondary,
             style = LevelChefTextStyles.bodyRegular,
         )

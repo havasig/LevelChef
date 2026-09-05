@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_cook_today_cta">Főzz ma — mutass egy receptet! 🍽</string>
+    <string name="home_recommended_for_you">Neked ajánlott</string>
+    <string name="home_cooking_sessions_label">Főzési alkalmak</string>
+    <string name="home_ingredients_tried_label">Kipróbált alapanyagok</string>
+    <string name="home_xp_to_next_level">%1$d / %2$d XP a következő szintig</string>
+    <string name="home_challenge_done">Kész</string>
+</resources>

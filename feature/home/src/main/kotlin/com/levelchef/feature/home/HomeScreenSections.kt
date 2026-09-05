@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.BadgeStyle
 import com.levelchef.core.designsystem.ButtonType
@@ -47,7 +48,7 @@ internal fun LevelProgressSection(state: HomeUiState) {
                 )
             }
             Text(
-                "${state.currentXp} / ${state.xpForNextLevel} XP to next level",
+                stringResource(R.string.home_xp_to_next_level, state.currentXp, state.xpForNextLevel),
                 color = colors.textSecondary,
                 style = LevelChefTextStyles.bodySmall,
             )
@@ -58,8 +59,16 @@ internal fun LevelProgressSection(state: HomeUiState) {
 @Composable
 internal fun StatCardsRow(state: HomeUiState) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        StatCard("🍳 ${state.cookingSessions}", "Cooking sessions", Modifier.weight(1f))
-        StatCard("🌿 ${state.ingredientsTried}", "Ingredients tried", Modifier.weight(1f))
+        StatCard(
+            "🍳 ${state.cookingSessions}",
+            stringResource(R.string.home_cooking_sessions_label),
+            Modifier.weight(1f),
+        )
+        StatCard(
+            "🌿 ${state.ingredientsTried}",
+            stringResource(R.string.home_ingredients_tried_label),
+            Modifier.weight(1f),
+        )
     }
 }
 
@@ -79,7 +88,13 @@ internal fun WeeklyChallengeSection(state: HomeUiState, onDoneClick: () -> Unit)
         title = state.challengeTitle,
         xp = state.challengeXp,
         inProgress = state.challengeInProgress,
-        action = { LevelChefButton(label = "Done", type = ButtonType.SECONDARY, onClick = onDoneClick) },
+        action = {
+            LevelChefButton(
+                label = stringResource(R.string.home_challenge_done),
+                type = ButtonType.SECONDARY,
+                onClick = onDoneClick,
+            )
+        },
     )
 }
 

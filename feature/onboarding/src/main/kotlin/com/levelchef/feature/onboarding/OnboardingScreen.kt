@@ -1,13 +1,14 @@
 package com.levelchef.feature.onboarding
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.PlaceholderScreen
 import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** Figma nodes 296:1679 / 296:1678 / 296:1729 / 465:645 / 480:631 (4 steps). */
 @Composable
-fun OnboardingScreen() = PlaceholderScreen("Onboarding")
+fun OnboardingScreen() = PlaceholderScreen(stringResource(R.string.onboarding_title))
 
 @LevelChefPreview
 @Composable
