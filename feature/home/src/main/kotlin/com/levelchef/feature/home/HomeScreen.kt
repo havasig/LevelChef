@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.ButtonType
 import com.levelchef.core.designsystem.LevelChefButton
@@ -38,7 +39,7 @@ fun HomeScreen(
         item { LevelChefDivider() }
         item {
             LevelChefButton(
-                label = "Cook today — show me a recipe! 🍽",
+                label = stringResource(R.string.home_cook_today_cta),
                 type = ButtonType.PRIMARY,
                 onClick = onCookToday,
                 modifier = Modifier.fillMaxWidth(),
@@ -47,7 +48,7 @@ fun HomeScreen(
         item { LevelChefDivider() }
         item {
             Text(
-                "Recommended for you",
+                stringResource(R.string.home_recommended_for_you),
                 color = LevelChefTheme.colors.textPrimary,
                 style = LevelChefTextStyles.bodyRegularBold,
             )
