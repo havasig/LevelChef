@@ -24,8 +24,8 @@ core:database  ◀── data only
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
   `RecipeRepositoryImpl` is still a static sample-data stub pending the Gemini recommender.
-- **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Dark-only, flat design.
-- **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`.
+- **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
+- **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen. **No feature module depends on another.**
   `feature:home` is fully built from Figma node `296:1929`; the rest are `PlaceholderScreen` stubs.
 
@@ -33,6 +33,7 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - Never add a `feature:* → feature:*` dependency.
 - Never make `domain` or `core:model` depend on Android, Compose, Koin, Ktor or SQLDelight.
 - `domain` depends only on `core:model`; `core:database` is imported from `data` only.
+- `core:model` and `core:designsystem` files declare at most one public top-level type.
 - Keep the dependency direction one-way. If a screen needs cross-feature navigation, wire it in `androidApp`'s NavHost.
 
 ## Working practices
@@ -64,7 +65,7 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **Package root** — `com.levelchef.<module path>` (e.g. `com.levelchef.feature.home`, `com.levelchef.core.designsystem`).
 - **Compose screen pattern** (see `feature:home`): stateless `XScreen(state, on…)` + stateful `XRoute(viewModel = koinViewModel())` that collects `uiState`. UI state is a single `XUiState` data class with sensible defaults. Section composables live in `XScreenSections.kt`.
 - **DI** — each feature that needs a ViewModel exposes a Koin `xModule` (`di/XModule.kt`) with `viewModel { … }`; register it in `LevelChefApplication.startKoin { modules(…) }`.
-- **Theme** — dark only. No gradients, no shadows/elevation. 0.5px borders (`BorderDefault`), 12px card radius (`LevelChefShapes.small/medium`). Use the named colors in `core.ui.theme.Color`, not raw `Color(0x…)`.
+- **Theme** — follows the system light/dark setting (`LevelChefTheme` defaults to `isSystemInDarkTheme()`; `MainActivity` no longer forces a mode). No gradients, no shadows/elevation. 0.5px borders (`BorderDefault`), 12px card radius (`LevelChefShapes.small/medium`). Read colors through `LevelChefTheme.colors.*` (the theme-flipping semantic tokens), not the raw `core.ui.theme.Color` constants or `Color(0x…)`.
 - **Tests** — `commonTest` with `kotlin("test")` (`kotlin.test.Test`, `assertEquals`). Coroutines via `runTest`; `Flow`/`StateFlow` assertions via **Turbine** (`flow.test { awaitItem() }`). Fakes are hand-written `private class Fake…Repository` implementing the domain interface (see `GetChefLevelUseCaseTest`). Test names use `snake_case_backtick_free` style: `returns_kitchen_novice_below_first_threshold`.
 - **Coverage** — **Kover**, 90% line-coverage gate (`./gradlew koverVerify`) over the *logic* layer only: `com.levelchef.domain.usecase.*`, `com.levelchef.data.repository.*`, feature `*ViewModel` + `*DomainMappersKt`. Compose UI is excluded (it is covered by screenshot tests instead). Config is at the repo-root `build.gradle.kts`; Kover is applied per-module (`alias(libs.plugins.kover)`) — when a feature module gains a ViewModel, add that line to its build file **and** `kover(project(":feature:<name>"))` to the root `dependencies {}`.
 - **Screenshot tests** — **Roborazzi** + **Robolectric** (JVM, no emulator). One `<Name>ScreenScreenshotTest.kt` per feature module rendering `LevelChefTheme { <Name>Screen(...) }` and calling `captureRoboImage()` (see `feature:home`). Baselines are committed under `feature/<name>/src/test/screenshots/`; regenerate with `./gradlew :feature:<name>:recordRoborazziDebug` and **review the PNG diff in the PR** — that is how a visual change is approved. The `Screenshots` GitHub workflow posts before/after/diff images as a PR comment but never blocks. Roborazzi is applied per-module (`alias(libs.plugins.roborazzi)` + the roborazzi/robolectric test deps + `testOptions { unitTests { isIncludeAndroidResources = true } }`).

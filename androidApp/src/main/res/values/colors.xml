@@ -1,0 +1,4 @@
+<resources>
+    <!-- Mirrors core.ui.theme.BackgroundPrimaryLight — keep in sync. -->
+    <color name="window_background">#FFFFFFFF</color>
+</resources>

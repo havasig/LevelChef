@@ -111,8 +111,8 @@ val LevelChefShapes = Shapes(
 
 /**
  * Flat design, no gradients/shadows, 0.5px borders, 12px card radius — see the design spec.
- * Ships dark-only (`MainActivity` forces `darkTheme = true`); `darkTheme` exists so previews and
- * tests can render both, per the Figma light-mode duplicate.
+ * Follows the system light/dark setting by default; pass an explicit [darkTheme] to pin one
+ * palette (previews and screenshot tests do this to render both, per the Figma light-mode duplicate).
  */
 @Composable
 fun LevelChefTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {

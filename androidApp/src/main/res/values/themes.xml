@@ -1,3 +1,8 @@
 <resources>
-    <style name="Theme.LevelChef" parent="android:Theme.Material.NoActionBar" />
+    <!-- Launch/window theme only — all in-app UI is Compose (LevelChefTheme). This exists so the
+         window background matches the Compose background during cold start, per system light/dark.
+         The dark override lives in values-night/themes.xml. -->
+    <style name="Theme.LevelChef" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
 </resources>
