@@ -24,7 +24,13 @@ import com.levelchef.core.ui.theme.WarningYellow
 
 /** The Last Cooked Card base component (Figma node 171:543). */
 @Composable
-fun LevelChefLastCookedCard(title: String, time: String, stars: Int, modifier: Modifier = Modifier, label: String = "Last Cooked") {
+fun LevelChefLastCookedCard(
+    title: String,
+    time: String,
+    stars: Int,
+    modifier: Modifier = Modifier,
+    label: String = "Last Cooked",
+) {
     val colors = LevelChefTheme.colors
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -32,9 +38,15 @@ fun LevelChefLastCookedCard(title: String, time: String, stars: Int, modifier: M
         colors = CardDefaults.cardColors(containerColor = colors.surface),
         border = cardBorder(),
     ) {
-        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Box(
-                modifier = Modifier.size(56.dp).background(colors.accentPrimary, RoundedCornerShape(14.dp)),
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(colors.accentPrimary, RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center,
             ) { Text("🕐") }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {

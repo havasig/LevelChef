@@ -20,7 +20,11 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 @Composable
 fun LevelChefSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
     val colors = LevelChefTheme.colors
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,

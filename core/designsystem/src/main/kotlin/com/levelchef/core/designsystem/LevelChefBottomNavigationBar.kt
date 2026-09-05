@@ -2,7 +2,6 @@ package com.levelchef.core.designsystem
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,13 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
-
-/** One tab rendered by [LevelChefBottomNavigationBar]. */
-data class LevelChefNavItem(val icon: ImageVector, val label: String, val selected: Boolean, val onClick: () -> Unit)
 
 /** The Bottom Navigation Bar extended component (Figma node 251:1007). */
 @Composable
@@ -47,11 +42,7 @@ fun LevelChefBottomNavigationBar(items: List<LevelChefNavItem>, modifier: Modifi
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = item.onClick,
-                    ),
+                    .clickable(interactionSource = null, indication = null, onClick = item.onClick),
                 verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -66,11 +57,20 @@ fun LevelChefBottomNavigationBar(items: List<LevelChefNavItem>, modifier: Modifi
 @Composable
 private fun LevelChefBottomNavigationBarPreview() {
     var selected by remember { mutableIntStateOf(0) }
-    val tabs = listOf(Triple("Home", Icons.Filled.Home, 0), Triple("Recipes", Icons.AutoMirrored.Filled.List, 1), Triple("Trophies", Icons.Filled.Star, 2))
+    val tabs = listOf(
+        Triple("Home", Icons.Filled.Home, 0),
+        Triple("Recipes", Icons.AutoMirrored.Filled.List, 1),
+        Triple("Trophies", Icons.Filled.Star, 2),
+    )
     LevelChefTheme {
         LevelChefBottomNavigationBar(
             items = tabs.map { (label, icon, index) ->
-                LevelChefNavItem(icon = icon, label = label, selected = index == selected, onClick = { selected = index })
+                LevelChefNavItem(
+                    icon = icon,
+                    label = label,
+                    selected = index == selected,
+                    onClick = { selected = index },
+                )
             },
         )
     }

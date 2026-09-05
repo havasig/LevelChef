@@ -3,7 +3,6 @@ package com.levelchef.core.designsystem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,13 +20,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Tab Bar extended component (Figma node 251:1016) — segmented tabs with an underline indicator. */
 @Composable
-fun LevelChefTabBar(tabs: List<String>, selectedIndex: Int, onTabSelected: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun LevelChefTabBar(
+    tabs: List<String>,
+    selectedIndex: Int,
+    onTabSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors = LevelChefTheme.colors
     Row(
         modifier = modifier
@@ -41,7 +47,10 @@ fun LevelChefTabBar(tabs: List<String>, selectedIndex: Int, onTabSelected: (Int)
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onTabSelected(index) },
+                    .clickable(
+                        interactionSource = null,
+                        indication = ripple(color = colors.accentPrimary),
+                    ) { onTabSelected(index) },
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -51,14 +60,15 @@ fun LevelChefTabBar(tabs: List<String>, selectedIndex: Int, onTabSelected: (Int)
                     style = LevelChefTextStyles.bodyRegularBold,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
-                if (selected) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(2.dp)
-                            .background(colors.accentPrimary),
-                    )
-                }
+                // Always emit the underline (transparent when unselected) so the row's composition
+                // structure is identical across tabs — a conditionally-present child inside an
+                // unkeyed loop iteration is what wedges the click handler after the first switch.
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .background(if (selected) colors.accentPrimary else Color.Transparent),
+                )
             }
         }
     }
@@ -69,6 +79,10 @@ fun LevelChefTabBar(tabs: List<String>, selectedIndex: Int, onTabSelected: (Int)
 private fun LevelChefTabBarPreview() {
     var selected by remember { mutableIntStateOf(0) }
     LevelChefTheme {
-        LevelChefTabBar(tabs = listOf("Details", "Security", "Billing"), selectedIndex = selected, onTabSelected = { selected = it })
+        LevelChefTabBar(
+            tabs = listOf("Details", "Security", "Billing"),
+            selectedIndex = selected,
+            onTabSelected = { selected = it },
+        )
     }
 }

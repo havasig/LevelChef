@@ -3,7 +3,6 @@ package com.levelchef.core.designsystem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,13 +45,18 @@ fun LevelChefDropdown(
                 .fillMaxWidth()
                 .background(colors.surface, RoundedCornerShape(12.dp))
                 .border(0.5.dp, colors.border, RoundedCornerShape(12.dp))
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { expanded = true }
+                .clickable(interactionSource = null, indication = null) { expanded = true }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(selectedOption, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegular)
-            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = colors.textPrimary, modifier = Modifier.size(16.dp))
+            Icon(
+                Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = colors.textPrimary,
+                modifier = Modifier.size(16.dp),
+            )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->

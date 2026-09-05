@@ -20,7 +20,7 @@ import com.levelchef.core.ui.theme.LevelChefTheme
  * components. The two styles genuinely redesign per theme rather than just swapping neutrals.
  */
 @Composable
-fun LevelChefBadge(text: String, style: BadgeStyle = BadgeStyle.LIGHT, modifier: Modifier = Modifier) {
+fun LevelChefBadge(text: String, modifier: Modifier = Modifier, style: BadgeStyle = BadgeStyle.LIGHT) {
     val colors = LevelChefTheme.colors
     val bg = if (style == BadgeStyle.LIGHT) colors.badgePrimaryBg else colors.badgeInverseBg
     val fg = if (style == BadgeStyle.LIGHT) colors.badgePrimaryText else BadgeInverseText

@@ -3,7 +3,6 @@ package com.levelchef.core.designsystem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,8 +24,8 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 @Composable
 fun LevelChefTag(
     label: String,
-    color: TagColor = TagColor.PURPLE,
     modifier: Modifier = Modifier,
+    color: TagColor = TagColor.PURPLE,
     emoji: String? = null,
     selected: Boolean = false,
     showClose: Boolean = false,
@@ -52,7 +50,13 @@ fun LevelChefTag(
                 tint = textColor,
                 modifier = Modifier
                     .size(14.dp)
-                    .let { m -> if (onClose != null) m.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClose) else m },
+                    .let { m ->
+                        if (onClose != null) m.clickable(
+                            interactionSource = null,
+                            indication = null,
+                            onClick = onClose,
+                        ) else m
+                    },
             )
         }
     }
@@ -66,7 +70,14 @@ private fun LevelChefTagPreview() {
             TagColor.entries.forEach { color ->
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     LevelChefTag(label = "Tag Label", color = color, emoji = "⚡", selected = false)
-                    LevelChefTag(label = "Tag Label", color = color, emoji = "⚡", selected = true, showClose = true, onClose = {})
+                    LevelChefTag(
+                        label = "Tag Label",
+                        color = color,
+                        emoji = "⚡",
+                        selected = true,
+                        showClose = true,
+                        onClose = {},
+                    )
                 }
             }
         }

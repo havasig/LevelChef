@@ -27,7 +27,12 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Search Bar base component (Figma node 251:1030). */
 @Composable
-fun LevelChefSearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier, placeholder: String = "Search...") {
+fun LevelChefSearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "Search...",
+) {
     val colors = LevelChefTheme.colors
     Row(
         modifier = modifier
@@ -38,10 +43,23 @@ fun LevelChefSearchBar(query: String, onQueryChange: (String) -> Unit, modifier:
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Filled.Search, contentDescription = null, tint = colors.textSecondary, modifier = Modifier.size(18.dp))
+        Icon(
+            Icons.Filled.Search,
+            contentDescription = null,
+            tint = colors.textSecondary,
+            modifier = Modifier.size(18.dp),
+        )
         Box(modifier = Modifier.weight(1f)) {
-            if (query.isEmpty()) Text(placeholder, color = colors.textSecondary, style = LevelChefTextStyles.bodyRegular)
-            BasicTextField(value = query, onValueChange = onQueryChange, textStyle = LevelChefTextStyles.bodyRegular.copy(color = colors.textPrimary))
+            if (query.isEmpty()) Text(
+                placeholder,
+                color = colors.textSecondary,
+                style = LevelChefTextStyles.bodyRegular,
+            )
+            BasicTextField(
+                value = query,
+                onValueChange = onQueryChange,
+                textStyle = LevelChefTextStyles.bodyRegular.copy(color = colors.textPrimary),
+            )
         }
     }
 }

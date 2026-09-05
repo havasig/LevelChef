@@ -23,7 +23,10 @@ fun LevelChefPageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier 
                 modifier = Modifier
                     .height(6.dp)
                     .width(if (active) 28.dp else 8.dp)
-                    .background(if (active) colors.accentPrimary else colors.pageIndicatorInactive, RoundedCornerShape(3.dp)),
+                    .background(
+                        if (active) colors.accentPrimary else colors.pageIndicatorInactive,
+                        RoundedCornerShape(3.dp),
+                    ),
             )
         }
     }

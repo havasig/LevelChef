@@ -3,7 +3,6 @@ package com.levelchef.core.designsystem
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -26,7 +25,7 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 fun LevelChefRadioButton(selected: Boolean, onClick: () -> Unit, label: String, modifier: Modifier = Modifier) {
     val colors = LevelChefTheme.colors
     Row(
-        modifier = modifier.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClick),
+        modifier = modifier.clickable(interactionSource = null, indication = null, onClick = onClick),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -36,7 +35,9 @@ fun LevelChefRadioButton(selected: Boolean, onClick: () -> Unit, label: String, 
                 .border(1.5.dp, if (selected) colors.accentPrimary else colors.border, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            if (selected) Box(modifier = Modifier.size(10.dp).background(colors.accentPrimary, CircleShape))
+            if (selected) Box(modifier = Modifier
+                .size(10.dp)
+                .background(colors.accentPrimary, CircleShape))
         }
         Text(
             label,
@@ -51,6 +52,10 @@ fun LevelChefRadioButton(selected: Boolean, onClick: () -> Unit, label: String, 
 private fun LevelChefRadioButtonPreview() {
     var selected by remember { mutableStateOf(true) }
     LevelChefTheme {
-        LevelChefRadioButton(selected = selected, onClick = { selected = !selected }, label = if (selected) "Selected" else "Unselected")
+        LevelChefRadioButton(
+            selected = selected,
+            onClick = { selected = !selected },
+            label = if (selected) "Selected" else "Unselected",
+        )
     }
 }

@@ -34,7 +34,13 @@ fun LevelChefInputField(
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder, color = colors.textSecondary, style = MaterialTheme.typography.bodyMedium) },
+            placeholder = {
+                Text(
+                    placeholder,
+                    color = colors.textSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
             textStyle = LevelChefTextStyles.bodyRegular.copy(color = colors.textPrimary),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -53,6 +59,11 @@ fun LevelChefInputField(
 private fun LevelChefInputFieldPreview() {
     var value by remember { mutableStateOf("") }
     LevelChefTheme {
-        LevelChefInputField(label = "Label", value = value, onValueChange = { value = it }, placeholder = "Placeholder text")
+        LevelChefInputField(
+            label = "Label",
+            value = value,
+            onValueChange = { value = it },
+            placeholder = "Placeholder text",
+        )
     }
 }

@@ -34,15 +34,29 @@ fun LevelChefWeeklyChallengeCard(
 ) {
     val colors = LevelChefTheme.colors
     LevelChefCard(modifier = modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(category, color = Violet600, style = LevelChefTextStyles.captionBold)
             LevelChefBadge("+$xp XP", style = BadgeStyle.DARK)
         }
         Text(title, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(modifier = Modifier.size(8.dp).background(SuccessGreen, RoundedCornerShape(50)))
-                Text(if (inProgress) "In progress" else "Not started", color = colors.textSecondary, style = LevelChefTextStyles.bodySmallBold)
+                Box(modifier = Modifier
+                    .size(8.dp)
+                    .background(SuccessGreen, RoundedCornerShape(50)))
+                Text(
+                    if (inProgress) "In progress" else "Not started",
+                    color = colors.textSecondary,
+                    style = LevelChefTextStyles.bodySmallBold,
+                )
             }
             action?.invoke()
         }

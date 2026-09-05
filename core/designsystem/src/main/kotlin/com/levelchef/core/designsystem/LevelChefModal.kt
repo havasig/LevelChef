@@ -50,13 +50,27 @@ private fun ModalContent(
     val colors = LevelChefTheme.colors
     LevelChefCard(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
-            modifier = Modifier.size(48.dp).background(colors.accentPrimary.copy(alpha = 0.15f), CircleShape),
+            modifier = Modifier
+                .size(48.dp)
+                .background(colors.accentPrimary.copy(alpha = 0.15f), CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Text(icon, color = colors.accentPrimary, style = LevelChefTextStyles.h2)
         }
-        Text(title, color = colors.textPrimary, style = LevelChefTextStyles.bodyLargeBold, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-        Text(message, color = colors.textSecondary, style = LevelChefTextStyles.bodyRegular, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Text(
+            title,
+            color = colors.textPrimary,
+            style = LevelChefTextStyles.bodyLargeBold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+            message,
+            color = colors.textSecondary,
+            style = LevelChefTextStyles.bodyRegular,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 LevelChefButton(label = cancelLabel, type = ButtonType.SECONDARY, onClick = onDismiss)

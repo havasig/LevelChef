@@ -1,7 +1,6 @@
 package com.levelchef.core.designsystem
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,32 +30,46 @@ fun LevelChefRecipeCard(
     difficulty: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    tagLabel: String? = null,
-    tagEmoji: String? = null,
-    tagColor: TagColor = TagColor.PURPLE,
+    tag: RecipeCardTag? = null,
 ) {
     val colors = LevelChefTheme.colors
     Card(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = colors.surface),
         border = cardBorder(),
     ) {
-        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Box(
-                modifier = Modifier.size(56.dp).background(colors.accentPrimary, RoundedCornerShape(14.dp)),
+                modifier = Modifier
+                    .size(56.dp)
+                    .background(colors.accentPrimary, RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(emoji, style = MaterialTheme.typography.headlineMedium)
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(title, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold, modifier = Modifier.weight(1f))
+                    Text(
+                        title,
+                        color = colors.textPrimary,
+                        style = LevelChefTextStyles.bodyRegularBold,
+                        modifier = Modifier.weight(1f),
+                    )
                     Text("+$xp XP", color = colors.accentPrimary, style = LevelChefTextStyles.bodySmall)
                 }
-                Text("⏱ $minutes min · $difficulty", color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
-                if (tagLabel != null) {
-                    LevelChefTag(label = tagLabel, emoji = tagEmoji, color = tagColor)
+                Text(
+                    "⏱ $minutes min · $difficulty",
+                    color = colors.textSecondary,
+                    style = LevelChefTextStyles.bodySmall,
+                )
+                if (tag != null) {
+                    LevelChefTag(label = tag.label, emoji = tag.emoji, color = tag.color)
                 }
             }
         }
@@ -74,9 +87,7 @@ private fun LevelChefRecipeCardPreview() {
             minutes = 25,
             difficulty = "Easy",
             onClick = {},
-            tagLabel = "New ingredient",
-            tagEmoji = "🌿",
-            tagColor = TagColor.PURPLE,
+            tag = RecipeCardTag(label = "New ingredient", emoji = "🌿", color = TagColor.PURPLE),
         )
     }
 }
