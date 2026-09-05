@@ -23,6 +23,7 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.feature.home.HomeRoute
 import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.recipedetail.RecipeDetailScreen
+import com.levelchef.feature.settings.SettingsRoute
 import com.levelchef.feature.trophyroom.TrophyRoomScreen
 
 /** The top-level destinations shown in the bottom navigation bar. The bar is hidden on every other
@@ -34,6 +35,7 @@ private val bottomNavItems = listOf(
 )
 
 private const val RECIPE_DETAIL_ROUTE = "recipeDetail"
+private const val SETTINGS_ROUTE = "settings"
 
 /** Hidden route for [DesignSystemShowcaseScreen] — not in [bottomNavItems], reachable only by
  * tapping the Home nav item 5x quickly (see [HomeTapCounter] below). */
@@ -129,12 +131,18 @@ private fun LevelChefAppContent() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(LevelChefDestination.Home.route) {
-                HomeRoute(onRecipeClick = { navController.navigate(RECIPE_DETAIL_ROUTE) })
+                HomeRoute(
+                    onRecipeClick = { navController.navigate(RECIPE_DETAIL_ROUTE) },
+                    onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
+                )
             }
             composable(LevelChefDestination.Recipes.route) { RecipeDetailScreen() }
             composable(LevelChefDestination.Trophies.route) { TrophyRoomScreen() }
             composable(RECIPE_DETAIL_ROUTE) {
                 RecipeDetailScreen(onBackClick = { navController.popBackStack() })
+            }
+            composable(SETTINGS_ROUTE) {
+                SettingsRoute(onBackClick = { navController.popBackStack() })
             }
             composable(DESIGN_SYSTEM_SHOWCASE_ROUTE) {
                 DesignSystemShowcaseScreen(onBackClick = { navController.popBackStack() })

@@ -28,6 +28,7 @@ fun HomeScreen(
     onCookToday: () -> Unit = {},
     onRecipeClick: (RecipeRecommendation) -> Unit = {},
     onChallengeDone: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -36,6 +37,7 @@ fun HomeScreen(
     ) {
         LevelChefTopAppBarHome(
             title = stringResource(R.string.home_top_bar_title),
+            onSettingsClick = onSettingsClick,
             modifier = Modifier.statusBarsPadding(),
         )
         LazyColumn(

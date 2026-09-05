@@ -45,6 +45,10 @@ class SurveyResponseRepositoryImpl(
             householdSize = response.householdSize.name,
         )
     }
+
+    override suspend fun clear() {
+        database.surveyResponseQueries.deleteResponse()
+    }
 }
 
 private const val SEPARATOR = ","

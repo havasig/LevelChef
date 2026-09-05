@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Beállítások</string>
+
+    <string name="settings_appearance_section">Megjelenés</string>
+    <string name="settings_theme_label">Téma</string>
+    <string name="settings_theme_system">Rendszer szerint</string>
+    <string name="settings_theme_light">Világos</string>
+    <string name="settings_theme_dark">Sötét</string>
+
+    <string name="settings_language_section">Nyelv</string>
+    <string name="settings_language_label">Alkalmazás nyelve</string>
+    <string name="settings_language_system">Rendszer szerint</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_hungarian">Magyar</string>
+
+    <string name="settings_onboarding_section">Bevezető</string>
+    <string name="settings_retake_survey_description">Töltsd ki újra az ízlésfelmérőt, hogy frissüljenek a receptajánlások.</string>
+    <string name="settings_retake_survey">Felmérő újratöltése</string>
+    <string name="settings_retake_confirm_title">Újratöltöd a felmérőt?</string>
+    <string name="settings_retake_confirm_message">A jelenlegi válaszok törlődnek, és a felmérő elölről indul.</string>
+
+    <string name="settings_developer_section">Fejlesztői</string>
+    <string name="settings_clear_storage_description">Töröld a mentett felmérőválaszt, hogy az első indítási folyamat újra lefusson.</string>
+    <string name="settings_clear_storage">Bevezető tárhely törlése</string>
+    <string name="settings_clear_storage_confirm_title">Törlöd a bevezető tárhelyet?</string>
+    <string name="settings_clear_storage_confirm_message">A mentett felmérőválasz törlődik. A kötelező bevezető felmérő ismét megjelenik.</string>
+
+    <string name="settings_dialog_cancel">Mégse</string>
+    <string name="settings_dialog_confirm">Megerősítés</string>
+</resources>

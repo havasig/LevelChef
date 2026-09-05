@@ -22,3 +22,6 @@ SELECT EXISTS(SELECT * FROM surveyResponse WHERE id = 1);
 upsertResponse:
 INSERT OR REPLACE INTO surveyResponse(id, completedAt, cookingExperience, dietaryPreference, allergens, cuisines, spiceTolerance, cookingGoal, weeknightTime, householdSize)
 VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteResponse:
+DELETE FROM surveyResponse;

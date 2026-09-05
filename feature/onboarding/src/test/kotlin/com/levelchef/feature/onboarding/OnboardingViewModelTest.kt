@@ -41,6 +41,9 @@ private class FakeSurveyRepository(initial: SurveyResponse? = null) : SurveyRepo
     override suspend fun save(response: SurveyResponse) {
         state.value = response
     }
+    override suspend fun clear() {
+        state.value = null
+    }
 }
 
 private val storedResponse = SurveyResponse(

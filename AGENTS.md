@@ -27,9 +27,10 @@ core:database  ◀── data only
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen. **No feature module depends on another.**
-  `feature:home` (Figma node `296:1929`) and `feature:onboarding` (the mandatory first-launch
-  survey — `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored) are fully
-  built; the rest are `PlaceholderScreen` stubs.
+  `feature:home` (Figma node `296:1929`), `feature:onboarding` (the mandatory first-launch survey —
+  `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored) and `feature:settings`
+  (theme / language / retake-onboarding, reached from the Home gear) are fully built; the rest are
+  `PlaceholderScreen` stubs.
 
 Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/levelchef/konsist/`):
 - Never add a `feature:* → feature:*` dependency.
@@ -68,7 +69,18 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **Compose screen pattern** (see `feature:home`): stateless `XScreen(state, on…)` + stateful `XRoute(viewModel = koinViewModel())` that collects `uiState`. UI state is a single `XUiState` data class with sensible defaults. Section composables live in `XScreenSections.kt`.
 - **Screen chrome** — each feature screen renders its **own** top app bar (`LevelChefTopAppBar{Home,Inner,Search}`) as the first child of its root layout, with `Modifier.statusBarsPadding()`. The bottom navigation bar is *not* per-screen: it lives in `androidApp`'s app-level `Scaffold` (`LevelChefNav.kt`) and shows only on the top-level destinations (Home, Recipes, Trophies). A drill-down screen (back arrow, no bottom bar) also adds `Modifier.navigationBarsPadding()`.
 - **DI** — each feature that needs a ViewModel exposes a Koin `xModule` (`di/XModule.kt`) with `viewModel { … }`; register it in `LevelChefApplication.startKoin { modules(…) }`.
-- **Theme** — follows the system light/dark setting (`LevelChefTheme` defaults to `isSystemInDarkTheme()`; `MainActivity` no longer forces a mode). No gradients, no shadows/elevation. 0.5px borders (`BorderDefault`), 12px card radius (`LevelChefShapes.small/medium`). Read colors through `LevelChefTheme.colors.*` (the theme-flipping semantic tokens), not the raw `core.ui.theme.Color` constants or `Color(0x…)`.
+- **Theme** — `LevelChefTheme` reads `isSystemInDarkTheme()`. The in-app Settings theme choice
+  (System/Light/Dark) is applied by `AppCompatDelegate.setDefaultNightMode()` — `MainActivity` is an
+  `AppCompatActivity` so that override flows into `isSystemInDarkTheme()`; no `darkTheme` arg is
+  passed. The chosen `ThemeMode` is persisted in `SharedPreferences` by `feature:settings`'
+  `AppSettingsController` (app-shell config — deliberately *not* in the domain/SQLDelight layer) and
+  re-applied in `LevelChefApplication.onCreate()`. No gradients, no shadows/elevation. 0.5px borders
+  (`BorderDefault`), 12px card radius (`LevelChefShapes.small/medium`). Read colors through
+  `LevelChefTheme.colors.*` (the theme-flipping semantic tokens), not the raw `core.ui.theme.Color`
+  constants or `Color(0x…)`.
+- **Language** — in-app language switching goes through `AppCompatDelegate.setApplicationLocales()`
+  (AppCompat persists it via the `AppLocalesMetadataHolderService` + `autoStoreLocales` manifest
+  entry); it also drives the OS per-app-language screen (`generateLocaleConfig = true`).
 - **Tests** — `commonTest` with `kotlin("test")` (`kotlin.test.Test`, `assertEquals`). Coroutines via `runTest`; `Flow`/`StateFlow` assertions via **Turbine** (`flow.test { awaitItem() }`). Fakes are hand-written `private class Fake…Repository` implementing the domain interface (see `GetChefLevelUseCaseTest`). Test names use `snake_case_backtick_free` style: `returns_kitchen_novice_below_first_threshold`.
 - **Coverage** — **Kover**, 90% line-coverage gate (`./gradlew koverVerify`) over the *logic* layer only: `com.levelchef.domain.usecase.*`, `com.levelchef.data.repository.*`, feature `*ViewModel` + `*DomainMappersKt`. Compose UI is excluded (it is covered by screenshot tests instead). Config is at the repo-root `build.gradle.kts`; Kover is applied per-module (`alias(libs.plugins.kover)`) — when a feature module gains a ViewModel, add that line to its build file **and** `kover(project(":feature:<name>"))` to the root `dependencies {}`.
 - **Screenshot tests** — **Roborazzi** + **Robolectric** (JVM, no emulator). One `<Name>ScreenScreenshotTest.kt` per feature module rendering `LevelChefTheme { <Name>Screen(...) }` and calling `captureRoboImage()` (see `feature:home`). Baselines are committed under `feature/<name>/src/test/screenshots/`; regenerate with `./gradlew :feature:<name>:recordRoborazziDebug` and **review the PNG diff in the PR** — that is how a visual change is approved. The `Screenshots` GitHub workflow posts before/after/diff images as a PR comment but never blocks. Roborazzi is applied per-module (`alias(libs.plugins.roborazzi)` + the roborazzi/robolectric test deps + `testOptions { unitTests { isIncludeAndroidResources = true } }`).

@@ -39,8 +39,10 @@ dependencies {
     implementation(project(":feature:trophyroom"))
     implementation(project(":feature:cookinglog"))
     implementation(project(":feature:onboarding"))
+    implementation(project(":feature:settings"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 

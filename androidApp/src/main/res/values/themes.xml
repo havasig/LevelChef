@@ -1,8 +1,9 @@
 <resources>
     <!-- Launch/window theme only — all in-app UI is Compose (LevelChefTheme). This exists so the
-         window background matches the Compose background during cold start, per system light/dark.
-         The dark override lives in values-night/themes.xml. -->
-    <style name="Theme.LevelChef" parent="android:Theme.Material.Light.NoActionBar">
+         window background matches the Compose background during cold start. DayNight + the
+         values-night/colors.xml override of @color/window_background handle light/dark; the
+         in-app Settings theme choice is applied by AppCompatDelegate.setDefaultNightMode. -->
+    <style name="Theme.LevelChef" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 </resources>
