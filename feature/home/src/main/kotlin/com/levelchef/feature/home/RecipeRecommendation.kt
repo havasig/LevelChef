@@ -1,6 +1,6 @@
 package com.levelchef.feature.home
 
-import com.levelchef.core.designsystem.TagColors
+import com.levelchef.core.designsystem.TagColor
 
 data class RecipeRecommendation(
     val emoji: String,
@@ -10,5 +10,5 @@ data class RecipeRecommendation(
     val difficulty: String,
     val tagEmoji: String,
     val tagLabel: String,
-    val tagColors: TagColors,
+    val tagColor: TagColor,
 )

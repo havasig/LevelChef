@@ -1,13 +1,11 @@
 package com.levelchef.feature.home
 
-import com.levelchef.core.designsystem.TagColors
+import com.levelchef.core.designsystem.TagColor
 import com.levelchef.core.model.CookingSession
 import com.levelchef.core.model.Recipe
-import com.levelchef.core.ui.theme.TagGreenBg
-import com.levelchef.core.ui.theme.TagGreenStroke
-import kotlinx.datetime.Instant
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /** Maps domain models (from [com.levelchef.domain.repository]) onto this screen's presentation types. */
 
@@ -19,7 +17,7 @@ internal fun Recipe.toRecommendation(): RecipeRecommendation = RecipeRecommendat
     difficulty = difficulty.name.lowercase().replaceFirstChar { it.uppercase() },
     tagEmoji = "🤖",
     tagLabel = "AI pick",
-    tagColors = TagColors(TagGreenBg, TagGreenStroke),
+    tagColor = TagColor.GREEN,
 )
 
 internal fun CookingSession.toLastCooked(): LastCooked = LastCooked(

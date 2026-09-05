@@ -9,4 +9,5 @@ android {
 dependencies {
     implementation(project(":core:ui"))
     implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
 }
