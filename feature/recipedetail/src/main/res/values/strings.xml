@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="recipe_detail_title">Recipe Detail</string>
+    <string name="saved_recipes_title">Recipes</string>
 </resources>
