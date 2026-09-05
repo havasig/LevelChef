@@ -19,19 +19,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.BackgroundPrimary
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The "Top App Bar/Search" extended component (Figma instance 371:674) — back arrow + an inline search field. */
 @Composable
 fun LevelChefTopAppBarSearch(placeholder: String, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = LevelChefTheme.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(BackgroundPrimary)
+            .background(colors.background)
             .height(56.dp)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -40,7 +39,7 @@ fun LevelChefTopAppBarSearch(placeholder: String, onBackClick: () -> Unit, modif
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Back",
-            tint = TextPrimary,
+            tint = colors.textPrimary,
             modifier = Modifier
                 .size(24.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onBackClick),
@@ -48,13 +47,22 @@ fun LevelChefTopAppBarSearch(placeholder: String, onBackClick: () -> Unit, modif
         Row(
             modifier = Modifier
                 .weight(1f)
-                .background(Color.White.copy(alpha = 0.08f), RoundedCornerShape(12.dp))
+                // A wash over the page background — white-on-dark in Figma's dark theme; using
+                // textPrimary (which itself flips white/near-black) reproduces the same wash
+                // inverted for light theme, matching how Figma's own page-indicator-inactive flips.
+                .background(colors.textPrimary.copy(alpha = 0.08f), RoundedCornerShape(12.dp))
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Filled.Search, contentDescription = null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(20.dp))
-            Text(placeholder, color = Color.White.copy(alpha = 0.5f), style = LevelChefTextStyles.bodySmallBold)
+            Icon(Icons.Filled.Search, contentDescription = null, tint = colors.textSecondary, modifier = Modifier.size(20.dp))
+            Text(placeholder, color = colors.textSecondary, style = LevelChefTextStyles.bodySmallBold)
         }
     }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefTopAppBarSearchPreview() {
+    LevelChefTheme { LevelChefTopAppBarSearch("Search recipes...", onBackClick = {}) }
 }

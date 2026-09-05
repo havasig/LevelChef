@@ -15,31 +15,40 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.BackgroundSurface
-import com.levelchef.core.ui.theme.BorderDefault
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
-import com.levelchef.core.ui.theme.TextSecondary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Search Bar base component (Figma node 251:1030). */
 @Composable
 fun LevelChefSearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier, placeholder: String = "Search...") {
+    val colors = LevelChefTheme.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(BackgroundSurface, RoundedCornerShape(12.dp))
-            .border(0.5.dp, BorderDefault, RoundedCornerShape(12.dp))
+            .background(colors.surface, RoundedCornerShape(12.dp))
+            .border(0.5.dp, colors.border, RoundedCornerShape(12.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+        Icon(Icons.Filled.Search, contentDescription = null, tint = colors.textSecondary, modifier = Modifier.size(18.dp))
         Box(modifier = Modifier.weight(1f)) {
-            if (query.isEmpty()) Text(placeholder, color = TextSecondary, style = LevelChefTextStyles.bodyRegular)
-            BasicTextField(value = query, onValueChange = onQueryChange, textStyle = LevelChefTextStyles.bodyRegular.copy(color = TextPrimary))
+            if (query.isEmpty()) Text(placeholder, color = colors.textSecondary, style = LevelChefTextStyles.bodyRegular)
+            BasicTextField(value = query, onValueChange = onQueryChange, textStyle = LevelChefTextStyles.bodyRegular.copy(color = colors.textPrimary))
         }
     }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefSearchBarPreview() {
+    var query by remember { mutableStateOf("") }
+    LevelChefTheme { LevelChefSearchBar(query = query, onQueryChange = { query = it }) }
 }

@@ -14,26 +14,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.AccentPrimary
-import com.levelchef.core.ui.theme.BackgroundSurface
-import com.levelchef.core.ui.theme.BorderDefault
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
-import com.levelchef.core.ui.theme.TextSecondary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Tab Bar extended component (Figma node 251:1016) — segmented tabs with an underline indicator. */
 @Composable
 fun LevelChefTabBar(tabs: List<String>, selectedIndex: Int, onTabSelected: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val colors = LevelChefTheme.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(48.dp)
-            .background(BackgroundSurface)
-            .border(0.5.dp, BorderDefault),
+            .background(colors.surface)
+            .border(0.5.dp, colors.border),
     ) {
         tabs.forEachIndexed { index, tab ->
             val selected = index == selectedIndex
@@ -47,7 +47,7 @@ fun LevelChefTabBar(tabs: List<String>, selectedIndex: Int, onTabSelected: (Int)
             ) {
                 Text(
                     tab,
-                    color = if (selected) TextPrimary else TextSecondary,
+                    color = if (selected) colors.textPrimary else colors.textSecondary,
                     style = LevelChefTextStyles.bodyRegularBold,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
@@ -56,10 +56,19 @@ fun LevelChefTabBar(tabs: List<String>, selectedIndex: Int, onTabSelected: (Int)
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(2.dp)
-                            .background(AccentPrimary),
+                            .background(colors.accentPrimary),
                     )
                 }
             }
         }
+    }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefTabBarPreview() {
+    var selected by remember { mutableIntStateOf(0) }
+    LevelChefTheme {
+        LevelChefTabBar(tabs = listOf("Details", "Security", "Billing"), selectedIndex = selected, onTabSelected = { selected = it })
     }
 }

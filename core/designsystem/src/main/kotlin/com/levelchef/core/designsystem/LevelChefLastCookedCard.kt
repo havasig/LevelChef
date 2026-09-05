@@ -17,37 +17,41 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.AccentPrimary
-import com.levelchef.core.ui.theme.BackgroundSurface
 import com.levelchef.core.ui.theme.LevelChefTextStyles
+import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.core.ui.theme.SuccessGreen
-import com.levelchef.core.ui.theme.TextPrimary
-import com.levelchef.core.ui.theme.TextSecondary
 import com.levelchef.core.ui.theme.WarningYellow
 
 /** The Last Cooked Card base component (Figma node 171:543). */
 @Composable
 fun LevelChefLastCookedCard(title: String, time: String, stars: Int, modifier: Modifier = Modifier, label: String = "Last Cooked") {
+    val colors = LevelChefTheme.colors
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = BackgroundSurface),
+        colors = CardDefaults.cardColors(containerColor = colors.surface),
         border = cardBorder(),
     ) {
         Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(56.dp).background(AccentPrimary, RoundedCornerShape(14.dp)),
+                modifier = Modifier.size(56.dp).background(colors.accentPrimary, RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center,
             ) { Text("🕐") }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(label, color = TextSecondary, style = LevelChefTextStyles.captionBold)
+                Text(label, color = colors.textSecondary, style = LevelChefTextStyles.captionBold)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(title, color = TextPrimary, style = LevelChefTextStyles.bodyRegularBold)
-                    Text("· $time", color = TextSecondary, style = LevelChefTextStyles.bodySmall)
+                    Text(title, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
+                    Text("· $time", color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
                 }
                 Text("★".repeat(stars) + "☆".repeat((5 - stars).coerceAtLeast(0)), color = WarningYellow)
             }
             Text("✓", color = SuccessGreen, style = MaterialTheme.typography.headlineMedium)
         }
     }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefLastCookedCardPreview() {
+    LevelChefTheme { LevelChefLastCookedCard(title = "Tofu stir-fry", time = "3 days ago", stars = 4) }
 }

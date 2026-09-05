@@ -12,7 +12,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LevelChefTheme {
+            // LevelChef ships dark-only — force it regardless of the device's system theme.
+            LevelChefTheme(darkTheme = true) {
                 LevelChefApp()
             }
         }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Tag base component (Figma node 202:264) — 4 colors x 2 selection states. */
 @Composable
@@ -33,7 +34,7 @@ fun LevelChefTag(
     onClose: (() -> Unit)? = null,
 ) {
     val colors = tagColorsFor(color, selected)
-    val textColor = TextPrimary.copy(alpha = 0.8f)
+    val textColor = colors.text
     Row(
         modifier = modifier
             .background(colors.background, RoundedCornerShape(20.dp))
@@ -53,6 +54,21 @@ fun LevelChefTag(
                     .size(14.dp)
                     .let { m -> if (onClose != null) m.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onClose) else m },
             )
+        }
+    }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefTagPreview() {
+    LevelChefTheme {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            TagColor.entries.forEach { color ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    LevelChefTag(label = "Tag Label", color = color, emoji = "⚡", selected = false)
+                    LevelChefTag(label = "Tag Label", color = color, emoji = "⚡", selected = true, showClose = true, onClose = {})
+                }
+            }
         }
     }
 }

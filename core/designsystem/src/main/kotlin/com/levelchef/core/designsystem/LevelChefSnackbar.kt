@@ -9,22 +9,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.AccentPrimary
-import com.levelchef.core.ui.theme.BackgroundSurface
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Snackbar extended component (Figma node 251:972) — a presentational message bar. */
 @Composable
 fun LevelChefSnackbar(message: String, modifier: Modifier = Modifier) {
+    val colors = LevelChefTheme.colors
     Text(
         text = message,
-        color = TextPrimary,
+        color = colors.textPrimary,
         style = LevelChefTextStyles.bodyRegular,
         modifier = modifier
             .fillMaxWidth()
-            .background(BackgroundSurface, RoundedCornerShape(12.dp))
-            .border(1.dp, AccentPrimary, RoundedCornerShape(12.dp))
+            .background(colors.surface, RoundedCornerShape(12.dp))
+            .border(1.dp, colors.accentPrimary, RoundedCornerShape(12.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp),
     )
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefSnackbarPreview() {
+    LevelChefTheme { LevelChefSnackbar("Your profile has been updated.") }
 }

@@ -25,10 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.BackgroundSurface
-import com.levelchef.core.ui.theme.BorderDefault
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Dropdown base component (Figma node 251:1037) — label + a menu of [options]. */
 @Composable
@@ -39,26 +37,41 @@ fun LevelChefDropdown(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = LevelChefTheme.colors
     var expanded by remember { mutableStateOf(false) }
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, color = TextPrimary, style = LevelChefTextStyles.bodyRegularBold)
+        Text(label, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(BackgroundSurface, RoundedCornerShape(12.dp))
-                .border(0.5.dp, BorderDefault, RoundedCornerShape(12.dp))
+                .background(colors.surface, RoundedCornerShape(12.dp))
+                .border(0.5.dp, colors.border, RoundedCornerShape(12.dp))
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { expanded = true }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(selectedOption, color = TextPrimary, style = LevelChefTextStyles.bodyRegular)
-            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(16.dp))
+            Text(selectedOption, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegular)
+            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = colors.textPrimary, modifier = Modifier.size(16.dp))
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
                 DropdownMenuItem(text = { Text(option) }, onClick = { onOptionSelected(option); expanded = false })
             }
         }
+    }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefDropdownPreview() {
+    var selected by remember { mutableStateOf("Development") }
+    LevelChefTheme {
+        LevelChefDropdown(
+            label = "Category",
+            selectedOption = selected,
+            options = listOf("Development", "Design", "Marketing"),
+            onOptionSelected = { selected = it },
+        )
     }
 }

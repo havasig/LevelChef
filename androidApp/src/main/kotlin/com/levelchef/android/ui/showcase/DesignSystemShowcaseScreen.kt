@@ -33,6 +33,7 @@ import com.levelchef.core.designsystem.LevelChefDivider
 import com.levelchef.core.designsystem.LevelChefDropdown
 import com.levelchef.core.designsystem.LevelChefIconButton
 import com.levelchef.core.designsystem.LevelChefInputField
+import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefLastCookedCard
 import com.levelchef.core.designsystem.LevelChefList
 import com.levelchef.core.designsystem.LevelChefListEntry
@@ -52,8 +53,7 @@ import com.levelchef.core.designsystem.LevelChefTopAppBarSearch
 import com.levelchef.core.designsystem.LevelChefWeeklyChallengeCard
 import com.levelchef.core.designsystem.TagColor
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
-import com.levelchef.core.ui.theme.TextSecondary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /**
  * Renders every component in `core:designsystem` for visual verification — not part of the
@@ -103,7 +103,7 @@ fun DesignSystemShowcaseScreen(onBackClick: () -> Unit) {
 @Composable
 private fun ShowcaseSection(title: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, color = TextSecondary, style = LevelChefTextStyles.captionBold)
+        Text(title, color = LevelChefTheme.colors.textSecondary, style = LevelChefTextStyles.captionBold)
         content()
     }
 }
@@ -111,17 +111,18 @@ private fun ShowcaseSection(title: String, content: @Composable () -> Unit) {
 @Composable
 private fun TypographySection() {
     ShowcaseSection("Typography") {
+        val textPrimary = LevelChefTheme.colors.textPrimary
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Heading/H1 — Page Title", color = TextPrimary, style = LevelChefTextStyles.h1)
-            Text("Heading/H2 — Section Header", color = TextPrimary, style = LevelChefTextStyles.h2)
-            Text("Body/Large — Introductory paragraph text", color = TextPrimary, style = LevelChefTextStyles.bodyLarge)
-            Text("Body/Large Bold — Emphasized large text", color = TextPrimary, style = LevelChefTextStyles.bodyLargeBold)
-            Text("Body/Regular — Default body copy for content", color = TextPrimary, style = LevelChefTextStyles.bodyRegular)
-            Text("Body/Regular Bold — Bold labels and actions", color = TextPrimary, style = LevelChefTextStyles.bodyRegularBold)
-            Text("Body/Small — Supporting details and hints", color = TextPrimary, style = LevelChefTextStyles.bodySmall)
-            Text("Body/Small Bold — Small bold labels", color = TextPrimary, style = LevelChefTextStyles.bodySmallBold)
-            Text("Caption/Regular — Timestamps and metadata", color = TextPrimary, style = LevelChefTextStyles.captionRegular)
-            Text("Caption/Bold — Tags and badges", color = TextPrimary, style = LevelChefTextStyles.captionBold)
+            Text("Heading/H1 — Page Title", color = textPrimary, style = LevelChefTextStyles.h1)
+            Text("Heading/H2 — Section Header", color = textPrimary, style = LevelChefTextStyles.h2)
+            Text("Body/Large — Introductory paragraph text", color = textPrimary, style = LevelChefTextStyles.bodyLarge)
+            Text("Body/Large Bold — Emphasized large text", color = textPrimary, style = LevelChefTextStyles.bodyLargeBold)
+            Text("Body/Regular — Default body copy for content", color = textPrimary, style = LevelChefTextStyles.bodyRegular)
+            Text("Body/Regular Bold — Bold labels and actions", color = textPrimary, style = LevelChefTextStyles.bodyRegularBold)
+            Text("Body/Small — Supporting details and hints", color = textPrimary, style = LevelChefTextStyles.bodySmall)
+            Text("Body/Small Bold — Small bold labels", color = textPrimary, style = LevelChefTextStyles.bodySmallBold)
+            Text("Caption/Regular — Timestamps and metadata", color = textPrimary, style = LevelChefTextStyles.captionRegular)
+            Text("Caption/Bold — Tags and badges", color = textPrimary, style = LevelChefTextStyles.captionBold)
         }
     }
 }
@@ -150,9 +151,10 @@ private fun AvatarSection() {
 
 @Composable
 private fun CardSection() {
+    val colors = LevelChefTheme.colors
     LevelChefCard {
-        Text("Card Title", color = TextPrimary, style = LevelChefTextStyles.bodyLargeBold)
-        Text("Description text goes here. This card can hold any content.", color = TextSecondary, style = LevelChefTextStyles.bodyRegular)
+        Text("Card Title", color = colors.textPrimary, style = LevelChefTextStyles.bodyLargeBold)
+        Text("Description text goes here. This card can hold any content.", color = colors.textSecondary, style = LevelChefTextStyles.bodyRegular)
     }
 }
 
@@ -285,4 +287,10 @@ private fun DropdownSection() {
     var selected by remember { mutableStateOf("Development") }
     val options = listOf("Development", "Design", "Marketing")
     LevelChefDropdown(label = "Category", selectedOption = selected, options = options, onOptionSelected = { selected = it })
+}
+
+@LevelChefPreview
+@Composable
+private fun DesignSystemShowcaseScreenPreview() {
+    LevelChefTheme { DesignSystemShowcaseScreen(onBackClick = {}) }
 }

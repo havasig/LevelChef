@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.BorderDefault
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** A single row rendered by [LevelChefList]. */
 data class LevelChefListEntry(val avatarInitials: String, val title: String, val subtitle: String, val badgeText: String? = "Active")
@@ -20,11 +20,25 @@ fun LevelChefList(entries: List<LevelChefListEntry>, modifier: Modifier = Modifi
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .border(0.5.dp, BorderDefault, RoundedCornerShape(16.dp)),
+            .border(0.5.dp, LevelChefTheme.colors.border, RoundedCornerShape(16.dp)),
     ) {
         entries.forEachIndexed { index, entry ->
             LevelChefListItem(entry.avatarInitials, entry.title, entry.subtitle, badgeText = entry.badgeText)
             if (index != entries.lastIndex) LevelChefDivider()
         }
+    }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefListPreview() {
+    LevelChefTheme {
+        LevelChefList(
+            entries = listOf(
+                LevelChefListEntry("JA", "John Appleseed", "Product Designer"),
+                LevelChefListEntry("SC", "Sarah Chen", "Engineer"),
+                LevelChefListEntry("ML", "Marcus Lee", "Design Lead"),
+            ),
+        )
     }
 }

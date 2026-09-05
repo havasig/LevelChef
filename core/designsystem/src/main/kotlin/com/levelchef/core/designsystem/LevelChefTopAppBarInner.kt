@@ -21,9 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.BackgroundPrimary
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The "Top App Bar/Inner" extended component (Figma instance 371:673) — back arrow + centered title + settings. */
 @Composable
@@ -33,10 +32,11 @@ fun LevelChefTopAppBarInner(
     modifier: Modifier = Modifier,
     onSettingsClick: (() -> Unit)? = null,
 ) {
+    val colors = LevelChefTheme.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(BackgroundPrimary)
+            .background(colors.background)
             .height(56.dp)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -45,14 +45,14 @@ fun LevelChefTopAppBarInner(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = "Back",
-            tint = TextPrimary,
+            tint = colors.textPrimary,
             modifier = Modifier
                 .size(24.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onBackClick),
         )
         Text(
             title,
-            color = TextPrimary,
+            color = colors.textPrimary,
             style = LevelChefTextStyles.bodyRegularBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f),
@@ -61,7 +61,7 @@ fun LevelChefTopAppBarInner(
             Icon(
                 imageVector = Icons.Filled.Settings,
                 contentDescription = "Settings",
-                tint = TextPrimary,
+                tint = colors.textPrimary,
                 modifier = Modifier
                     .size(24.dp)
                     .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onSettingsClick),
@@ -70,4 +70,10 @@ fun LevelChefTopAppBarInner(
             Spacer(modifier = Modifier.size(24.dp))
         }
     }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefTopAppBarInnerPreview() {
+    LevelChefTheme { LevelChefTopAppBarInner("Recipe details", onBackClick = {}, onSettingsClick = {}) }
 }

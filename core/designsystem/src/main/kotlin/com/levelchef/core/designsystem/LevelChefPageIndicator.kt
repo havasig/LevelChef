@@ -9,15 +9,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.levelchef.core.ui.theme.AccentPrimary
-
-private val InactiveColor = Color.White.copy(alpha = 0.1f)
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** The Page Indicator base component (Figma node 18:2030) — dots, active one wider. */
 @Composable
 fun LevelChefPageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifier) {
+    val colors = LevelChefTheme.colors
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         repeat(pageCount) { index ->
             val active = index == currentPage
@@ -25,8 +23,14 @@ fun LevelChefPageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier 
                 modifier = Modifier
                     .height(6.dp)
                     .width(if (active) 28.dp else 8.dp)
-                    .background(if (active) AccentPrimary else InactiveColor, RoundedCornerShape(3.dp)),
+                    .background(if (active) colors.accentPrimary else colors.pageIndicatorInactive, RoundedCornerShape(3.dp)),
             )
         }
     }
+}
+
+@LevelChefPreview
+@Composable
+private fun LevelChefPageIndicatorPreview() {
+    LevelChefTheme { LevelChefPageIndicator(pageCount = 4, currentPage = 1) }
 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.BadgeStyle
 import com.levelchef.core.designsystem.ButtonType
@@ -21,15 +20,14 @@ import com.levelchef.core.designsystem.LevelChefCard
 import com.levelchef.core.designsystem.LevelChefLastCookedCard
 import com.levelchef.core.designsystem.LevelChefRecipeCard
 import com.levelchef.core.designsystem.LevelChefWeeklyChallengeCard
-import com.levelchef.core.ui.theme.AccentPrimary
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
-import com.levelchef.core.ui.theme.TextSecondary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 /** Section composables for [HomeScreen], kept internal since they're implementation details of this feature. */
 
 @Composable
 internal fun LevelProgressSection(state: HomeUiState) {
+    val colors = LevelChefTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         LevelChefBadge(state.levelLabel, style = BadgeStyle.LIGHT)
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -38,18 +36,18 @@ internal fun LevelProgressSection(state: HomeUiState) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .size(height = 8.dp, width = 0.dp)
-                    .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(100.dp)),
+                    .background(colors.textPrimary.copy(alpha = 0.1f), RoundedCornerShape(100.dp)),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(progress)
                         .size(height = 8.dp, width = 0.dp)
-                        .background(AccentPrimary, RoundedCornerShape(100.dp)),
+                        .background(colors.accentPrimary, RoundedCornerShape(100.dp)),
                 )
             }
             Text(
                 "${state.currentXp} / ${state.xpForNextLevel} XP to next level",
-                color = TextSecondary,
+                color = colors.textSecondary,
                 style = LevelChefTextStyles.bodySmall,
             )
         }
@@ -67,9 +65,10 @@ internal fun StatCardsRow(state: HomeUiState) {
 /** Not a Figma-inventoried component — a Home-specific use of the generic [LevelChefCard] primitive. */
 @Composable
 internal fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
+    val colors = LevelChefTheme.colors
     LevelChefCard(modifier = modifier) {
-        Text(value, color = TextPrimary, style = LevelChefTextStyles.h2)
-        Text(label, color = TextSecondary, style = LevelChefTextStyles.bodyRegular)
+        Text(value, color = colors.textPrimary, style = LevelChefTextStyles.h2)
+        Text(label, color = colors.textSecondary, style = LevelChefTextStyles.bodyRegular)
     }
 }
 

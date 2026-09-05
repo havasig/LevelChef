@@ -14,8 +14,9 @@ import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.ButtonType
 import com.levelchef.core.designsystem.LevelChefButton
 import com.levelchef.core.designsystem.LevelChefDivider
+import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.ui.theme.LevelChefTextStyles
-import com.levelchef.core.ui.theme.TextPrimary
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 @Composable
 fun HomeScreen(
@@ -46,7 +47,7 @@ fun HomeScreen(
         }
         item { LevelChefDivider() }
         item {
-            Text("Recommended for you", color = TextPrimary, style = LevelChefTextStyles.bodyRegularBold)
+            Text("Recommended for you", color = LevelChefTheme.colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
         }
         items(state.recommendations) { rec ->
             RecipeRecommendationCard(rec, onClick = { onRecipeClick(rec) })
@@ -56,4 +57,10 @@ fun HomeScreen(
             item { LastCookedCard(lastCooked) }
         }
     }
+}
+
+@LevelChefPreview
+@Composable
+private fun HomeScreenPreview() {
+    LevelChefTheme { HomeScreen() }
 }
