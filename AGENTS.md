@@ -27,7 +27,9 @@ core:database  ◀── data only
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen. **No feature module depends on another.**
-  `feature:home` is fully built from Figma node `296:1929`; the rest are `PlaceholderScreen` stubs.
+  `feature:home` (Figma node `296:1929`) and `feature:onboarding` (the mandatory first-launch
+  survey — `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored) are fully
+  built; the rest are `PlaceholderScreen` stubs.
 
 Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/levelchef/konsist/`):
 - Never add a `feature:* → feature:*` dependency.
@@ -98,13 +100,14 @@ JVM target 11. JDK 17+ to run Gradle (the toolchain resolver fetches JDK 17 for 
 
 ## Building a screen from Figma
 
-There are 5 stub screens left to build (`recipedetail`, `mealreview`, `trophyroom`, `cookinglog`, `onboarding`).
+There are 4 stub screens left to build (`recipedetail`, `mealreview`, `trophyroom`, `cookinglog`).
 Each has its Figma node ID in a `/** Figma node NNN:NNN */` KDoc on the stub composable.
 Use the **`new-feature-screen`** skill (`.claude/skills/new-feature-screen/`) — it captures the full workflow.
 
 ## Not yet done (see README "Next steps")
 
-1. Replace `RecipeRepositoryImpl`'s static list with a Gemini-API-backed recommender (Ktor already wired in `data`).
+1. Replace `RecipeRepositoryImpl`'s static list with a Gemini-API-backed recommender (Ktor already
+   wired in `data`); feed it the stored `SurveyResponse` (see `SurveyRepository`).
 2. Wire `feature:home` fully to domain use cases (partly done via `HomeViewModel`).
 3. Add the Inter font under `core/ui/src/main/res/font` for pixel-accurate type.
 4. iOS target (KMP modules are ready; no iOS app shell yet).

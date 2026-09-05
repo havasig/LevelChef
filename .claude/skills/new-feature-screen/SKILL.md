@@ -1,6 +1,6 @@
 ---
 name: new-feature-screen
-description: Build out one of LevelChef's stub feature screens (recipedetail, mealreview, trophyroom, cookinglog, onboarding) from its Figma node into a full Compose implementation, following the project's module and screen conventions. Use whenever asked to implement, build, flesh out, or "code up" a feature screen from Figma, or to replace a PlaceholderScreen.
+description: Build out one of LevelChef's stub feature screens (recipedetail, mealreview, trophyroom, cookinglog) from its Figma node into a full Compose implementation, following the project's module and screen conventions. Use whenever asked to implement, build, flesh out, or "code up" a feature screen from Figma, or to replace a PlaceholderScreen.
 ---
 
 # Build a LevelChef feature screen from Figma
@@ -18,7 +18,8 @@ Read `AGENTS.md` first for the module rules and conventions this skill assumes.
 | `feature:mealreview` | `385:586` | Meal Review |
 | `feature:trophyroom` | `504:1026` | Trophy Room |
 | `feature:cookinglog` | `489:1362` | Cooking Log |
-| `feature:onboarding` | `296:1679`, `296:1678`, `296:1729`, `465:645`, `480:631` | Onboarding (4 steps) |
+
+(`feature:onboarding` — the first-launch survey — is already built.)
 
 Confirm the node ID from the `/** Figma node NNN:NNN */` KDoc on the current stub composable.
 

@@ -1,4 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="onboarding_title">Bevezető</string>
+    <!-- Wizard chrome -->
+    <string name="onboarding_step_counter">%1$d / %2$d</string>
+    <string name="onboarding_back">Vissza</string>
+    <string name="onboarding_continue">Tovább</string>
+    <string name="onboarding_finish">Főzzünk!</string>
+
+    <!-- Welcome -->
+    <string name="onboarding_welcome_title">LevelChef</string>
+    <string name="onboarding_welcome_tagline">Főzz tudatosan. Fejlődj minden alkalommal.</string>
+    <string name="onboarding_welcome_body">Válaszolj néhány gyors kérdésre, hogy a recepteket, az XP-t és a makrókat rád szabhassuk.</string>
+    <string name="onboarding_welcome_cta">Kezdjük</string>
+
+    <!-- Cooking level -->
+    <string name="onboarding_experience_title">Milyen szinten főzöl?</string>
+    <string name="onboarding_experience_subtitle">A recepteket a tudásodhoz igazítjuk.</string>
+    <string name="onboarding_experience_never">Még sosem főztem</string>
+    <string name="onboarding_experience_never_desc">A nulláról indulok</string>
+    <string name="onboarding_experience_beginner">Kezdő</string>
+    <string name="onboarding_experience_beginner_desc">Egy receptet követni tudok</string>
+    <string name="onboarding_experience_comfortable">Magabiztos</string>
+    <string name="onboarding_experience_comfortable_desc">Hetente többször főzök</string>
+    <string name="onboarding_experience_confident">Rutinos</string>
+    <string name="onboarding_experience_confident_desc">Recept nélkül is improvizálok</string>
+    <string name="onboarding_experience_pro">Profi</string>
+    <string name="onboarding_experience_pro_desc">Dolgoztam már konyhában</string>
+
+    <!-- Diet -->
+    <string name="onboarding_diet_title">Hogyan étkezel?</string>
+    <string name="onboarding_diet_subtitle">Válaszd a hozzád legközelebb állót.</string>
+    <string name="onboarding_diet_omnivore">Mindenevő</string>
+    <string name="onboarding_diet_omnivore_desc">Mindent eszem</string>
+    <string name="onboarding_diet_vegetarian">Vegetáriánus</string>
+    <string name="onboarding_diet_vegetarian_desc">Se hús, se hal</string>
+    <string name="onboarding_diet_vegan">Vegán</string>
+    <string name="onboarding_diet_vegan_desc">Semmilyen állati termék</string>
+    <string name="onboarding_diet_pescatarian">Pescetáriánus</string>
+    <string name="onboarding_diet_pescatarian_desc">Halat eszem, más húst nem</string>
+    <string name="onboarding_diet_flexitarian">Flexitáriánus</string>
+    <string name="onboarding_diet_flexitarian_desc">Főleg növényi, néha hús</string>
+
+    <!-- Allergies -->
+    <string name="onboarding_allergens_title">Van allergiád vagy kerülendő összetevő?</string>
+    <string name="onboarding_allergens_subtitle">Ezeket minden receptből kihagyjuk.</string>
+    <string name="onboarding_allergens_none">Nincs allergiám</string>
+    <string name="onboarding_allergen_gluten">Glutén</string>
+    <string name="onboarding_allergen_dairy">Tejtermék</string>
+    <string name="onboarding_allergen_nuts">Diófélék</string>
+    <string name="onboarding_allergen_eggs">Tojás</string>
+    <string name="onboarding_allergen_shellfish">Rákfélék</string>
+    <string name="onboarding_allergen_soy">Szója</string>
+
+    <!-- Cuisines -->
+    <string name="onboarding_cuisines_title">Mely konyhákat szereted?</string>
+    <string name="onboarding_cuisines_subtitle">Válassz legalább egyet.</string>
+    <string name="onboarding_cuisine_italian">Olasz</string>
+    <string name="onboarding_cuisine_asian">Ázsiai</string>
+    <string name="onboarding_cuisine_mexican">Mexikói</string>
+    <string name="onboarding_cuisine_indian">Indiai</string>
+    <string name="onboarding_cuisine_mediterranean">Mediterrán</string>
+    <string name="onboarding_cuisine_american">Amerikai</string>
+    <string name="onboarding_cuisine_middle_eastern">Közel-keleti</string>
+    <string name="onboarding_cuisine_french">Francia</string>
+
+    <!-- Spice -->
+    <string name="onboarding_spice_title">Mennyire bírod a csípőset?</string>
+    <string name="onboarding_spice_subtitle">Légy őszinte.</string>
+    <string name="onboarding_spice_mild">Enyhe</string>
+    <string name="onboarding_spice_mild_desc">Semmi csípősség</string>
+    <string name="onboarding_spice_medium">Közepes</string>
+    <string name="onboarding_spice_medium_desc">Egy kis pikánsság jólesik</string>
+    <string name="onboarding_spice_hot">Csípős</string>
+    <string name="onboarding_spice_hot_desc">Jöhet a chili</string>
+    <string name="onboarding_spice_fire">Tüzes</string>
+    <string name="onboarding_spice_fire_desc">Minél csípősebb, annál jobb</string>
+
+    <!-- Goal -->
+    <string name="onboarding_goal_title">Min szeretnél javítani?</string>
+    <string name="onboarding_goal_subtitle">Válassz egyet.</string>
+    <string name="onboarding_goal_more_variety">Több változatosság</string>
+    <string name="onboarding_goal_more_variety_desc">Új konyhák és alapanyagok</string>
+    <string name="onboarding_goal_quick_meals">Gyors ételek</string>
+    <string name="onboarding_goal_quick_meals_desc">Receptek 30 perc alatt</string>
+    <string name="onboarding_goal_high_protein">Magas fehérje</string>
+    <string name="onboarding_goal_high_protein_desc">Makróközpontú főzés</string>
+    <string name="onboarding_goal_healthier_eating">Egészségesebb étkezés</string>
+    <string name="onboarding_goal_healthier_eating_desc">Kiegyensúlyozott, kevesebb feldolgozott étel</string>
+    <string name="onboarding_goal_budget_friendly">Pénztárcabarát</string>
+    <string name="onboarding_goal_budget_friendly_desc">Remek ételek túlköltekezés nélkül</string>
+
+    <!-- Weeknight time -->
+    <string name="onboarding_time_title">Mennyi időd van egy hétköznap este?</string>
+    <string name="onboarding_time_subtitle">Amennyi idő általában jut a főzésre.</string>
+    <string name="onboarding_time_under_15">15 percnél kevesebb</string>
+    <string name="onboarding_time_15_30">15–30 perc</string>
+    <string name="onboarding_time_30_60">30–60 perc</string>
+    <string name="onboarding_time_over_60">Több mint egy óra</string>
+
+    <!-- Household size -->
+    <string name="onboarding_household_title">Hány főre főzöl?</string>
+    <string name="onboarding_household_subtitle">Ehhez igazítjuk az adagokat.</string>
+    <string name="onboarding_household_solo">Csak magamnak</string>
+    <string name="onboarding_household_two">Ketten</string>
+    <string name="onboarding_household_three_four">Hárman vagy négyen</string>
+    <string name="onboarding_household_five_plus">Öten vagy többen</string>
 </resources>

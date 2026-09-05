@@ -42,13 +42,13 @@ jobs:
       # Records the current render and diffs it against the committed baseline.
       # Never fails on a difference — that is what the comment is for.
       - name: Compare screenshots
-        run: ./gradlew :feature:home:compareRoborazziDebug --stacktrace
+        run: ./gradlew :feature:home:compareRoborazziDebug :feature:onboarding:compareRoborazziDebug --stacktrace
 
       - name: Collect comparison images
         id: collect
         run: |
           shopt -s nullglob
-          files=(feature/home/build/outputs/roborazzi/*_compare.png)
+          files=(feature/*/build/outputs/roborazzi/*_compare.png)
           mkdir -p /tmp/shots
           if [ ${#files[@]} -eq 0 ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -109,7 +109,7 @@ jobs:
               printf '**%s**\n\n![%s](%s)\n\n' "$name" "$name" "$url"
             done
             echo '---'
-            echo 'Intentional? Run `./gradlew :feature:home:recordRoborazziDebug` and commit the updated `src/test/screenshots/` PNGs.'
+            echo 'Intentional? Run `./gradlew :feature:<module>:recordRoborazziDebug` and commit the updated `src/test/screenshots/` PNGs.'
             echo 'COMMENT_EOF'
           } >> "$GITHUB_OUTPUT"
 

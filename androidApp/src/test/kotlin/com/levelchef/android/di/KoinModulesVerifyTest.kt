@@ -3,6 +3,7 @@ package com.levelchef.android.di
 import com.levelchef.data.di.dataModule
 import com.levelchef.data.di.databaseModule
 import com.levelchef.feature.home.di.homeModule
+import com.levelchef.feature.onboarding.di.onboardingModule
 import kotlin.test.Test
 import org.koin.dsl.module
 import org.koin.test.verify.verify
@@ -10,7 +11,7 @@ import org.koin.test.verify.verify
 // `verifyAll` checks each module in isolation, so cross-module dependencies (e.g. homeModule's
 // GetChefLevelUseCase needing dataModule's UserProfileRepository) need one combined module.
 private val appModule = module {
-    includes(databaseModule, dataModule, homeModule)
+    includes(databaseModule, dataModule, homeModule, onboardingModule)
 }
 
 /**

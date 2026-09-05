@@ -29,6 +29,7 @@ import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.feature.cookinglog.CookingLogScreen
 import com.levelchef.feature.home.HomeRoute
+import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.recipedetail.RecipeDetailScreen
 import com.levelchef.feature.trophyroom.TrophyRoomScreen
 
@@ -94,6 +95,13 @@ private fun onNavItemClick(
 
 @Composable
 fun LevelChefApp() {
+    OnboardingGate {
+        LevelChefAppContent()
+    }
+}
+
+@Composable
+private fun LevelChefAppContent() {
     val navController = rememberNavController()
     val homeTapCounter = remember { HomeTapCounter() }
     val navBackStackEntry by navController.currentBackStackEntryAsState()

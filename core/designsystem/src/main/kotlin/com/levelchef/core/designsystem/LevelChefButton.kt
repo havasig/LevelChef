@@ -14,6 +14,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
@@ -24,6 +25,7 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.core.ui.theme.OnAccent
 
 private val ButtonShape = RoundedCornerShape(12.dp)
+private const val DisabledAlpha = 0.4f
 
 private data class ButtonLook(val background: Color?, val border: Color?, val textColor: Color, val underline: Boolean)
 
@@ -78,6 +80,7 @@ fun LevelChefButton(
     type: ButtonType,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     val look = lookFor(type, LevelChefTheme.colors.accentPrimary)
     var styledModifier = modifier.height(48.dp)
@@ -86,7 +89,9 @@ fun LevelChefButton(
     Row(
         modifier = styledModifier
             .clip(ButtonShape)
+            .alpha(if (enabled) 1f else DisabledAlpha)
             .clickable(
+                enabled = enabled,
                 interactionSource = null,
                 indication = ripple(color = look.textColor),
                 onClick = onClick,
