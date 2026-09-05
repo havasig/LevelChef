@@ -5,6 +5,11 @@
 
 config:
   validation: true
+  # `UnusedPrivateMember` was split (detekt 1.23) into UnusedPrivateFunction / …Property / …Class.
+  # The Gradle build runs detekt 2.0 and only knows the new names; the bundled Android Studio
+  # detekt plugin still reports under the old name. We configure both (below) and tell 2.0's
+  # validator not to reject the legacy key.
+  excludes: ['style>UnusedPrivateMember']
 
 complexity:
   LongMethod:
@@ -28,6 +33,13 @@ style:
     ignoreAnnotated: ['Composable', 'Preview']
   ReturnCount:
     max: 3
+  # @Preview / @LevelChefPreview composables are entry points for tooling and screenshot
+  # tests, never called from code. UnusedPrivateFunction is the detekt 2.0 name (Gradle);
+  # UnusedPrivateMember is the legacy name the Android Studio plugin still uses.
+  UnusedPrivateFunction:
+    ignoreAnnotated: ['Preview', 'LevelChefPreview']
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview', 'LevelChefPreview']
   ForbiddenComment:
     comments:
       - reason: 'Track outstanding work in issues, not the source tree.'
@@ -39,15 +51,15 @@ naming:
   FunctionNaming:
     # Composables are PascalCase by convention.
     ignoreAnnotated: ['Composable']
-  TopLevelPropertyNaming:
-    # Compose design tokens (e.g. BorderDefault) are PascalCase, not SCREAMING_SNAKE.
-    constantPattern: '[A-Z][A-Za-z0-9]*'
+  # TopLevelPropertyNaming is left at its defaults: `const val`s are SCREAMING_SNAKE
+  # (constantPattern), and PascalCase Compose tokens like `val BorderDefault = Color(…)` are
+  # non-const `val`s, which detekt already checks against the laxer propertyPattern.
 
 ktlint:
   MaximumLineLength:
     maxLineLength: 120
   Filename:
-    # One-public-type-per-file is guarded by Konsist for core:model; elsewhere it is noise.
+    # One-public-type-per-file is guarded by Konsist for core:model and core:designsystem; elsewhere it is noise.
     active: false
 
 Compose:

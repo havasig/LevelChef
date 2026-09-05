@@ -43,9 +43,10 @@ class ConventionsKonsistTest {
     }
 
     @Test
-    fun core_model_files_declare_a_single_public_top_level_type() {
+    fun core_model_and_designsystem_files_declare_a_single_public_top_level_type() {
+        val singleTypePackages = listOf("com.levelchef.core.model", "com.levelchef.core.designsystem")
         scope.files
-            .filter { it.packagee?.name?.startsWith("com.levelchef.core.model") == true }
+            .filter { file -> singleTypePackages.any { file.packagee?.name?.startsWith(it) == true } }
             .assertTrue { file ->
                 val publicTopLevelTypes = (file.classes() + file.interfaces() + file.objects())
                     .filter { it.isTopLevel }

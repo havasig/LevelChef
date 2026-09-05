@@ -3,9 +3,9 @@ package com.levelchef.feature.home
 import com.levelchef.core.designsystem.TagColor
 import com.levelchef.core.model.CookingSession
 import com.levelchef.core.model.Recipe
-import kotlinx.datetime.Instant
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 /** Maps domain models (from [com.levelchef.domain.repository]) onto this screen's presentation types. */
 

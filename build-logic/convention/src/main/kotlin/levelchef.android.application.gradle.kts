@@ -35,4 +35,8 @@ dependencies {
     add("implementation", platform(catalogLibs.findLibrary("compose-bom").get()))
     add("implementation", catalogLibs.findLibrary("compose-ui").get())
     add("implementation", catalogLibs.findLibrary("compose-material3").get())
+
+    // Renders @Preview / @LevelChefPreview in the IDE preview pane (ui-tooling-preview only supplies
+    // the annotations). Debug-only so it never ships in release.
+    add("debugImplementation", catalogLibs.findLibrary("compose-ui-tooling").get())
 }

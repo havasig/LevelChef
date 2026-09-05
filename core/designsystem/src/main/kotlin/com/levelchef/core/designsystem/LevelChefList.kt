@@ -10,9 +10,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTheme
 
-/** A single row rendered by [LevelChefList]. */
-data class LevelChefListEntry(val avatarInitials: String, val title: String, val subtitle: String, val badgeText: String? = "Active")
-
 /** The List base component (Figma node 18:2031) — bordered container of [LevelChefListItem]s. */
 @Composable
 fun LevelChefList(entries: List<LevelChefListEntry>, modifier: Modifier = Modifier) {
