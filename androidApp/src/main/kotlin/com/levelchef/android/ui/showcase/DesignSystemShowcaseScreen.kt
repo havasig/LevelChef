@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -66,7 +67,13 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 @Composable
 fun DesignSystemShowcaseScreen(onBackClick: () -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        item { LevelChefTopAppBarInner(title = "Design System", onBackClick = onBackClick) }
+        item {
+            LevelChefTopAppBarInner(
+                title = "Design System",
+                onBackClick = onBackClick,
+                modifier = Modifier.statusBarsPadding(),
+            )
+        }
         item {
             Column(
                 modifier = Modifier

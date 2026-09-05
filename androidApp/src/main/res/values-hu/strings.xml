@@ -3,6 +3,4 @@
     <string name="nav_home">Kezdőlap</string>
     <string name="nav_recipes">Receptek</string>
     <string name="nav_trophies">Trófeák</string>
-    <string name="nav_log">Napló</string>
-    <string name="nav_recipe_detail">Recept</string>
 </resources>
