@@ -6,24 +6,24 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.levelchef.core.designsystem.ButtonType
+import com.levelchef.core.designsystem.LevelChefButton
 import com.levelchef.core.designsystem.LevelChefDivider
-import com.levelchef.core.ui.theme.AccentPrimary
-import com.levelchef.core.ui.theme.TextPrimary
+import com.levelchef.core.designsystem.LevelChefPreview
+import com.levelchef.core.ui.theme.LevelChefTextStyles
+import com.levelchef.core.ui.theme.LevelChefTheme
 
 @Composable
 fun HomeScreen(
     state: HomeUiState = HomeUiState(),
     onCookToday: () -> Unit = {},
     onRecipeClick: (RecipeRecommendation) -> Unit = {},
+    onChallengeDone: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = Modifier
@@ -35,21 +35,19 @@ fun HomeScreen(
         item { LevelProgressSection(state) }
         item { StatCardsRow(state) }
         item { LevelChefDivider() }
-        item { WeeklyChallengeCard(state) }
+        item { WeeklyChallengeSection(state, onDoneClick = onChallengeDone) }
         item { LevelChefDivider() }
         item {
-            Button(
+            LevelChefButton(
+                label = "Cook today — show me a recipe! 🍽",
+                type = ButtonType.PRIMARY,
                 onClick = onCookToday,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary, contentColor = TextPrimary),
-            ) {
-                Text("Cook today — show me a recipe! 🍽", style = MaterialTheme.typography.labelLarge)
-            }
+            )
         }
         item { LevelChefDivider() }
         item {
-            Text("Recommended for you", color = TextPrimary, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            Text("Recommended for you", color = LevelChefTheme.colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
         }
         items(state.recommendations) { rec ->
             RecipeRecommendationCard(rec, onClick = { onRecipeClick(rec) })
@@ -59,4 +57,10 @@ fun HomeScreen(
             item { LastCookedCard(lastCooked) }
         }
     }
+}
+
+@LevelChefPreview
+@Composable
+private fun HomeScreenPreview() {
+    LevelChefTheme { HomeScreen() }
 }

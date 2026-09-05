@@ -39,7 +39,7 @@ class HomeScreenScreenshotTest {
     @Test
     fun home_screen() {
         compose.setContent {
-            LevelChefTheme { HomeScreen() }
+            LevelChefTheme(darkTheme = true) { HomeScreen() }
         }
         compose.onRoot().captureRoboImage(roborazziOptions = screenshotOptions)
     }
@@ -47,7 +47,7 @@ class HomeScreenScreenshotTest {
     @Test
     fun home_screen_new_cook() {
         compose.setContent {
-            LevelChefTheme {
+            LevelChefTheme(darkTheme = true) {
                 HomeScreen(
                     state = HomeUiState(
                         levelLabel = "Kitchen Novice · Level 1",
