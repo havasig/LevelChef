@@ -1,12 +1,8 @@
 package com.levelchef.android.ui.nav
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,24 +16,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.levelchef.android.R
 import com.levelchef.android.ui.showcase.DesignSystemShowcaseScreen
 import com.levelchef.core.designsystem.LevelChefBottomNavigationBar
 import com.levelchef.core.designsystem.LevelChefNavItem
-import com.levelchef.core.designsystem.LevelChefTopAppBarHome
-import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.ui.theme.LevelChefTheme
-import com.levelchef.feature.cookinglog.CookingLogScreen
 import com.levelchef.feature.home.HomeRoute
 import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.recipedetail.RecipeDetailScreen
 import com.levelchef.feature.trophyroom.TrophyRoomScreen
 
+/** The top-level destinations shown in the bottom navigation bar. The bar is hidden on every other
+ * route (recipe detail, the hidden showcase). Each screen renders its own top app bar. */
 private val bottomNavItems = listOf(
     LevelChefDestination.Home,
     LevelChefDestination.Recipes,
     LevelChefDestination.Trophies,
-    LevelChefDestination.Log,
 )
 
 private const val RECIPE_DETAIL_ROUTE = "recipeDetail"
@@ -107,32 +100,20 @@ private fun LevelChefAppContent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val currentRoute = currentDestination?.route
+    val showBottomBar = currentRoute in bottomNavItems.map { it.route }
 
     Scaffold(
         containerColor = LevelChefTheme.colors.background,
-        topBar = {
-            when (currentRoute) {
-                // The showcase renders its own inner top bar; anything before the first
-                // destination resolves has no bar yet.
-                DESIGN_SYSTEM_SHOWCASE_ROUTE, null -> Unit
-                RECIPE_DETAIL_ROUTE -> LevelChefTopAppBarInner(
-                    title = stringResource(R.string.nav_recipe_detail),
-                    onBackClick = { navController.popBackStack() },
-                    modifier = Modifier.statusBarsPadding(),
-                )
-                else -> LevelChefTopAppBarHome(
-                    title = topBarTitleFor(currentRoute),
-                    modifier = Modifier.statusBarsPadding(),
-                )
-            }
-        },
+        // Each screen owns its top app bar and applies its own status-bar padding, so the Scaffold
+        // must not inject a top inset into innerPadding.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            if (currentRoute != DESIGN_SYSTEM_SHOWCASE_ROUTE) {
+            if (showBottomBar) {
                 LevelChefBottomNavigationBar(
                     modifier = Modifier.navigationBarsPadding(),
                     items = bottomNavItems.map { dest ->
                         LevelChefNavItem(
-                            icon = iconFor(dest),
+                            icon = dest.icon,
                             label = stringResource(dest.labelRes),
                             selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true,
                             onClick = { onNavItemClick(dest, navController, homeTapCounter) },
@@ -152,26 +133,12 @@ private fun LevelChefAppContent() {
             }
             composable(LevelChefDestination.Recipes.route) { RecipeDetailScreen() }
             composable(LevelChefDestination.Trophies.route) { TrophyRoomScreen() }
-            composable(LevelChefDestination.Log.route) { CookingLogScreen() }
-            composable(RECIPE_DETAIL_ROUTE) { RecipeDetailScreen() }
+            composable(RECIPE_DETAIL_ROUTE) {
+                RecipeDetailScreen(onBackClick = { navController.popBackStack() })
+            }
             composable(DESIGN_SYSTEM_SHOWCASE_ROUTE) {
                 DesignSystemShowcaseScreen(onBackClick = { navController.popBackStack() })
             }
         }
     }
-}
-
-@Composable
-private fun topBarTitleFor(route: String): String = when (route) {
-    LevelChefDestination.Recipes.route -> stringResource(LevelChefDestination.Recipes.labelRes)
-    LevelChefDestination.Trophies.route -> stringResource(LevelChefDestination.Trophies.labelRes)
-    LevelChefDestination.Log.route -> stringResource(LevelChefDestination.Log.labelRes)
-    else -> "LevelChef"
-}
-
-private fun iconFor(dest: LevelChefDestination) = when (dest) {
-    LevelChefDestination.Home -> Icons.Filled.Home
-    LevelChefDestination.Recipes -> Icons.Filled.List
-    LevelChefDestination.Trophies -> Icons.Filled.Star
-    LevelChefDestination.Log -> Icons.Filled.List
 }
