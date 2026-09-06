@@ -37,6 +37,10 @@ class IngredientRepositoryImpl(
         queries.deleteById(id)
     }
 
+    override suspend fun deleteAll() {
+        queries.deleteAll()
+    }
+
     override suspend fun count(): Int = queries.countAll().executeAsOne().toInt()
 
     override suspend fun seedDefaults() {

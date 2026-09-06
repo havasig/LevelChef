@@ -45,6 +45,10 @@ class CookingSessionRepositoryImpl(
 
     override suspend fun sessionCount(): Int =
         database.cookingSessionQueries.sessionCount().executeAsOne().toInt()
+
+    override suspend fun deleteAll() {
+        database.cookingSessionQueries.deleteAll()
+    }
 }
 
 private fun com.levelchef.core.database.db.CookingSession.toDomain() = CookingSession(

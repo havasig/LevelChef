@@ -69,6 +69,17 @@ class CookingSessionRepositoryImplTest {
         }
     }
 
+    @Test
+    fun delete_all_clears_every_session() = runTest {
+        repository.recordSession(session("a", xp = 10, cookedAt = Instant.parse("2026-01-01T00:00:00Z")))
+        repository.recordSession(session("b", xp = 20, cookedAt = Instant.parse("2026-01-02T00:00:00Z")))
+
+        repository.deleteAll()
+
+        assertEquals(0, repository.sessionCount())
+        assertNull(repository.mostRecent())
+    }
+
     private fun session(
         id: String,
         xp: Int,

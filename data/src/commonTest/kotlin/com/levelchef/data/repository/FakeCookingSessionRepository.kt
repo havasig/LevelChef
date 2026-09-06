@@ -21,4 +21,5 @@ internal class FakeCookingSessionRepository(
     override suspend fun mostRecent(): CookingSession? = recent
     override suspend fun totalXp(): Int = xp
     override suspend fun sessionCount(): Int = count
+    override suspend fun deleteAll() = Unit
 }

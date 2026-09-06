@@ -16,6 +16,9 @@ interface IngredientRepository {
 
     suspend fun delete(id: String)
 
+    /** Wipes the entire pantry — backs account deletion. */
+    suspend fun deleteAll()
+
     suspend fun count(): Int
 
     /** Populates the default ingredient set — a no-op unless the pantry is empty. */

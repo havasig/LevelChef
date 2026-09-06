@@ -97,4 +97,14 @@ class IngredientRepositoryImplTest {
         repository.seedDefaults()
         assertEquals(1, repository.count())
     }
+
+    @Test
+    fun delete_all_empties_the_pantry() = runTest {
+        repository.save(chicken)
+        repository.save(Ingredient("apple", "Apple", IngredientCategory.FRUIT, "🍎"))
+
+        repository.deleteAll()
+
+        assertEquals(0, repository.count())
+    }
 }

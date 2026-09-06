@@ -10,4 +10,7 @@ interface CookingSessionRepository {
     suspend fun mostRecent(): CookingSession?
     suspend fun totalXp(): Int
     suspend fun sessionCount(): Int
+
+    /** Wipes the entire cooking history — backs account deletion. */
+    suspend fun deleteAll()
 }

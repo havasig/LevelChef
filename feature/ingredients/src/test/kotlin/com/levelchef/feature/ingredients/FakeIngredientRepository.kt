@@ -25,6 +25,11 @@ internal class FakeIngredientRepository(initial: List<Ingredient> = emptyList())
         state.value = state.value.filterNot { it.id == id }
     }
 
+    override suspend fun deleteAll() {
+        deleted += state.value.map { it.id }
+        state.value = emptyList()
+    }
+
     override suspend fun count(): Int = state.value.size
 
     override suspend fun seedDefaults() = Unit

@@ -27,3 +27,6 @@ SELECT IFNULL(SUM(xpEarned), 0) FROM cookingSession;
 
 sessionCount:
 SELECT COUNT(*) FROM cookingSession;
+
+deleteAll:
+DELETE FROM cookingSession;

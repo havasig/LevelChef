@@ -2,23 +2,57 @@
 <resources>
     <string name="settings_title">Settings</string>
 
-    <string name="settings_appearance_section">Appearance</string>
+    <string name="settings_cooking_preferences_section">Cooking Preferences</string>
+    <string name="settings_dietary_restrictions_title">Dietary restrictions</string>
+    <string name="settings_skill_level_title">Skill level</string>
+    <string name="settings_serving_size_title">Serving size default</string>
+
+    <string name="settings_diet_omnivore">Omnivore</string>
+    <string name="settings_diet_vegetarian">Vegetarian</string>
+    <string name="settings_diet_vegan">Vegan</string>
+    <string name="settings_diet_pescatarian">Pescatarian</string>
+    <string name="settings_diet_flexitarian">Flexitarian</string>
+
+    <string name="settings_skill_never_cooked">Never cooked</string>
+    <string name="settings_skill_beginner">Beginner</string>
+    <string name="settings_skill_comfortable">Comfortable</string>
+    <string name="settings_skill_confident">Confident</string>
+    <string name="settings_skill_pro">Pro</string>
+
+    <string name="settings_household_solo">1 person</string>
+    <string name="settings_household_two">2 people</string>
+    <string name="settings_household_three_four">3–4 people</string>
+    <string name="settings_household_five_plus">5+ people</string>
+
+    <string name="settings_app_preferences_section">App Preferences</string>
     <string name="settings_theme_label">Theme</string>
     <string name="settings_theme_system">System default</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
-
-    <string name="settings_language_section">Language</string>
-    <string name="settings_language_label">App language</string>
+    <string name="settings_language_label">Language</string>
     <string name="settings_language_system">System default</string>
     <string name="settings_language_english">English</string>
     <string name="settings_language_hungarian">Magyar</string>
 
-    <string name="settings_onboarding_section">Onboarding</string>
-    <string name="settings_retake_survey_description">Answer the taste survey again to refresh your recipe recommendations.</string>
-    <string name="settings_retake_survey">Retake the survey</string>
-    <string name="settings_retake_confirm_title">Retake the survey?</string>
-    <string name="settings_retake_confirm_message">Your current answers will be cleared and the survey will start over.</string>
+    <string name="settings_support_section">Support</string>
+    <string name="settings_send_feedback_title">Send feedback</string>
+    <string name="settings_send_feedback_subtitle">Report bugs or suggestions</string>
+    <string name="settings_rate_app_title">Rate the app</string>
+    <string name="settings_rate_app_subtitle">Leave a review</string>
+    <string name="settings_version_title">Version</string>
+    <string name="settings_version_value">v%1$s</string>
+
+    <string name="settings_feedback_dialog_title">Send feedback</string>
+    <string name="settings_feedback_input_label">Your feedback</string>
+    <string name="settings_feedback_input_placeholder">Report a bug or share a suggestion…</string>
+    <string name="settings_feedback_send">Send</string>
+    <string name="settings_feedback_sent">Thanks for your feedback!</string>
+
+    <string name="settings_danger_zone_section">Danger Zone</string>
+    <string name="settings_delete_account_title">Delete account</string>
+    <string name="settings_delete_account_confirm_message">Are you sure you want to delete your account? All your data will be permanently lost, and this action cannot be undone.</string>
+    <string name="settings_delete_account_confirm_label">Delete</string>
+    <string name="settings_account_deletion_success">Account deletion success</string>
 
     <string name="settings_developer_section">Developer</string>
     <string name="settings_clear_storage_description">Wipe the stored survey response so the first-launch flow runs again.</string>
