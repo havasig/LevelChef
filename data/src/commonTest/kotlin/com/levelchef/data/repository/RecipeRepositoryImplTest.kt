@@ -27,4 +27,14 @@ class RecipeRepositoryImplTest {
     fun get_by_id_returns_null_for_an_unknown_id() = runTest {
         assertNull(repository.getById("does-not-exist"))
     }
+
+    @Test
+    fun every_sample_recipe_is_fully_populated_for_the_detail_screen() = runTest {
+        repository.getRecommendations().forEach { recipe ->
+            assertTrue(recipe.ingredients.isNotEmpty(), "${recipe.id} has no ingredients")
+            assertTrue(recipe.steps.isNotEmpty(), "${recipe.id} has no steps")
+            assertTrue(recipe.caloriesKcal != null, "${recipe.id} has no calories")
+            assertTrue(recipe.servings >= 1, "${recipe.id} has a bad serving count")
+        }
+    }
 }

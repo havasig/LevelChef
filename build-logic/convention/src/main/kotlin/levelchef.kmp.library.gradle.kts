@@ -1,3 +1,4 @@
+import com.levelchef.buildlogic.catalogLibs
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -10,6 +11,10 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
         }
+    }
+
+    sourceSets.getByName("commonMain").dependencies {
+        implementation(catalogLibs.findLibrary("kermit").get())
     }
 }
 

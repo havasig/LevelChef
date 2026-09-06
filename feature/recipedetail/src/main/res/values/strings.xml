@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="recipe_detail_title">Recipe Detail</string>
+    <string name="recipe_detail_title">Recipe</string>
     <string name="saved_recipes_title">Recipes</string>
+    <string name="recipe_detail_settings">Settings</string>
+    <string name="recipe_detail_not_found">This recipe could not be found.</string>
+
+    <string name="recipe_detail_xp_badge">+%1$d XP</string>
+
+    <string name="recipe_detail_tag_time">%1$d min</string>
+    <string name="recipe_detail_tag_protein">%1$dg protein</string>
+    <string name="recipe_detail_tag_ingredients">%1$d ingredients</string>
+    <string name="recipe_detail_difficulty_easy">Easy</string>
+    <string name="recipe_detail_difficulty_medium">Medium</string>
+    <string name="recipe_detail_difficulty_hard">Hard</string>
+
+    <string name="recipe_detail_macro_calories">Calories</string>
+    <string name="recipe_detail_macro_protein">Protein</string>
+    <string name="recipe_detail_macro_carbs">Carbs</string>
+    <string name="recipe_detail_macro_fat">Fat</string>
+    <string name="recipe_detail_macro_kcal_value">%1$d kcal</string>
+    <string name="recipe_detail_macro_grams_value">%1$d g</string>
+    <string name="recipe_detail_macro_unknown">&#8212;</string>
+
+    <string name="recipe_detail_servings_label">Set servings</string>
+    <string name="recipe_detail_servings_count">servings</string>
+    <string name="recipe_detail_servings_decrease">Fewer servings</string>
+    <string name="recipe_detail_servings_increase">More servings</string>
+
+    <string name="recipe_detail_ingredients_title">Ingredients</string>
+    <string name="recipe_detail_ingredient_new">new</string>
+
+    <string name="recipe_detail_steps_title">Steps</string>
+    <string name="recipe_detail_start_timer">Start %1$d min timer</string>
+
+    <string name="recipe_detail_related_video">Related video</string>
+    <string name="recipe_detail_open_video">Open related video</string>
+
+    <string name="recipe_detail_made_it">I made it</string>
+    <string name="recipe_detail_save">Save</string>
+    <string name="recipe_detail_saved">Saved</string>
+
+    <string name="recipe_detail_snackbar_saved">Recipe saved</string>
+    <string name="recipe_detail_snackbar_unsaved">Removed from saved</string>
+    <string name="recipe_detail_snackbar_cooked">Logged! +%1$d XP earned</string>
+    <string name="recipe_detail_snackbar_timer">Step timers are coming soon</string>
 </resources>
