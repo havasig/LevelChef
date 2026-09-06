@@ -27,7 +27,8 @@ import com.levelchef.feature.ingredients.IngredientDetailRoute
 import com.levelchef.feature.ingredients.IngredientFormRoute
 import com.levelchef.feature.ingredients.IngredientsListRoute
 import com.levelchef.feature.onboarding.OnboardingGate
-import com.levelchef.feature.recipedetail.RecipeDetailScreen
+import com.levelchef.feature.recipedetail.RecipeDetailRoute
+import com.levelchef.feature.recipedetail.RecipesScreen
 import com.levelchef.feature.settings.SettingsRoute
 import com.levelchef.feature.trophyroom.TrophyRoomRoute
 
@@ -39,8 +40,11 @@ private val bottomNavItems = listOf(
     LevelChefDestination.Trophies,
 )
 
-private const val RECIPE_DETAIL_ROUTE = "recipeDetail"
 private const val SETTINGS_ROUTE = "settings"
+
+private const val RECIPE_ID_ARG = "recipeId"
+private const val RECIPE_DETAIL_ROUTE = "recipeDetail/{$RECIPE_ID_ARG}"
+private fun recipeDetailPath(id: String) = "recipeDetail/$id"
 
 private const val INGREDIENTS_ROUTE = "ingredients"
 private const val INGREDIENT_ID_ARG = "ingredientId"
@@ -146,15 +150,22 @@ private fun LevelChefAppContent() {
         ) {
             composable(LevelChefDestination.Home.route) {
                 HomeRoute(
-                    onRecipeClick = { navController.navigate(RECIPE_DETAIL_ROUTE) },
+                    onRecipeClick = { rec -> navController.navigate(recipeDetailPath(rec.id)) },
                     onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
                     onIngredientsClick = { navController.navigate(INGREDIENTS_ROUTE) },
                 )
             }
-            composable(LevelChefDestination.Recipes.route) { RecipeDetailScreen() }
+            composable(LevelChefDestination.Recipes.route) { RecipesScreen() }
             composable(LevelChefDestination.Trophies.route) { TrophyRoomRoute() }
-            composable(RECIPE_DETAIL_ROUTE) {
-                RecipeDetailScreen(onBackClick = { navController.popBackStack() })
+            composable(
+                RECIPE_DETAIL_ROUTE,
+                arguments = listOf(navArgument(RECIPE_ID_ARG) { type = NavType.StringType }),
+            ) { entry ->
+                RecipeDetailRoute(
+                    recipeId = entry.arguments?.getString(RECIPE_ID_ARG).orEmpty(),
+                    onBackClick = { navController.popBackStack() },
+                    onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
+                )
             }
             composable(SETTINGS_ROUTE) {
                 SettingsRoute(onBackClick = { navController.popBackStack() })

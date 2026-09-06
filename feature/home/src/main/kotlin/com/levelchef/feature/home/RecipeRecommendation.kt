@@ -3,6 +3,7 @@ package com.levelchef.feature.home
 import com.levelchef.core.designsystem.TagColor
 
 data class RecipeRecommendation(
+    val id: String,
     val emoji: String,
     val name: String,
     val xp: Int,

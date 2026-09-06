@@ -1,0 +1,5 @@
+-- v3 -> v4: add the saved (bookmarked) recipes table (see SavedRecipe.sq for the queries).
+CREATE TABLE savedRecipe (
+    recipeId TEXT NOT NULL PRIMARY KEY,
+    savedAt TEXT NOT NULL
+);

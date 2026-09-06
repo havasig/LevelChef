@@ -12,6 +12,7 @@ import com.levelchef.domain.repository.IngredientRepository
 import com.levelchef.feature.home.di.homeModule
 import com.levelchef.feature.ingredients.di.ingredientsModule
 import com.levelchef.feature.onboarding.di.onboardingModule
+import com.levelchef.feature.recipedetail.di.recipeDetailModule
 import com.levelchef.feature.settings.AppSettingsController
 import com.levelchef.feature.settings.di.settingsModule
 import com.levelchef.feature.trophyroom.di.trophyroomModule
@@ -55,6 +56,7 @@ class LevelChefApplication : Application() {
                 settingsModule,
                 ingredientsModule,
                 trophyroomModule,
+                recipeDetailModule,
             )
         }
         appSettingsController.applyPersistedThemeMode()
