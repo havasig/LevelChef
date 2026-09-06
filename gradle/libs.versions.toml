@@ -8,6 +8,7 @@ kotlinx-serialization = "1.7.3"
 kotlinx-datetime = "0.8.0"
 kotlinx-coroutines = "1.9.0"
 koin = "4.2.2"
+kermit = "2.0.4"
 vico = "2.1.2"
 coreKtx = "1.15.0"
 appcompat = "1.7.0"
@@ -53,6 +54,7 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
 koin-viewmodel-compose = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
