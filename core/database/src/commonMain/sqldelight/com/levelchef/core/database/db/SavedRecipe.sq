@@ -1,0 +1,17 @@
+-- Recipes the user bookmarked from the recipe detail screen. `savedAt` is an ISO-8601 instant.
+CREATE TABLE savedRecipe (
+    recipeId TEXT NOT NULL PRIMARY KEY,
+    savedAt TEXT NOT NULL
+);
+
+isSaved:
+SELECT EXISTS(SELECT 1 FROM savedRecipe WHERE recipeId = ?);
+
+selectAll:
+SELECT * FROM savedRecipe ORDER BY savedAt DESC;
+
+save:
+INSERT OR REPLACE INTO savedRecipe(recipeId, savedAt) VALUES (?, ?);
+
+unsave:
+DELETE FROM savedRecipe WHERE recipeId = ?;

@@ -12,6 +12,7 @@ import com.levelchef.domain.repository.IngredientRepository
 import com.levelchef.feature.home.di.homeModule
 import com.levelchef.feature.ingredients.di.ingredientsModule
 import com.levelchef.feature.onboarding.di.onboardingModule
+import com.levelchef.feature.recipedetail.di.recipeDetailModule
 import com.levelchef.feature.settings.AppSettingsController
 import com.levelchef.feature.settings.di.settingsModule
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -46,7 +47,10 @@ class LevelChefApplication : Application() {
 
         startKoin {
             androidContext(this@LevelChefApplication)
-            modules(databaseModule, dataModule, homeModule, onboardingModule, settingsModule, ingredientsModule)
+            modules(
+                databaseModule, dataModule, homeModule, onboardingModule,
+                settingsModule, ingredientsModule, recipeDetailModule,
+            )
         }
         appSettingsController.applyPersistedThemeMode()
         appScope.launch { ingredientRepository.seedDefaults() }

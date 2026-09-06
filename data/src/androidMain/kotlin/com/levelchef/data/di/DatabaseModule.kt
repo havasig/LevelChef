@@ -4,9 +4,11 @@ import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.data.local.DatabaseDriverFactory
 import com.levelchef.data.repository.CookingSessionRepositoryImpl
 import com.levelchef.data.repository.IngredientRepositoryImpl
+import com.levelchef.data.repository.SavedRecipeRepositoryImpl
 import com.levelchef.data.repository.SurveyResponseRepositoryImpl
 import com.levelchef.domain.repository.CookingSessionRepository
 import com.levelchef.domain.repository.IngredientRepository
+import com.levelchef.domain.repository.SavedRecipeRepository
 import com.levelchef.domain.repository.SurveyRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -18,4 +20,5 @@ val databaseModule = module {
     single<CookingSessionRepository> { CookingSessionRepositoryImpl(get()) }
     single<SurveyRepository> { SurveyResponseRepositoryImpl(get()) }
     single<IngredientRepository> { IngredientRepositoryImpl(get()) }
+    single<SavedRecipeRepository> { SavedRecipeRepositoryImpl(get()) }
 }
