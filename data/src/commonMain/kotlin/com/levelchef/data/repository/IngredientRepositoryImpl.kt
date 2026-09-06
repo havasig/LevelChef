@@ -44,8 +44,8 @@ class IngredientRepositoryImpl(
     // caller's CoroutineExceptionHandler still sees it.
     @Suppress("TooGenericExceptionCaught")
     override suspend fun seedDefaults() {
-        if (queries.countAll().executeAsOne() != 0L) return
         try {
+            if (queries.countAll().executeAsOne() != 0L) return
             queries.transaction {
                 DEFAULT_INGREDIENTS.forEach(queries::upsert)
             }
