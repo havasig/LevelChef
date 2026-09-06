@@ -29,3 +29,6 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteById:
 DELETE FROM ingredient WHERE id = ?;
+
+deleteAll:
+DELETE FROM ingredient;

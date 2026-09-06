@@ -121,6 +121,7 @@ private class FakeCookingSessionRepository(private val recent: CookingSession?) 
     override suspend fun totalXp(): Int = 0
     override suspend fun sessionCount(): Int = 0
     override suspend fun totalDurationMinutes(): Int = 0
+    override suspend fun deleteAll() = Unit
 }
 
 private class FakeRecipeRepository(private val recommendations: List<Recipe>) : RecipeRepository {

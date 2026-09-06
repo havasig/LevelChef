@@ -11,6 +11,7 @@ internal class FakeIngredientRepository(private val ingredients: List<Ingredient
     override suspend fun getById(id: String): Ingredient? = ingredients.firstOrNull { it.id == id }
     override suspend fun save(ingredient: Ingredient) = Unit
     override suspend fun delete(id: String) = Unit
+    override suspend fun deleteAll() = Unit
     override suspend fun count(): Int = ingredients.size
     override suspend fun seedDefaults() = Unit
 }

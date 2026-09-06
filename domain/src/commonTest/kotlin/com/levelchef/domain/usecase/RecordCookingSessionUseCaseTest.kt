@@ -25,6 +25,9 @@ private class CapturingCookingSessionRepository : CookingSessionRepository {
     override suspend fun totalXp(): Int = recorded.sumOf { it.xpEarned }
     override suspend fun sessionCount(): Int = recorded.size
     override suspend fun totalDurationMinutes(): Int = recorded.sumOf { it.durationMinutes }
+    override suspend fun deleteAll() {
+        recorded.clear()
+    }
 }
 
 private class StoppedClock(private val instant: Instant) : Clock {

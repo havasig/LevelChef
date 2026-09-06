@@ -100,6 +100,16 @@ class IngredientRepositoryImplTest {
     }
 
     @Test
+    fun delete_all_empties_the_pantry() = runTest {
+        repository.save(chicken)
+        repository.save(Ingredient("apple", "Apple", IngredientCategory.FRUIT, "🍎"))
+
+        repository.deleteAll()
+
+        assertEquals(0, repository.count())
+    }
+
+    @Test
     fun seed_defaults_rethrows_when_the_database_is_unavailable() = runTest {
         val closedDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         LevelChefDatabase.Schema.create(closedDriver)

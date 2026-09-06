@@ -38,6 +38,10 @@ class IngredientRepositoryImpl(
         queries.deleteById(id)
     }
 
+    override suspend fun deleteAll() {
+        queries.deleteAll()
+    }
+
     override suspend fun count(): Int = queries.countAll().executeAsOne().toInt()
 
     // A seed failure must surface regardless of the SQLDelight exception type; it is rethrown so the

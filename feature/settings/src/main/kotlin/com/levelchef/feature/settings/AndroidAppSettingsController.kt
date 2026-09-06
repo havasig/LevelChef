@@ -48,6 +48,11 @@ class AndroidAppSettingsController(context: Context) : AppSettingsController {
         )
     }
 
+    override fun resetToDefaults() {
+        setThemeMode(ThemeMode.SYSTEM)
+        setLanguage(AppLanguage.SYSTEM)
+    }
+
     private fun ThemeMode.toNightMode(): Int = when (this) {
         ThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
         ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO

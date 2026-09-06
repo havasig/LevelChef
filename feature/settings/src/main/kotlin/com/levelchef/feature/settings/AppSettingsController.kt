@@ -21,4 +21,7 @@ interface AppSettingsController {
 
     /** Applies [language]; AppCompat persists it and recreates the activity. */
     fun setLanguage(language: AppLanguage)
+
+    /** Resets both the theme and the language back to their System defaults — backs account deletion. */
+    fun resetToDefaults()
 }
