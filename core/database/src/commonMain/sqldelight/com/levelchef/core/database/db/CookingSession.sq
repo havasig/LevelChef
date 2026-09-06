@@ -4,6 +4,7 @@ CREATE TABLE cookingSession (
     recipeName TEXT NOT NULL,
     cookedAt TEXT NOT NULL,
     xpEarned INTEGER NOT NULL,
+    durationMinutes INTEGER NOT NULL DEFAULT 0,
     rating INTEGER,
     improvementNote TEXT,
     kcal INTEGER,
@@ -19,8 +20,8 @@ selectRecent:
 SELECT * FROM cookingSession ORDER BY cookedAt DESC LIMIT 1;
 
 insertSession:
-INSERT INTO cookingSession(id, recipeId, recipeName, cookedAt, xpEarned, rating, improvementNote, kcal, proteinGrams, carbsGrams, fatGrams)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO cookingSession(id, recipeId, recipeName, cookedAt, xpEarned, durationMinutes, rating, improvementNote, kcal, proteinGrams, carbsGrams, fatGrams)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 totalXp:
 SELECT IFNULL(SUM(xpEarned), 0) FROM cookingSession;
@@ -30,3 +31,6 @@ SELECT COUNT(*) FROM cookingSession;
 
 deleteAll:
 DELETE FROM cookingSession;
+
+totalDurationMinutes:
+SELECT IFNULL(SUM(durationMinutes), 0) FROM cookingSession;

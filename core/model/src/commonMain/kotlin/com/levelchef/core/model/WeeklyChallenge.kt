@@ -1,5 +1,6 @@
 package com.levelchef.core.model
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,5 +9,9 @@ data class WeeklyChallenge(
     val title: String,
     val description: String,
     val xpReward: Int,
-    val isCompleted: Boolean = false,
-)
+    val progressCurrent: Int = 0,
+    val progressTarget: Int = 1,
+    @Serializable(with = InstantIsoSerializer::class) val completedAt: Instant? = null,
+) {
+    val isCompleted: Boolean get() = completedAt != null
+}

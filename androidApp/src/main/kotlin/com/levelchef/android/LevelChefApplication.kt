@@ -15,6 +15,7 @@ import com.levelchef.feature.onboarding.di.onboardingModule
 import com.levelchef.feature.recipedetail.di.recipeDetailModule
 import com.levelchef.feature.settings.AppSettingsController
 import com.levelchef.feature.settings.di.settingsModule
+import com.levelchef.feature.trophyroom.di.trophyroomModule
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,8 +49,14 @@ class LevelChefApplication : Application() {
         startKoin {
             androidContext(this@LevelChefApplication)
             modules(
-                databaseModule, dataModule, homeModule, onboardingModule,
-                settingsModule, ingredientsModule, recipeDetailModule,
+                databaseModule,
+                dataModule,
+                homeModule,
+                onboardingModule,
+                settingsModule,
+                ingredientsModule,
+                trophyroomModule,
+                recipeDetailModule,
             )
         }
         appSettingsController.applyPersistedThemeMode()

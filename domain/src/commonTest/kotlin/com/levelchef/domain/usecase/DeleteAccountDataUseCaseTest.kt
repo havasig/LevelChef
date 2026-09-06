@@ -23,6 +23,7 @@ private class FakeCookingSessionRepository(initial: List<CookingSession> = empty
     override suspend fun mostRecent(): CookingSession? = state.value.firstOrNull()
     override suspend fun totalXp(): Int = state.value.sumOf { it.xpEarned }
     override suspend fun sessionCount(): Int = state.value.size
+    override suspend fun totalDurationMinutes(): Int = state.value.sumOf { it.durationMinutes }
     override suspend fun deleteAll() {
         state.value = emptyList()
     }
