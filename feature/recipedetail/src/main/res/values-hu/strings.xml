@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="recipe_detail_title">Recept részletei</string>
+    <string name="recipe_detail_title">Recept</string>
     <string name="saved_recipes_title">Receptek</string>
+    <string name="recipe_detail_settings">Beállítások</string>
+    <string name="recipe_detail_not_found">Ez a recept nem található.</string>
+
+    <string name="recipe_detail_xp_badge">+%1$d XP</string>
+
+    <string name="recipe_detail_tag_time">%1$d perc</string>
+    <string name="recipe_detail_tag_protein">%1$dg fehérje</string>
+    <string name="recipe_detail_tag_ingredients">%1$d hozzávaló</string>
+    <string name="recipe_detail_difficulty_easy">Könnyű</string>
+    <string name="recipe_detail_difficulty_medium">Közepes</string>
+    <string name="recipe_detail_difficulty_hard">Nehéz</string>
+
+    <string name="recipe_detail_macro_calories">Kalória</string>
+    <string name="recipe_detail_macro_protein">Fehérje</string>
+    <string name="recipe_detail_macro_carbs">Szénhidrát</string>
+    <string name="recipe_detail_macro_fat">Zsír</string>
+    <string name="recipe_detail_macro_kcal_value">%1$d kcal</string>
+    <string name="recipe_detail_macro_grams_value">%1$d g</string>
+    <string name="recipe_detail_macro_unknown">&#8212;</string>
+
+    <string name="recipe_detail_servings_label">Adagok beállítása</string>
+    <string name="recipe_detail_servings_count">adag</string>
+    <string name="recipe_detail_servings_decrease">Kevesebb adag</string>
+    <string name="recipe_detail_servings_increase">Több adag</string>
+
+    <string name="recipe_detail_ingredients_title">Hozzávalók</string>
+    <string name="recipe_detail_ingredient_new">új</string>
+
+    <string name="recipe_detail_steps_title">Lépések</string>
+    <string name="recipe_detail_start_timer">%1$d perces időzítő indítása</string>
+
+    <string name="recipe_detail_related_video">Kapcsolódó videó</string>
+    <string name="recipe_detail_open_video">Kapcsolódó videó megnyitása</string>
+
+    <string name="recipe_detail_made_it">Elkészítettem</string>
+    <string name="recipe_detail_save">Mentés</string>
+    <string name="recipe_detail_saved">Mentve</string>
+
+    <string name="recipe_detail_snackbar_saved">Recept elmentve</string>
+    <string name="recipe_detail_snackbar_unsaved">Eltávolítva a mentettek közül</string>
+    <string name="recipe_detail_snackbar_cooked">Rögzítve! +%1$d XP jóváírva</string>
+    <string name="recipe_detail_snackbar_timer">A lépés-időzítők hamarosan érkeznek</string>
 </resources>

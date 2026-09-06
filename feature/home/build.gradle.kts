@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":domain"))
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.koin.viewmodel.compose)
     implementation(libs.kotlinx.datetime)
 

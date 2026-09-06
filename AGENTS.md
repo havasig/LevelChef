@@ -21,12 +21,17 @@ core:database  ◀── data only
 
 - **`core:model`** — KMP, `commonMain`. Pure data classes, **one public type per file**, no framework deps.
   Note `Ingredient` is the pantry entity (id, category, emoji, macros, nullable `imageUrl` for a
-  future AI image); `RecipeIngredient` is the line item inside `Recipe.ingredients`. Ingredient
-  imagery is the `emoji` field — no image library / `res/drawable` in the project.
-- **`core:database`** — KMP. SQLDelight schema for cooking sessions.
+  future AI image); `RecipeIngredient` is the line item inside `Recipe.ingredients` (name +
+  optional `quantity`/`unit` so the recipe-detail servings stepper can scale it); `RecipeStep` is
+  a `Recipe.steps` entry (text + optional `timerMinutes`). Ingredient imagery is the `emoji`
+  field — no image library / `res/drawable` in the project.
+- **`core:database`** — KMP. SQLDelight schema (v4): `cookingSession`, `surveyResponse`,
+  `ingredient`, `savedRecipe` (bookmarked recipe ids). Each table's `CREATE` is mirrored into a
+  `migrations/N.sqm` file (no data in migrations); the schema version is the migration count + 1.
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
-  `RecipeRepositoryImpl` is still a static sample-data stub pending the Gemini recommender.
+  `RecipeRepositoryImpl` is still a static sample-data stub (3 fully-populated recipes) pending the
+  Gemini recommender. `SavedRecipeRepositoryImpl` backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen. **No feature module depends on another.**
@@ -34,8 +39,12 @@ core:database  ◀── data only
   `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored), `feature:settings`
   (theme / language / retake-onboarding, reached from the Home gear) and `feature:ingredients` (the
   pantry: list / detail / add-edit / delete, Figma nodes `437:1054` / `453:1520` / `447:1484`,
-  reached from the Home "Ingredients tried" card) are fully built; the rest are `PlaceholderScreen`
-  stubs.
+  reached from the Home "Ingredients tried" card) and `feature:recipedetail` (Figma node
+  `371:728` — data-driven recipe detail: servings stepper, ingredient checklist, numbered steps,
+  "Save" bookmark, "I made it" → records a `CookingSession`; reached by tapping a Home
+  recommendation card, `recipeDetail/{recipeId}`) are fully built; the rest are `PlaceholderScreen`
+  stubs. The `Recipes` bottom-nav tab (`RecipesScreen`) is still a placeholder. `HomeRoute`
+  refreshes its stats on `ON_RESUME` so a logged cook shows up when you return.
 
 Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/levelchef/konsist/`):
 - Never add a `feature:* → feature:*` dependency.
@@ -125,7 +134,7 @@ JVM target 11. JDK 17+ to run Gradle (the toolchain resolver fetches JDK 17 for 
 
 ## Building a screen from Figma
 
-There are 4 stub screens left to build (`recipedetail`, `mealreview`, `trophyroom`, `cookinglog`).
+There are 3 stub screens left to build (`mealreview`, `trophyroom`, `cookinglog`).
 Each has its Figma node ID in a `/** Figma node NNN:NNN */` KDoc on the stub composable.
 Use the **`new-feature-screen`** skill (`.claude/skills/new-feature-screen/`) — it captures the full workflow.
 
@@ -136,3 +145,6 @@ Use the **`new-feature-screen`** skill (`.claude/skills/new-feature-screen/`) �
 2. Wire `feature:home` fully to domain use cases (partly done via `HomeViewModel`).
 3. Add the Inter font under `core/ui/src/main/res/font` for pixel-accurate type.
 4. iOS target (KMP modules are ready; no iOS app shell yet).
+5. Recipe-detail follow-ups: a real step timer (the chip is a visual stub); grow the `Recipes`
+   tab into a saved/browse list; promote the local macro grid / servings stepper / numbered-step
+   card to `core:designsystem` (unify with `feature:ingredients`' private `MacroTile`).

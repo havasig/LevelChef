@@ -10,6 +10,7 @@ import kotlin.time.Instant
 /** Maps domain models (from [com.levelchef.domain.repository]) onto this screen's presentation types. */
 
 internal fun Recipe.toRecommendation(): RecipeRecommendation = RecipeRecommendation(
+    id = id,
     emoji = emoji,
     name = name,
     xp = xpReward,
