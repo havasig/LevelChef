@@ -1,0 +1,14 @@
+-- Earned-date ledger only. Badge progress is always recomputed live from cookingSession/ingredient
+-- data (see BadgeRepositoryImpl); this table just remembers *when* a badge first crossed its target
+-- so that date stays stable across app runs instead of reading as "now" every time.
+CREATE TABLE badgeEarned (
+    badgeId TEXT NOT NULL PRIMARY KEY,
+    earnedAt TEXT NOT NULL
+);
+
+selectAll:
+SELECT * FROM badgeEarned;
+
+markEarned:
+INSERT OR IGNORE INTO badgeEarned(badgeId, earnedAt)
+VALUES (?, ?);

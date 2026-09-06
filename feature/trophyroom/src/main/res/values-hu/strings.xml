@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="trophy_room_title">Trófeaszoba</string>
+
+    <string name="trophy_room_level_of">%1$d. szint / %2$d</string>
+    <string name="trophy_room_max_level">MAX</string>
+    <string name="trophy_room_level_progress">Szint előrehaladása</string>
+    <string name="trophy_room_xp_percent">%1$d / %2$d XP · %3$d%%</string>
+    <string name="trophy_room_streak">%1$d napos sorozat</string>
+    <string name="trophy_room_avg_rating">%1$d%% átlagos értékelés</string>
+
+    <string name="trophy_room_weekly_challenge_label">Heti kihívás</string>
+    <string name="trophy_room_weekly_challenge_caption">heti trófea</string>
+    <string name="trophy_room_completed">Teljesítve ✓</string>
+    <string name="trophy_room_kitchen_time_label">Konyhában töltött idő</string>
+    <string name="trophy_room_kitchen_time_caption">aktív főzési idő</string>
+
+    <string name="trophy_room_streaks_header">Sorozatok</string>
+    <string name="trophy_room_badges_header">Jelvények</string>
+    <string name="trophy_room_earned">Megszerezve</string>
+    <string name="trophy_room_in_progress">Folyamatban</string>
+    <string name="trophy_room_not_started">Nincs elkezdve</string>
+    <string name="trophy_room_locked">Zárolva</string>
 </resources>

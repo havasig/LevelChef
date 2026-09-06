@@ -11,6 +11,7 @@ internal class FakeCookingSessionRepository(
     private val count: Int = 0,
     private val recent: CookingSession? = null,
     private val all: List<CookingSession> = emptyList(),
+    private val durationMinutes: Int = 0,
 ) : CookingSessionRepository {
     val recorded = mutableListOf<CookingSession>()
 
@@ -21,4 +22,5 @@ internal class FakeCookingSessionRepository(
     override suspend fun mostRecent(): CookingSession? = recent
     override suspend fun totalXp(): Int = xp
     override suspend fun sessionCount(): Int = count
+    override suspend fun totalDurationMinutes(): Int = durationMinutes
 }

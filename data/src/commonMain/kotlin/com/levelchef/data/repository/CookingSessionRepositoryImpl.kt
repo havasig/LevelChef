@@ -28,6 +28,7 @@ class CookingSessionRepositoryImpl(
             recipeName = session.recipeName,
             cookedAt = session.cookedAt.toString(),
             xpEarned = session.xpEarned.toLong(),
+            durationMinutes = session.durationMinutes.toLong(),
             rating = session.rating?.toLong(),
             improvementNote = session.improvementNote,
             kcal = session.kcal?.toLong(),
@@ -45,6 +46,9 @@ class CookingSessionRepositoryImpl(
 
     override suspend fun sessionCount(): Int =
         database.cookingSessionQueries.sessionCount().executeAsOne().toInt()
+
+    override suspend fun totalDurationMinutes(): Int =
+        database.cookingSessionQueries.totalDurationMinutes().executeAsOne().toInt()
 }
 
 private fun com.levelchef.core.database.db.CookingSession.toDomain() = CookingSession(
@@ -53,6 +57,7 @@ private fun com.levelchef.core.database.db.CookingSession.toDomain() = CookingSe
     recipeName = recipeName,
     cookedAt = Instant.parse(cookedAt),
     xpEarned = xpEarned.toInt(),
+    durationMinutes = durationMinutes.toInt(),
     rating = rating?.toInt(),
     improvementNote = improvementNote,
     kcal = kcal?.toInt(),

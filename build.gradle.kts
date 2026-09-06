@@ -25,6 +25,7 @@ dependencies {
     kover(project(":feature:onboarding"))
     kover(project(":feature:settings"))
     kover(project(":feature:ingredients"))
+    kover(project(":feature:trophyroom"))
 }
 
 // Coverage — aggregated at the root; the plugin is applied per-module (see those build files).

@@ -9,6 +9,7 @@ import com.levelchef.feature.ingredients.di.ingredientsModule
 import com.levelchef.feature.onboarding.di.onboardingModule
 import com.levelchef.feature.settings.AppSettingsController
 import com.levelchef.feature.settings.di.settingsModule
+import com.levelchef.feature.trophyroom.di.trophyroomModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,7 +28,15 @@ class LevelChefApplication : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@LevelChefApplication)
-            modules(databaseModule, dataModule, homeModule, onboardingModule, settingsModule, ingredientsModule)
+            modules(
+                databaseModule,
+                dataModule,
+                homeModule,
+                onboardingModule,
+                settingsModule,
+                ingredientsModule,
+                trophyroomModule,
+            )
         }
         appSettingsController.applyPersistedThemeMode()
         appScope.launch { ingredientRepository.seedDefaults() }
