@@ -12,6 +12,6 @@ data class Recipe(
     val difficulty: Difficulty,
     val proteinGrams: Int? = null,
     val tags: List<String> = emptyList(),
-    val ingredients: List<Ingredient> = emptyList(),
+    val ingredients: List<RecipeIngredient> = emptyList(),
     val steps: List<String> = emptyList(),
 )

@@ -1,6 +1,7 @@
 package com.levelchef.feature.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,7 +58,7 @@ internal fun LevelProgressSection(state: HomeUiState) {
 }
 
 @Composable
-internal fun StatCardsRow(state: HomeUiState) {
+internal fun StatCardsRow(state: HomeUiState, onIngredientsClick: () -> Unit = {}) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         StatCard(
             "🍳 ${state.cookingSessions}",
@@ -68,15 +69,16 @@ internal fun StatCardsRow(state: HomeUiState) {
             "🌿 ${state.ingredientsTried}",
             stringResource(R.string.home_ingredients_tried_label),
             Modifier.weight(1f),
+            onClick = onIngredientsClick,
         )
     }
 }
 
 /** Not a Figma-inventoried component — a Home-specific use of the generic [LevelChefCard] primitive. */
 @Composable
-internal fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
+internal fun StatCard(value: String, label: String, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
     val colors = LevelChefTheme.colors
-    LevelChefCard(modifier = modifier) {
+    LevelChefCard(modifier = if (onClick != null) modifier.clickable(onClick = onClick) else modifier) {
         Text(value, color = colors.textPrimary, style = LevelChefTextStyles.h2)
         Text(label, color = colors.textSecondary, style = LevelChefTextStyles.bodyRegular)
     }

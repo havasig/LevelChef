@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ingredients_list_title">Használt alapanyagok</string>
+    <string name="ingredients_add">Alapanyag hozzáadása</string>
+    <string name="ingredients_empty">Még nincs alapanyag. Koppints a + gombra egy hozzáadásához.</string>
+    <string name="ingredients_show_all">Összes mutatása</string>
+    <string name="ingredients_show_less">Kevesebb mutatása</string>
+
+    <string name="ingredient_detail_title">Alapanyag részletei</string>
+    <string name="ingredient_detail_default_unit">Alapértelmezett mértékegység</string>
+    <string name="ingredient_detail_no_unit">Nincs megadva</string>
+    <string name="ingredient_detail_macros_title">Tápértékek (100 g / 100 ml)</string>
+    <string name="ingredient_detail_edit">Szerkesztés</string>
+    <string name="ingredient_detail_delete">Törlés</string>
+    <string name="ingredient_detail_delete_confirm_title">Törlöd ezt az alapanyagot?</string>
+    <string name="ingredient_detail_delete_confirm_message">A(z) %1$s eltűnik az alapanyagok közül.</string>
+
+    <string name="ingredient_form_title_new">Új alapanyag</string>
+    <string name="ingredient_form_title_edit">Alapanyag szerkesztése</string>
+    <string name="ingredient_form_image_caption">A kép automatikusan a kategória alapján kerül kiválasztásra.</string>
+    <string name="ingredient_form_name_label">Alapanyag neve</string>
+    <string name="ingredient_form_name_placeholder">pl. Csirkemell, görög joghurt…</string>
+    <string name="ingredient_form_category_label">Kategória</string>
+    <string name="ingredient_form_unit_label">Mértékegység</string>
+    <string name="ingredient_form_optional">Nem kötelező</string>
+    <string name="ingredient_form_unit_none">Nincs megadva</string>
+    <string name="ingredient_form_macros_label">Tápértékek (100 g / 100 ml)</string>
+    <string name="ingredient_form_calories_label">Kalória (kcal)</string>
+    <string name="ingredient_form_protein_label">Fehérje (g)</string>
+    <string name="ingredient_form_carbs_label">Szénhidrát (g)</string>
+    <string name="ingredient_form_fat_label">Zsír (g)</string>
+    <string name="ingredient_form_save">Mentés</string>
+
+    <string name="ingredient_macro_calories">Kalória</string>
+    <string name="ingredient_macro_protein">Fehérje</string>
+    <string name="ingredient_macro_carbs">Szénhidrát</string>
+    <string name="ingredient_macro_fat">Zsír</string>
+    <string name="ingredient_macro_calories_value">%1$d kcal</string>
+    <string name="ingredient_macro_grams_value">%1$s g</string>
+
+    <string name="ingredient_category_meat">Hús</string>
+    <string name="ingredient_category_dairy">Tejtermék</string>
+    <string name="ingredient_category_vegetable">Zöldség</string>
+    <string name="ingredient_category_fruit">Gyümölcs</string>
+    <string name="ingredient_category_grain">Gabona</string>
+    <string name="ingredient_category_pantry">Kamra</string>
+    <string name="ingredient_category_other">Egyéb</string>
+
+    <string name="ingredient_unit_gram">Gramm</string>
+    <string name="ingredient_unit_milliliter">Milliliter</string>
+    <string name="ingredient_unit_piece">Darab</string>
+
+    <string name="ingredient_dialog_cancel">Mégse</string>
+    <string name="ingredient_dialog_delete">Törlés</string>
+</resources>

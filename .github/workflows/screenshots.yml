@@ -42,7 +42,7 @@ jobs:
       # Records the current render and diffs it against the committed baseline.
       # Never fails on a difference — that is what the comment is for.
       - name: Compare screenshots
-        run: ./gradlew :feature:home:compareRoborazziDebug :feature:onboarding:compareRoborazziDebug --stacktrace
+        run: ./gradlew :feature:home:compareRoborazziDebug :feature:onboarding:compareRoborazziDebug :feature:settings:compareRoborazziDebug :feature:ingredients:compareRoborazziDebug --stacktrace
 
       - name: Collect comparison images
         id: collect

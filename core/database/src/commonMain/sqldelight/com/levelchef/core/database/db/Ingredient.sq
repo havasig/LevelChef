@@ -1,0 +1,31 @@
+-- The user's pantry of logged ingredients. Enum columns store the enum `name`; the macro columns
+-- are nullable (NULL across all four == "no nutritional values"). Default rows are seeded by
+-- IngredientRepositoryImpl.seedDefaults(), not here.
+CREATE TABLE ingredient (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    emoji TEXT NOT NULL,
+    defaultUnit TEXT,
+    calories INTEGER,
+    proteinGrams REAL,
+    carbsGrams REAL,
+    fatGrams REAL,
+    imageUrl TEXT
+);
+
+selectAll:
+SELECT * FROM ingredient ORDER BY name;
+
+selectById:
+SELECT * FROM ingredient WHERE id = ?;
+
+countAll:
+SELECT COUNT(*) FROM ingredient;
+
+upsert:
+INSERT OR REPLACE INTO ingredient(id, name, category, emoji, defaultUnit, calories, proteinGrams, carbsGrams, fatGrams, imageUrl)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteById:
+DELETE FROM ingredient WHERE id = ?;

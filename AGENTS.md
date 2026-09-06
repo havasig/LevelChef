@@ -20,6 +20,9 @@ core:database  ◀── data only
 ```
 
 - **`core:model`** — KMP, `commonMain`. Pure data classes, **one public type per file**, no framework deps.
+  Note `Ingredient` is the pantry entity (id, category, emoji, macros, nullable `imageUrl` for a
+  future AI image); `RecipeIngredient` is the line item inside `Recipe.ingredients`. Ingredient
+  imagery is the `emoji` field — no image library / `res/drawable` in the project.
 - **`core:database`** — KMP. SQLDelight schema for cooking sessions.
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
@@ -28,9 +31,11 @@ core:database  ◀── data only
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen. **No feature module depends on another.**
   `feature:home` (Figma node `296:1929`), `feature:onboarding` (the mandatory first-launch survey —
-  `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored) and `feature:settings`
-  (theme / language / retake-onboarding, reached from the Home gear) are fully built; the rest are
-  `PlaceholderScreen` stubs.
+  `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored), `feature:settings`
+  (theme / language / retake-onboarding, reached from the Home gear) and `feature:ingredients` (the
+  pantry: list / detail / add-edit / delete, Figma nodes `437:1054` / `453:1520` / `447:1484`,
+  reached from the Home "Ingredients tried" card) are fully built; the rest are `PlaceholderScreen`
+  stubs.
 
 Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/levelchef/konsist/`):
 - Never add a `feature:* → feature:*` dependency.
