@@ -10,6 +10,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun HomeRoute(
     onRecipeClick: (RecipeRecommendation) -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onIngredientsClick: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -17,5 +18,6 @@ fun HomeRoute(
         state = state,
         onRecipeClick = onRecipeClick,
         onSettingsClick = onSettingsClick,
+        onIngredientsClick = onIngredientsClick,
     )
 }

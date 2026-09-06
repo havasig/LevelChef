@@ -1,0 +1,13 @@
+-- v2 -> v3: add the pantry ingredient table (see Ingredient.sq for the queries).
+CREATE TABLE ingredient (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    emoji TEXT NOT NULL,
+    defaultUnit TEXT,
+    calories INTEGER,
+    proteinGrams REAL,
+    carbsGrams REAL,
+    fatGrams REAL,
+    imageUrl TEXT
+);

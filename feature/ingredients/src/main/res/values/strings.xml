@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ingredients_list_title">Used Ingredients</string>
+    <string name="ingredients_add">Add ingredient</string>
+    <string name="ingredients_empty">No ingredients yet. Tap + to add one.</string>
+    <string name="ingredients_show_all">Show all</string>
+    <string name="ingredients_show_less">Show less</string>
+
+    <string name="ingredient_detail_title">Ingredient details</string>
+    <string name="ingredient_detail_default_unit">Default unit of measurement</string>
+    <string name="ingredient_detail_no_unit">Not set</string>
+    <string name="ingredient_detail_macros_title">Nutritional values (100 g / 100 ml)</string>
+    <string name="ingredient_detail_edit">Edit</string>
+    <string name="ingredient_detail_delete">Delete</string>
+    <string name="ingredient_detail_delete_confirm_title">Delete this ingredient?</string>
+    <string name="ingredient_detail_delete_confirm_message">%1$s will be removed from your ingredients.</string>
+
+    <string name="ingredient_form_title_new">New ingredient</string>
+    <string name="ingredient_form_title_edit">Edit ingredient</string>
+    <string name="ingredient_form_image_caption">The image is picked automatically from the category.</string>
+    <string name="ingredient_form_name_label">Ingredient name</string>
+    <string name="ingredient_form_name_placeholder">e.g. Chicken breast, Greek yogurt…</string>
+    <string name="ingredient_form_category_label">Category</string>
+    <string name="ingredient_form_unit_label">Unit of measurement</string>
+    <string name="ingredient_form_optional">Optional</string>
+    <string name="ingredient_form_unit_none">Not set</string>
+    <string name="ingredient_form_macros_label">Nutritional values (100 g / 100 ml)</string>
+    <string name="ingredient_form_calories_label">Calories (kcal)</string>
+    <string name="ingredient_form_protein_label">Protein (g)</string>
+    <string name="ingredient_form_carbs_label">Carbs (g)</string>
+    <string name="ingredient_form_fat_label">Fat (g)</string>
+    <string name="ingredient_form_save">Save</string>
+
+    <string name="ingredient_macro_calories">Calories</string>
+    <string name="ingredient_macro_protein">Protein</string>
+    <string name="ingredient_macro_carbs">Carbs</string>
+    <string name="ingredient_macro_fat">Fat</string>
+    <string name="ingredient_macro_calories_value">%1$d kcal</string>
+    <string name="ingredient_macro_grams_value">%1$s g</string>
+
+    <string name="ingredient_category_meat">Meat</string>
+    <string name="ingredient_category_dairy">Dairy</string>
+    <string name="ingredient_category_vegetable">Vegetables</string>
+    <string name="ingredient_category_fruit">Fruit</string>
+    <string name="ingredient_category_grain">Grains</string>
+    <string name="ingredient_category_pantry">Pantry</string>
+    <string name="ingredient_category_other">Other</string>
+
+    <string name="ingredient_unit_gram">Grams</string>
+    <string name="ingredient_unit_milliliter">Milliliters</string>
+    <string name="ingredient_unit_piece">Pieces</string>
+
+    <string name="ingredient_dialog_cancel">Cancel</string>
+    <string name="ingredient_dialog_delete">Delete</string>
+</resources>

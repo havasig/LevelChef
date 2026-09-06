@@ -9,5 +9,5 @@ import org.koin.dsl.module
 /** Platform-agnostic repository bindings. Combine with `databaseModule` (androidMain) for the DB-backed repository. */
 val dataModule = module {
     single<RecipeRepository> { RecipeRepositoryImpl() }
-    single<UserProfileRepository> { UserProfileRepositoryImpl(get()) }
+    single<UserProfileRepository> { UserProfileRepositoryImpl(get(), get()) }
 }

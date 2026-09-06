@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":feature:cookinglog"))
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:ingredients"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

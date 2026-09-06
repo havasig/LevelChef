@@ -12,15 +12,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.levelchef.android.ui.showcase.DesignSystemShowcaseScreen
 import com.levelchef.core.designsystem.LevelChefBottomNavigationBar
 import com.levelchef.core.designsystem.LevelChefNavItem
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.feature.home.HomeRoute
+import com.levelchef.feature.ingredients.IngredientDetailRoute
+import com.levelchef.feature.ingredients.IngredientFormRoute
+import com.levelchef.feature.ingredients.IngredientsListRoute
 import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.recipedetail.RecipeDetailScreen
 import com.levelchef.feature.settings.SettingsRoute
@@ -36,6 +41,15 @@ private val bottomNavItems = listOf(
 
 private const val RECIPE_DETAIL_ROUTE = "recipeDetail"
 private const val SETTINGS_ROUTE = "settings"
+
+private const val INGREDIENTS_ROUTE = "ingredients"
+private const val INGREDIENT_ID_ARG = "ingredientId"
+private const val INGREDIENT_DETAIL_ROUTE = "ingredients/{$INGREDIENT_ID_ARG}"
+private const val INGREDIENT_FORM_ROUTE = "ingredientForm?$INGREDIENT_ID_ARG={$INGREDIENT_ID_ARG}"
+
+private fun ingredientDetailPath(id: String) = "ingredients/$id"
+private fun ingredientFormPath(id: String? = null) =
+    if (id == null) "ingredientForm" else "ingredientForm?$INGREDIENT_ID_ARG=$id"
 
 /** Hidden route for [DesignSystemShowcaseScreen] — not in [bottomNavItems], reachable only by
  * tapping the Home nav item 5x quickly (see [HomeTapCounter] below). */
@@ -134,6 +148,7 @@ private fun LevelChefAppContent() {
                 HomeRoute(
                     onRecipeClick = { navController.navigate(RECIPE_DETAIL_ROUTE) },
                     onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
+                    onIngredientsClick = { navController.navigate(INGREDIENTS_ROUTE) },
                 )
             }
             composable(LevelChefDestination.Recipes.route) { RecipeDetailScreen() }
@@ -143,6 +158,40 @@ private fun LevelChefAppContent() {
             }
             composable(SETTINGS_ROUTE) {
                 SettingsRoute(onBackClick = { navController.popBackStack() })
+            }
+            composable(INGREDIENTS_ROUTE) {
+                IngredientsListRoute(
+                    onBackClick = { navController.popBackStack() },
+                    onIngredientClick = { id -> navController.navigate(ingredientDetailPath(id)) },
+                    onAddClick = { navController.navigate(ingredientFormPath()) },
+                )
+            }
+            composable(
+                INGREDIENT_DETAIL_ROUTE,
+                arguments = listOf(navArgument(INGREDIENT_ID_ARG) { type = NavType.StringType }),
+            ) { entry ->
+                IngredientDetailRoute(
+                    ingredientId = entry.arguments?.getString(INGREDIENT_ID_ARG).orEmpty(),
+                    onBackClick = { navController.popBackStack() },
+                    onEditClick = { id -> navController.navigate(ingredientFormPath(id)) },
+                    onDeleted = { navController.popBackStack() },
+                )
+            }
+            composable(
+                INGREDIENT_FORM_ROUTE,
+                arguments = listOf(
+                    navArgument(INGREDIENT_ID_ARG) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entry ->
+                IngredientFormRoute(
+                    ingredientId = entry.arguments?.getString(INGREDIENT_ID_ARG),
+                    onBackClick = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack() },
+                )
             }
             composable(DESIGN_SYSTEM_SHOWCASE_ROUTE) {
                 DesignSystemShowcaseScreen(onBackClick = { navController.popBackStack() })

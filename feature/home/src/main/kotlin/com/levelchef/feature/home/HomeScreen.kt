@@ -29,6 +29,7 @@ fun HomeScreen(
     onRecipeClick: (RecipeRecommendation) -> Unit = {},
     onChallengeDone: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
+    onIngredientsClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -48,7 +49,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             item { LevelProgressSection(state) }
-            item { StatCardsRow(state) }
+            item { StatCardsRow(state, onIngredientsClick = onIngredientsClick) }
             item { LevelChefDivider() }
             item { WeeklyChallengeSection(state, onDoneClick = onChallengeDone) }
             item { LevelChefDivider() }

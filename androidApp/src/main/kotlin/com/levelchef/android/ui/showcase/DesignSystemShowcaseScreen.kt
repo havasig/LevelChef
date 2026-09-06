@@ -141,7 +141,9 @@ fun DesignSystemShowcaseScreen(onBackClick: () -> Unit) {
                     LevelChefTopAppBarInner(
                         "Recipe details",
                         onBackClick = {},
-                        onSettingsClick = {},
+                        trailingIcon = Icons.Filled.Settings,
+                        trailingContentDescription = "Settings",
+                        onTrailingClick = {},
                     )
                 }
                 ShowcaseSection("Top App Bar — Search") {
