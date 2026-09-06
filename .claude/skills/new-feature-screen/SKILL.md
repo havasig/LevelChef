@@ -5,8 +5,8 @@ description: Build out one of LevelChef's stub feature screens (recipedetail, me
 
 # Build a LevelChef feature screen from Figma
 
-Each `feature:*` module except `home` is currently a one-line `PlaceholderScreen` stub with its
-Figma node ID in a KDoc comment. This skill turns one into a real screen.
+Several `feature:*` modules are still one-line `PlaceholderScreen` stubs with their Figma node ID
+in a KDoc comment. This skill turns one into a real screen.
 
 Read `AGENTS.md` first for the module rules and conventions this skill assumes.
 
@@ -14,12 +14,12 @@ Read `AGENTS.md` first for the module rules and conventions this skill assumes.
 
 | Module | Figma node | Screen |
 |---|---|---|
-| `feature:recipedetail` | `371:728` | Recipe Detail |
 | `feature:mealreview` | `385:586` | Meal Review |
 | `feature:trophyroom` | `504:1026` | Trophy Room |
 | `feature:cookinglog` | `489:1362` | Cooking Log |
 
-(`feature:onboarding` — the first-launch survey — is already built.)
+(`feature:home`, `feature:onboarding`, `feature:settings`, `feature:ingredients` and
+`feature:recipedetail` are already built — use them as reference implementations.)
 
 Confirm the node ID from the `/** Figma node NNN:NNN */` KDoc on the current stub composable.
 
@@ -105,7 +105,22 @@ Add a screenshot test so visual changes to this screen show up as PR comments (s
 Once ≥2 feature modules have this, promote the shared wiring to a `levelchef.roborazzi` convention
 plugin (watch for the precompiled-accessor issue that forced detekt to be root-only).
 
-## 8. Report
+## 8. Update the manual QA script
+
+`docs/QA_REGRESSION.md` is part of the definition of done (see `AGENTS.md` → Working practices).
+In the same PR:
+
+- Add a new `SM-NN` scenario for the screen — **Priority**, **Preconditions**, numbered **Steps**,
+  a **bold expected** result per step. Cover the happy path plus any persisted state, new settings,
+  and the new nav entry/back path.
+- Add its row to the results-log table; extend `SM-13` (navigation) and `SM-10` (Hungarian
+  spot-check) if this screen adds routes or strings; extend `SM-14` if it persists anything new.
+- Bump the file's "Last updated" line (date + PR number).
+
+Follow the checklist in that file's *Extending this script* section.
+
+## 9. Report
 
 Summarize: node(s) implemented, new design-system components, new domain interfaces, nav wiring changes,
-and anything left stubbed (e.g. data still coming from `SampleData`).
+the `SM-NN` scenario(s) added to `docs/QA_REGRESSION.md`, and anything left stubbed (e.g. data still
+coming from `SampleData`).
