@@ -1,0 +1,23 @@
+-- One row per week-bucket (see WeeklyChallengeRepositoryImpl for how weekKey is computed).
+-- The catalog (title/description/xpReward/target) lives in code; this table only tracks which
+-- catalog challenge was picked for a given week and whether/when it was completed.
+CREATE TABLE weeklyChallengeProgress (
+    weekKey TEXT NOT NULL PRIMARY KEY,
+    challengeId TEXT NOT NULL,
+    completedAt TEXT,
+    xpAwarded INTEGER NOT NULL DEFAULT 0
+);
+
+selectByWeek:
+SELECT * FROM weeklyChallengeProgress WHERE weekKey = ?;
+
+insertIfAbsent:
+INSERT OR IGNORE INTO weeklyChallengeProgress(weekKey, challengeId, completedAt, xpAwarded)
+VALUES (?, ?, NULL, 0);
+
+markCompleted:
+UPDATE weeklyChallengeProgress SET completedAt = ?, xpAwarded = ?
+WHERE weekKey = ? AND completedAt IS NULL;
+
+totalAwardedXp:
+SELECT IFNULL(SUM(xpAwarded), 0) FROM weeklyChallengeProgress;

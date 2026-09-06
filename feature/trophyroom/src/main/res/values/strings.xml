@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="trophy_room_title">Trophy Room</string>
+
+    <string name="trophy_room_level_of">Level %1$d of %2$d</string>
+    <string name="trophy_room_max_level">MAX</string>
+    <string name="trophy_room_level_progress">Level progress</string>
+    <string name="trophy_room_xp_percent">%1$d / %2$d XP · %3$d%%</string>
+    <string name="trophy_room_streak">%1$d day streak</string>
+    <string name="trophy_room_avg_rating">%1$d%% avg rating</string>
+
+    <string name="trophy_room_weekly_challenge_label">Weekly challenge</string>
+    <string name="trophy_room_weekly_challenge_caption">weekly trophy</string>
+    <string name="trophy_room_completed">Completed ✓</string>
+    <string name="trophy_room_kitchen_time_label">Kitchen time</string>
+    <string name="trophy_room_kitchen_time_caption">active cooking time</string>
+
+    <string name="trophy_room_streaks_header">Streaks</string>
+    <string name="trophy_room_badges_header">Badges</string>
+    <string name="trophy_room_earned">Earned</string>
+    <string name="trophy_room_in_progress">In progress</string>
+    <string name="trophy_room_not_started">Not started</string>
+    <string name="trophy_room_locked">Locked</string>
 </resources>

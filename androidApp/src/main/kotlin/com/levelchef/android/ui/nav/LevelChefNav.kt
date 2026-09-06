@@ -30,7 +30,7 @@ import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.recipedetail.RecipeDetailRoute
 import com.levelchef.feature.recipedetail.RecipesScreen
 import com.levelchef.feature.settings.SettingsRoute
-import com.levelchef.feature.trophyroom.TrophyRoomScreen
+import com.levelchef.feature.trophyroom.TrophyRoomRoute
 
 /** The top-level destinations shown in the bottom navigation bar. The bar is hidden on every other
  * route (recipe detail, the hidden showcase). Each screen renders its own top app bar. */
@@ -156,7 +156,7 @@ private fun LevelChefAppContent() {
                 )
             }
             composable(LevelChefDestination.Recipes.route) { RecipesScreen() }
-            composable(LevelChefDestination.Trophies.route) { TrophyRoomScreen() }
+            composable(LevelChefDestination.Trophies.route) { TrophyRoomRoute() }
             composable(
                 RECIPE_DETAIL_ROUTE,
                 arguments = listOf(navArgument(RECIPE_ID_ARG) { type = NavType.StringType }),

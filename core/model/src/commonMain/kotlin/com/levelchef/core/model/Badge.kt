@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 data class Badge(
     val id: String,
     val name: String,
+    val emoji: String,
     val category: BadgeCategory,
     val description: String,
     val progressCurrent: Int,

@@ -25,6 +25,7 @@ dependencies {
     kover(project(":feature:onboarding"))
     kover(project(":feature:settings"))
     kover(project(":feature:ingredients"))
+    kover(project(":feature:trophyroom"))
     kover(project(":feature:recipedetail"))
 }
 

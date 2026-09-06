@@ -10,6 +10,7 @@ data class CookingSession(
     val recipeName: String,
     @Serializable(with = InstantIsoSerializer::class) val cookedAt: Instant,
     val xpEarned: Int,
+    val durationMinutes: Int = 0,
     val rating: Int? = null,
     val improvementNote: String? = null,
     val kcal: Int? = null,

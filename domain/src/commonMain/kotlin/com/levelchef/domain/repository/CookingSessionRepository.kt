@@ -10,4 +10,5 @@ interface CookingSessionRepository {
     suspend fun mostRecent(): CookingSession?
     suspend fun totalXp(): Int
     suspend fun sessionCount(): Int
+    suspend fun totalDurationMinutes(): Int
 }
