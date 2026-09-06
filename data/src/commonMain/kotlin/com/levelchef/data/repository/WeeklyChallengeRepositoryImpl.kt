@@ -128,6 +128,6 @@ class WeeklyChallengeRepositoryImpl(
         database.weeklyChallengeQueries.totalAwardedXp().executeAsOne().toInt()
 
     private companion object {
-        fun weekKeyFor(instant: Instant): Int = (instant.toLocalDateTime(TimeZone.UTC).date.toEpochDays() / 7)
+        fun weekKeyFor(instant: Instant): Int = (instant.toLocalDateTime(TimeZone.UTC).date.toEpochDays() / 7).toInt()
     }
 }
