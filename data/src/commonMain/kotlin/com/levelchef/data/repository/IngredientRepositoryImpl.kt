@@ -2,6 +2,7 @@ package com.levelchef.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import co.touchlab.kermit.Logger
 import com.levelchef.core.database.db.IngredientQueries
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.core.model.Ingredient
@@ -39,11 +40,18 @@ class IngredientRepositoryImpl(
 
     override suspend fun count(): Int = queries.countAll().executeAsOne().toInt()
 
+    // A seed failure must surface regardless of the SQLDelight exception type; it is rethrown so the
+    // caller's CoroutineExceptionHandler still sees it.
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun seedDefaults() {
-        if (queries.countAll().executeAsOne() == 0L) {
+        try {
+            if (queries.countAll().executeAsOne() != 0L) return
             queries.transaction {
                 DEFAULT_INGREDIENTS.forEach(queries::upsert)
             }
+        } catch (e: Exception) {
+            Logger.e(e) { "Failed to seed default ingredients" }
+            throw e
         }
     }
 }

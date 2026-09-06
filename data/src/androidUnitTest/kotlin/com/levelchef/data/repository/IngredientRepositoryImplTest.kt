@@ -13,6 +13,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -96,5 +97,15 @@ class IngredientRepositoryImplTest {
         repository.save(chicken)
         repository.seedDefaults()
         assertEquals(1, repository.count())
+    }
+
+    @Test
+    fun seed_defaults_rethrows_when_the_database_is_unavailable() = runTest {
+        val closedDriver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        LevelChefDatabase.Schema.create(closedDriver)
+        val brokenRepository = IngredientRepositoryImpl(LevelChefDatabase(closedDriver))
+        closedDriver.close()
+
+        assertFailsWith<Exception> { brokenRepository.seedDefaults() }
     }
 }
