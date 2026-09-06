@@ -5,6 +5,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import app.cash.turbine.test
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.core.model.CookingSession
+import com.levelchef.core.model.WeeklyChallenge
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import kotlin.test.AfterTest
@@ -51,10 +52,21 @@ class WeeklyChallengeRepositoryImplTest {
         rating = rating,
     )
 
+    /** Turbine's `test { ... }` always returns Unit, so the current challenge is captured into a
+     * local var from inside the block rather than returned out of it. */
+    private suspend fun currentChallenge(): WeeklyChallenge {
+        lateinit var result: WeeklyChallenge
+        repository.observeCurrent().test {
+            result = awaitItem()
+            cancelAndIgnoreRemainingEvents()
+        }
+        return result
+    }
+
     @Test
     fun the_same_week_always_picks_the_same_challenge() = runTest {
-        val first = repository.observeCurrent().test { awaitItem().also { cancelAndIgnoreRemainingEvents() } }
-        val second = repository.observeCurrent().test { awaitItem().also { cancelAndIgnoreRemainingEvents() } }
+        val first = currentChallenge()
+        val second = currentChallenge()
 
         assertEquals(first.id, second.id)
         assertEquals(first.progressTarget, second.progressTarget)
@@ -62,26 +74,24 @@ class WeeklyChallengeRepositoryImplTest {
 
     @Test
     fun complete_is_a_no_op_until_progress_reaches_target() = runTest {
-        val challenge = repository.observeCurrent().test { awaitItem().also { cancelAndIgnoreRemainingEvents() } }
+        val challenge = currentChallenge()
 
         repository.complete(challenge.id)
 
-        val stillIncomplete = repository.observeCurrent().test { awaitItem().also { cancelAndIgnoreRemainingEvents() } }
-        assertTrue(!stillIncomplete.isCompleted)
+        assertTrue(!currentChallenge().isCompleted)
     }
 
     @Test
     fun completing_the_active_challenge_awards_its_xp_once_its_target_is_reached() = runTest {
         // Deterministic for fixedNow (2026-01-05): resolves to catalog entry "rate-three"
         // ("Critic's Corner" - rate 3 different meals this week, target 3).
-        val challenge = repository.observeCurrent().test { awaitItem().also { cancelAndIgnoreRemainingEvents() } }
+        val challenge = currentChallenge()
         assertEquals("rate-three", challenge.id)
 
         repeat(3) { cookingSessionRepository.recordSession(session("s$it", fixedNow, rating = 5)) }
         repository.complete(challenge.id)
 
-        val completed = repository.observeCurrent().test { awaitItem().also { cancelAndIgnoreRemainingEvents() } }
-        assertTrue(completed.isCompleted)
+        assertTrue(currentChallenge().isCompleted)
         assertEquals(challenge.xpReward, repository.totalAwardedXp())
     }
 }

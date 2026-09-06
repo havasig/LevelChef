@@ -4,6 +4,7 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import app.cash.turbine.test
 import com.levelchef.core.database.db.LevelChefDatabase
+import com.levelchef.core.model.Badge
 import com.levelchef.core.model.CookingSession
 import com.levelchef.core.model.Ingredient
 import com.levelchef.core.model.IngredientCategory
@@ -67,10 +68,12 @@ class BadgeRepositoryImplTest {
         ingredientRepository.save(Ingredient("b", "Milk", IngredientCategory.DAIRY, "🥛"))
         ingredientRepository.save(Ingredient("c", "Junk", IngredientCategory.OTHER, "❓"))
 
-        val fullShelf = repository.observeAll().test {
-            val badges = awaitItem()
+        // Turbine's `test { ... }` always returns Unit, so the badge under test is captured into
+        // a var from inside the block rather than returned out of it.
+        lateinit var fullShelf: Badge
+        repository.observeAll().test {
+            fullShelf = awaitItem().single { it.id == "full-shelf" }
             cancelAndIgnoreRemainingEvents()
-            badges.single { it.id == "full-shelf" }
         }
 
         assertEquals(2, fullShelf.progressCurrent)
@@ -82,18 +85,18 @@ class BadgeRepositoryImplTest {
         repeat(10) { cookingSessionRepository.recordSession(session("s$it")) }
 
         repository.refreshEarned()
-        val firstEarnedAt = repository.observeAll().test {
-            val at = awaitItem().single { it.id == "ten-meals-deep" }.earnedAt
+        var firstEarnedAt: Instant? = null
+        repository.observeAll().test {
+            firstEarnedAt = awaitItem().single { it.id == "ten-meals-deep" }.earnedAt
             cancelAndIgnoreRemainingEvents()
-            at
         }
         assertNotNull(firstEarnedAt)
 
         repository.refreshEarned() // idempotent: earned date doesn't move on a second refresh
-        val secondEarnedAt = repository.observeAll().test {
-            val at = awaitItem().single { it.id == "ten-meals-deep" }.earnedAt
+        var secondEarnedAt: Instant? = null
+        repository.observeAll().test {
+            secondEarnedAt = awaitItem().single { it.id == "ten-meals-deep" }.earnedAt
             cancelAndIgnoreRemainingEvents()
-            at
         }
         assertEquals(firstEarnedAt, secondEarnedAt)
     }
