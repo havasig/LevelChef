@@ -36,4 +36,7 @@ internal class RecordingCookingSessionRepository : CookingSessionRepository {
     override suspend fun mostRecent(): CookingSession? = recorded.lastOrNull()
     override suspend fun totalXp(): Int = recorded.sumOf { it.xpEarned }
     override suspend fun sessionCount(): Int = recorded.size
+    override suspend fun deleteAll() {
+        recorded.clear()
+    }
 }
