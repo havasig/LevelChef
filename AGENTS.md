@@ -63,6 +63,11 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **Track approved work with a todo list.** Once a plan is accepted, create a todo list (Claude Code:
   the `TodoWrite` tool), keep exactly one item `in_progress`, and mark items done as you go.
 - Prefer small, verifiable steps: change one module, build it, move on.
+- **Keep the manual QA script current.** Any change that adds or alters user-visible behaviour
+  (a screen, a flow, a setting, a nav path, persisted data, user-facing strings) updates
+  `docs/QA_REGRESSION.md` **in the same PR** — add or edit the relevant `SM-NN` scenario and its
+  results-log row, and bump the file's "Last updated" line. That file's
+  [Extending this script](docs/QA_REGRESSION.md#extending-this-script) section has the checklist.
 - **Git workflow** (see `CONTRIBUTING.md`): work on a short-lived `feat/…` `fix/…` `chore/…`
   branch off `main`, open a PR, squash-merge. `main` is protected. Commit subjects and PR titles
   are [Conventional Commits](https://www.conventionalcommits.org/) — `type(scope): subject`,

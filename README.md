@@ -7,7 +7,8 @@ A gamified cooking tracker — KMP (Android now, iOS later), Jetpack Compose UI,
 
 Contributing / branch & commit workflow: see [`CONTRIBUTING.md`](CONTRIBUTING.md). Architecture
 and code conventions: see [`AGENTS.md`](AGENTS.md). Tooling, CI and automation reference:
-see [`docs/TOOLING.md`](docs/TOOLING.md).
+see [`docs/TOOLING.md`](docs/TOOLING.md). Manual QA / regression test script:
+see [`docs/QA_REGRESSION.md`](docs/QA_REGRESSION.md).
 
 ## Status
 

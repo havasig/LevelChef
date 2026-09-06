@@ -48,6 +48,18 @@ The `.githooks/commit-msg` hook rejects non-conforming subjects locally.
 - `:konsist:test` — architecture tests that enforce the `AGENTS.md` module rules.
 - `build` — compiles every module and runs Android lint + unit tests.
 
+Also run `./gradlew koverVerify` when you touch logic (use cases, repository impls, ViewModels,
+domain mappers) — the 90% line-coverage gate. Screenshot baselines: `./gradlew
+:feature:<name>:recordRoborazziDebug` and commit the PNGs when a screen changes visually.
+
+## Definition of done for a user-facing change
+
+A PR that adds or changes anything a user can see or do — a screen, a flow, a setting, a
+navigation path, persisted data, user-facing copy — also **updates
+[`docs/QA_REGRESSION.md`](docs/QA_REGRESSION.md) in the same PR**: add or edit the relevant
+`SM-NN` scenario, add its results-log row, and bump the file's "Last updated" line. See that
+file's *Extending this script* checklist. Reviewers reject PRs that skip this.
+
 ## CI
 
 `.github/workflows/ci.yml` runs the command above on every PR and push to `main`, plus
