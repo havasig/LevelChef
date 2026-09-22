@@ -16,4 +16,7 @@ interface WeeklyChallengeRepository {
 
     /** Sum of XP awarded by every completed weekly challenge to date — folded into the user's total XP. */
     suspend fun totalAwardedXp(): Int
+
+    /** Forgets every week's challenge progress and awarded XP — backs account deletion. */
+    suspend fun deleteAll()
 }

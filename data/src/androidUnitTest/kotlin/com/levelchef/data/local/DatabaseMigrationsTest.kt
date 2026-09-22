@@ -5,6 +5,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.core.model.CookingSession
 import com.levelchef.data.repository.CookingSessionRepositoryImpl
+import com.levelchef.data.repository.IngredientRepositoryImpl
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import kotlin.test.AfterTest
@@ -55,6 +56,25 @@ class DatabaseMigrationsTest {
 
         repository.recordSession(session(id = "new", durationMinutes = 25))
         assertEquals(25, repository.totalDurationMinutes())
+    }
+
+    @Test
+    fun an_upgraded_install_with_a_pantry_is_marked_seeded_without_reseeding() = runTest {
+        createV4Tables(withDurationColumn = false)
+        driver.execute(
+            null,
+            "INSERT INTO ingredient(id, name, category, emoji) VALUES ('apple', 'Apple', 'FRUIT', '🍎')",
+            0,
+        )
+
+        migrateFromV4()
+
+        val ingredients = IngredientRepositoryImpl(LevelChefDatabase(driver))
+        ingredients.seedDefaults()
+        assertEquals(1, ingredients.count())
+        ingredients.delete("apple")
+        ingredients.seedDefaults()
+        assertEquals(0, ingredients.count())
     }
 
     @Test

@@ -30,4 +30,8 @@ class SavedRecipeRepositoryImpl(
     override suspend fun setSaved(recipeId: String, saved: Boolean) {
         if (saved) queries.save(recipeId, clock.now().toString()) else queries.unsave(recipeId)
     }
+
+    override suspend fun deleteAll() {
+        queries.deleteAll()
+    }
 }

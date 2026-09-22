@@ -39,7 +39,10 @@ class IngredientRepositoryImpl(
     }
 
     override suspend fun deleteAll() {
-        queries.deleteAll()
+        queries.transaction {
+            queries.deleteAll()
+            queries.clearSeeded()
+        }
     }
 
     override suspend fun count(): Int = queries.countAll().executeAsOne().toInt()
@@ -49,9 +52,11 @@ class IngredientRepositoryImpl(
     @Suppress("TooGenericExceptionCaught")
     override suspend fun seedDefaults() {
         try {
-            if (queries.countAll().executeAsOne() != 0L) return
+            if (queries.isSeeded().executeAsOne()) return
             queries.transaction {
-                DEFAULT_INGREDIENTS.forEach(queries::upsert)
+                // A pantry that already has rows (a pre-flag install) only gets the flag.
+                if (queries.countAll().executeAsOne() == 0L) DEFAULT_INGREDIENTS.forEach(queries::upsert)
+                queries.markSeeded()
             }
         } catch (e: Exception) {
             Logger.e(e) { "Failed to seed default ingredients" }

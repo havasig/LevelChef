@@ -15,3 +15,6 @@ INSERT OR REPLACE INTO savedRecipe(recipeId, savedAt) VALUES (?, ?);
 
 unsave:
 DELETE FROM savedRecipe WHERE recipeId = ?;
+
+deleteAll:
+DELETE FROM savedRecipe;

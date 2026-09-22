@@ -1,5 +1,5 @@
--- v4 -> v5: add the badge earned-date ledger and the weekly-challenge progress table (see Badge.sq
--- and WeeklyChallenge.sq for the queries).
+-- v4 -> v5: add the badge earned-date ledger, the weekly-challenge progress table and the pantry
+-- seed flag (see Badge.sq, WeeklyChallenge.sq and Ingredient.sq for the queries).
 --
 -- `IF NOT EXISTS` on purpose: these tables (and cookingSession.durationMinutes) shipped once without
 -- a migration, so some v4 databases already have them and some don't. The durationMinutes column
@@ -15,4 +15,10 @@ CREATE TABLE IF NOT EXISTS weeklyChallengeProgress (
     challengeId TEXT NOT NULL,
     completedAt TEXT,
     xpAwarded INTEGER NOT NULL DEFAULT 0
+);
+
+-- A v4 install was already seeded on an earlier launch; IngredientRepositoryImpl.seedDefaults() sets
+-- the flag without re-seeding when the pantry isn't empty.
+CREATE TABLE IF NOT EXISTS ingredientSeed (
+    id INTEGER NOT NULL PRIMARY KEY
 );

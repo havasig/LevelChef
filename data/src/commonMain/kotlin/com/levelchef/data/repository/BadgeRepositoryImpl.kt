@@ -125,6 +125,10 @@ class BadgeRepositoryImpl(
         val now = Clock.System.now().toString()
         CATALOG.forEach { def -> if (def.progress(snapshot) >= def.target) database.badgeQueries.markEarned(def.id, now) }
     }
+
+    override suspend fun deleteAll() {
+        database.badgeQueries.deleteAll()
+    }
 }
 
 private fun BadgeDefinition.toBadge(snapshot: BadgeSnapshot, earnedAt: Instant?) = Badge(

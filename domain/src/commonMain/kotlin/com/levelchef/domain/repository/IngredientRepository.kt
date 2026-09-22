@@ -16,11 +16,13 @@ interface IngredientRepository {
 
     suspend fun delete(id: String)
 
-    /** Wipes the entire pantry — backs account deletion. */
+    /** Wipes the entire pantry and forgets it was seeded, so [seedDefaults] runs again — backs
+     * account deletion. */
     suspend fun deleteAll()
 
     suspend fun count(): Int
 
-    /** Populates the default ingredient set — a no-op unless the pantry is empty. */
+    /** Populates the default ingredient set once. Later calls are no-ops (until [deleteAll]), so a
+     * pantry the user empties by hand stays empty. */
     suspend fun seedDefaults()
 }

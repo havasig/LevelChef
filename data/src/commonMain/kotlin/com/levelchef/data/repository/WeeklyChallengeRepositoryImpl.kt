@@ -127,6 +127,10 @@ class WeeklyChallengeRepositoryImpl(
     override suspend fun totalAwardedXp(): Int =
         database.weeklyChallengeQueries.totalAwardedXp().executeAsOne().toInt()
 
+    override suspend fun deleteAll() {
+        database.weeklyChallengeQueries.deleteAll()
+    }
+
     private companion object {
         fun weekKeyFor(instant: Instant): Int = (instant.toLocalDateTime(TimeZone.UTC).date.toEpochDays() / 7).toInt()
     }
