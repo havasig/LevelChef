@@ -54,8 +54,13 @@ private fun SqlDriver.rebuildCookingSessionWithDuration() {
         )
         """,
         """
-        INSERT INTO cookingSession_new(id, recipeId, recipeName, cookedAt, xpEarned, rating, improvementNote, kcal, proteinGrams, carbsGrams, fatGrams)
-        SELECT id, recipeId, recipeName, cookedAt, xpEarned, rating, improvementNote, kcal, proteinGrams, carbsGrams, fatGrams
+        INSERT INTO cookingSession_new(
+            id, recipeId, recipeName, cookedAt, xpEarned,
+            rating, improvementNote, kcal, proteinGrams, carbsGrams, fatGrams
+        )
+        SELECT
+            id, recipeId, recipeName, cookedAt, xpEarned,
+            rating, improvementNote, kcal, proteinGrams, carbsGrams, fatGrams
         FROM cookingSession
         """,
         "DROP TABLE cookingSession",

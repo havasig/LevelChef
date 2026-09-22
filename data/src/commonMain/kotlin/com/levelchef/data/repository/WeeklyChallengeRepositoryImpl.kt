@@ -9,11 +9,13 @@ import com.levelchef.core.model.CookingSession
 import com.levelchef.core.model.WeeklyChallenge
 import com.levelchef.domain.repository.CookingSessionRepository
 import com.levelchef.domain.repository.WeeklyChallengeRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -79,11 +81,13 @@ private const val MAX_LIGHT_BITE_KCAL = 400
 
 /** SQLDelight-backed [WeeklyChallengeRepository]. Rotates through [CATALOG] one per calendar week,
  * bucketed by UTC epoch-day / 7 (deterministic, no ISO-week arithmetic needed), and derives
- * progress live from that week's cooking sessions. */
+ * progress live from that week's cooking sessions. Blocking SQLite calls run on [dispatcher] —
+ * `Dispatchers.IO` on Android (see `databaseModule`). */
 class WeeklyChallengeRepositoryImpl(
     private val database: LevelChefDatabase,
     private val cookingSessionRepository: CookingSessionRepository,
     private val clock: Clock = Clock.System,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : WeeklyChallengeRepository {
 
     override fun observeCurrent(): Flow<WeeklyChallenge> {
@@ -106,7 +110,11 @@ class WeeklyChallengeRepositoryImpl(
                 progressTarget = definition.target,
                 completedAt = row?.completedAt?.let(Instant::parse),
             )
-        }.onStart { database.weeklyChallengeQueries.insertIfAbsent(weekKey.toString(), definition.id) }
+        }.onStart {
+            withContext(dispatcher) {
+                database.weeklyChallengeQueries.insertIfAbsent(weekKey.toString(), definition.id)
+            }
+        }
     }
 
     override suspend fun complete(id: String) {
@@ -117,18 +125,21 @@ class WeeklyChallengeRepositoryImpl(
         val thisWeekSessions = cookingSessionRepository.observeAll().first().filter { weekKeyFor(it.cookedAt) == weekKey }
         if (definition.progress(thisWeekSessions) < definition.target) return
 
-        database.weeklyChallengeQueries.markCompleted(
-            completedAt = clock.now().toString(),
-            xpAwarded = definition.xpReward.toLong(),
-            weekKey = weekKey.toString(),
-        )
+        withContext(dispatcher) {
+            database.weeklyChallengeQueries.markCompleted(
+                completedAt = clock.now().toString(),
+                xpAwarded = definition.xpReward.toLong(),
+                weekKey = weekKey.toString(),
+            )
+        }
     }
 
-    override suspend fun totalAwardedXp(): Int =
+    override suspend fun totalAwardedXp(): Int = withContext(dispatcher) {
         database.weeklyChallengeQueries.totalAwardedXp().executeAsOne().toInt()
+    }
 
     override suspend fun deleteAll() {
-        database.weeklyChallengeQueries.deleteAll()
+        withContext(dispatcher) { database.weeklyChallengeQueries.deleteAll() }
     }
 
     private companion object {

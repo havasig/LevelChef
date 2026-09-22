@@ -15,15 +15,19 @@ import com.levelchef.core.model.SpiceTolerance
 import com.levelchef.core.model.SurveyResponse
 import com.levelchef.core.model.WeeknightTime
 import com.levelchef.domain.repository.SurveyRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-/** SQLDelight-backed [SurveyRepository]. Single-row table; enum sets are comma-joined strings. */
+/** SQLDelight-backed [SurveyRepository]. Single-row table; enum sets are comma-joined strings.
+ * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`). */
 class SurveyResponseRepositoryImpl(
     private val database: LevelChefDatabase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : SurveyRepository {
 
     override fun observeResponse(): Flow<SurveyResponse?> =
@@ -33,21 +37,23 @@ class SurveyResponseRepositoryImpl(
             .map { row -> row?.toDomain() }
 
     override suspend fun save(response: SurveyResponse) {
-        database.surveyResponseQueries.upsertResponse(
-            completedAt = response.completedAt.toString(),
-            cookingExperience = response.cookingExperience.name,
-            dietaryPreference = response.dietaryPreference.name,
-            allergens = response.allergens.joinToString(SEPARATOR) { it.name },
-            cuisines = response.cuisines.joinToString(SEPARATOR) { it.name },
-            spiceTolerance = response.spiceTolerance.name,
-            cookingGoal = response.cookingGoal.name,
-            weeknightTime = response.weeknightTime.name,
-            householdSize = response.householdSize.name,
-        )
+        withContext(dispatcher) {
+            database.surveyResponseQueries.upsertResponse(
+                completedAt = response.completedAt.toString(),
+                cookingExperience = response.cookingExperience.name,
+                dietaryPreference = response.dietaryPreference.name,
+                allergens = response.allergens.joinToString(SEPARATOR) { it.name },
+                cuisines = response.cuisines.joinToString(SEPARATOR) { it.name },
+                spiceTolerance = response.spiceTolerance.name,
+                cookingGoal = response.cookingGoal.name,
+                weeknightTime = response.weeknightTime.name,
+                householdSize = response.householdSize.name,
+            )
+        }
     }
 
     override suspend fun clear() {
-        database.surveyResponseQueries.deleteResponse()
+        withContext(dispatcher) { database.surveyResponseQueries.deleteResponse() }
     }
 }
 

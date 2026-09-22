@@ -13,10 +13,12 @@ import com.levelchef.core.model.IngredientCategory
 import com.levelchef.domain.repository.BadgeRepository
 import com.levelchef.domain.repository.CookingSessionRepository
 import com.levelchef.domain.repository.IngredientRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -99,11 +101,13 @@ private val CATALOG = listOf(
 
 /** Derives [Badge] progress live from [CookingSessionRepository]/[IngredientRepository]; persists
  * earned dates in the SQLDelight-backed `badgeEarned` table (see [refreshEarned]) so a badge's
- * earned date stays stable once reached instead of reading as "now" on every recomposition. */
+ * earned date stays stable once reached instead of reading as "now" on every recomposition.
+ * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`). */
 class BadgeRepositoryImpl(
     private val cookingSessionRepository: CookingSessionRepository,
     private val ingredientRepository: IngredientRepository,
     private val database: LevelChefDatabase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : BadgeRepository {
 
     override fun observeAll(): Flow<List<Badge>> =
@@ -123,11 +127,14 @@ class BadgeRepositoryImpl(
             ingredients = ingredientRepository.observeAll().first(),
         )
         val now = Clock.System.now().toString()
-        CATALOG.forEach { def -> if (def.progress(snapshot) >= def.target) database.badgeQueries.markEarned(def.id, now) }
+        withContext(dispatcher) {
+            CATALOG.filter { it.progress(snapshot) >= it.target }
+                .forEach { database.badgeQueries.markEarned(it.id, now) }
+        }
     }
 
     override suspend fun deleteAll() {
-        database.badgeQueries.deleteAll()
+        withContext(dispatcher) { database.badgeQueries.deleteAll() }
     }
 }
 
