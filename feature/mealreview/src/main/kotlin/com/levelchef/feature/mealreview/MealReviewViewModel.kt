@@ -82,8 +82,10 @@ class MealReviewViewModel(
                 carbsGrams = state.carbsGrams,
                 fatGrams = state.fatGrams,
             )
+            // Only after the write: `saved` makes the route pop this screen, which clears the
+            // ViewModel and would cancel a still-running insert.
+            _uiState.update { it.copy(saved = true) }
         }
-        _uiState.update { it.copy(saved = true) }
     }
 }
 
