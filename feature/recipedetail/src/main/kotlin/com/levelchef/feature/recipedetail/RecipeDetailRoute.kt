@@ -13,6 +13,7 @@ fun RecipeDetailRoute(
     recipeId: String,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onMadeIt: () -> Unit,
     viewModel: RecipeDetailViewModel = koinViewModel { parametersOf(recipeId) },
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -26,7 +27,7 @@ fun RecipeDetailRoute(
             onServingsChange = viewModel::changeServings,
             onIngredientToggle = viewModel::toggleIngredient,
             onToggleSaved = viewModel::toggleSaved,
-            onMadeIt = viewModel::markCooked,
+            onMadeIt = onMadeIt,
             onStartTimer = viewModel::showTimerStub,
             onOpenVideo = uriHandler::openUri,
             onDismissMessage = viewModel::dismissMessage,

@@ -26,6 +26,7 @@ import com.levelchef.feature.home.HomeRoute
 import com.levelchef.feature.ingredients.IngredientDetailRoute
 import com.levelchef.feature.ingredients.IngredientFormRoute
 import com.levelchef.feature.ingredients.IngredientsListRoute
+import com.levelchef.feature.mealreview.MealReviewRoute
 import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.recipedetail.RecipeDetailRoute
 import com.levelchef.feature.recipedetail.RecipesScreen
@@ -45,6 +46,9 @@ private const val SETTINGS_ROUTE = "settings"
 private const val RECIPE_ID_ARG = "recipeId"
 private const val RECIPE_DETAIL_ROUTE = "recipeDetail/{$RECIPE_ID_ARG}"
 private fun recipeDetailPath(id: String) = "recipeDetail/$id"
+
+private const val MEAL_REVIEW_ROUTE = "mealReview/{$RECIPE_ID_ARG}"
+private fun mealReviewPath(id: String) = "mealReview/$id"
 
 private const val INGREDIENTS_ROUTE = "ingredients"
 private const val INGREDIENT_ID_ARG = "ingredientId"
@@ -161,10 +165,22 @@ private fun LevelChefAppContent() {
                 RECIPE_DETAIL_ROUTE,
                 arguments = listOf(navArgument(RECIPE_ID_ARG) { type = NavType.StringType }),
             ) { entry ->
+                val recipeId = entry.arguments?.getString(RECIPE_ID_ARG).orEmpty()
                 RecipeDetailRoute(
-                    recipeId = entry.arguments?.getString(RECIPE_ID_ARG).orEmpty(),
+                    recipeId = recipeId,
                     onBackClick = { navController.popBackStack() },
                     onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
+                    onMadeIt = { navController.navigate(mealReviewPath(recipeId)) },
+                )
+            }
+            composable(
+                MEAL_REVIEW_ROUTE,
+                arguments = listOf(navArgument(RECIPE_ID_ARG) { type = NavType.StringType }),
+            ) { entry ->
+                MealReviewRoute(
+                    recipeId = entry.arguments?.getString(RECIPE_ID_ARG).orEmpty(),
+                    onBackClick = { navController.popBackStack() },
+                    onSaved = { navController.popBackStack(LevelChefDestination.Home.route, false) },
                 )
             }
             composable(SETTINGS_ROUTE) {

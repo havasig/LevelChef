@@ -82,6 +82,31 @@ class RecordCookingSessionUseCaseTest {
     }
 
     @Test
+    fun records_the_meal_review_fields_when_the_caller_supplies_them() = runTest {
+        val repository = CapturingCookingSessionRepository()
+
+        RecordCookingSessionUseCase(repository, StoppedClock(Instant.parse("2026-03-04T00:00:00Z"))) { "s" }(
+            recipe,
+            rating = 4,
+            improvementNote = "Needed more lemon",
+            durationMinutes = 45,
+            kcal = 340,
+            proteinGrams = 40,
+            carbsGrams = 10,
+            fatGrams = 14,
+        )
+
+        val session = repository.recorded.single()
+        assertEquals(4, session.rating)
+        assertEquals("Needed more lemon", session.improvementNote)
+        assertEquals(45, session.durationMinutes)
+        assertEquals(340, session.kcal)
+        assertEquals(40, session.proteinGrams)
+        assertEquals(10, session.carbsGrams)
+        assertEquals(14, session.fatGrams)
+    }
+
+    @Test
     fun generates_a_fresh_id_per_call_by_default() = runTest {
         val repository = CapturingCookingSessionRepository()
         val useCase = RecordCookingSessionUseCase(repository, StoppedClock(Instant.parse("2026-03-04T00:00:00Z")))

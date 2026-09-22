@@ -42,6 +42,5 @@
 
     <string name="recipe_detail_snackbar_saved">Recipe saved</string>
     <string name="recipe_detail_snackbar_unsaved">Removed from saved</string>
-    <string name="recipe_detail_snackbar_cooked">Logged! +%1$d XP earned</string>
     <string name="recipe_detail_snackbar_timer">Step timers are coming soon</string>
 </resources>

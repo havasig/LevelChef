@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="meal_review_title">Review</string>
+    <string name="meal_review_title">Log experience</string>
+    <string name="meal_review_xp_badge">+%1$d XP</string>
+
+    <string name="meal_review_rating_label">RATING</string>
+    <string name="meal_review_rating_value">%1$d/5</string>
+    <string name="meal_review_rating_star">Rate %1$d star</string>
+
+    <string name="meal_review_note_label">NOTE</string>
+    <string name="meal_review_note_placeholder">Describe your experience…</string>
+
+    <string name="meal_review_duration_unit">%1$d min</string>
+    <string name="meal_review_duration_decrease">Decrease cook time</string>
+    <string name="meal_review_duration_increase">Increase cook time</string>
+
+    <string name="meal_review_macros_label">MACRO VALUES</string>
+    <string name="meal_review_macro_calories">Calories</string>
+    <string name="meal_review_macro_protein">Protein</string>
+    <string name="meal_review_macro_carbs">Carbs</string>
+    <string name="meal_review_macro_fat">Fat</string>
+    <string name="meal_review_unit_kcal">kcal</string>
+    <string name="meal_review_unit_grams">g</string>
+    <string name="meal_review_macro_decrease">Decrease %1$s</string>
+    <string name="meal_review_macro_increase">Increase %1$s</string>
+
+    <string name="meal_review_ingredients_label">INGREDIENTS</string>
+
+    <string name="meal_review_save">Save</string>
 </resources>

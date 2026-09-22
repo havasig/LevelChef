@@ -22,4 +22,4 @@ data class RecipeDetailUiState(
 }
 
 /** The one-off confirmations the recipe detail screen flashes in its snackbar. */
-enum class TransientMessage { SAVED, UNSAVED, COOKED, TIMER_STUB }
+enum class TransientMessage { SAVED, UNSAVED, TIMER_STUB }

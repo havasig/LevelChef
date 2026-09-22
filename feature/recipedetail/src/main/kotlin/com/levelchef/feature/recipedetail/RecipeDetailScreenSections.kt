@@ -393,9 +393,8 @@ internal fun ActionButtons(
 }
 
 @Composable
-internal fun TransientMessage.text(xpReward: Int): String = when (this) {
+internal fun TransientMessage.text(): String = when (this) {
     TransientMessage.SAVED -> stringResource(R.string.recipe_detail_snackbar_saved)
     TransientMessage.UNSAVED -> stringResource(R.string.recipe_detail_snackbar_unsaved)
-    TransientMessage.COOKED -> stringResource(R.string.recipe_detail_snackbar_cooked, xpReward)
     TransientMessage.TIMER_STUB -> stringResource(R.string.recipe_detail_snackbar_timer)
 }
