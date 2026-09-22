@@ -154,9 +154,8 @@ If a new screen is added to the Figma file, give its stub composable a
 
 1. Replace `RecipeRepositoryImpl`'s static list with a Gemini-API-backed recommender (Ktor already
    wired in `data`); feed it the stored `SurveyResponse` (see `SurveyRepository`).
-2. Wire `feature:home` fully to domain use cases (partly done via `HomeViewModel`).
-3. Add the Inter font under `core/ui/src/main/res/font` for pixel-accurate type.
-4. iOS target (KMP modules are ready; no iOS app shell yet).
-5. Recipe-detail follow-ups: a real step timer (the chip is a visual stub); promote the local
+2. Add the Inter font under `core/ui/src/main/res/font` for pixel-accurate type.
+3. iOS target (KMP modules are ready; no iOS app shell yet).
+4. Recipe-detail follow-ups: a real step timer (the chip is a visual stub); promote the local
    macro grid / servings stepper / numbered-step card to `core:designsystem` (unify with
    `feature:ingredients`' private `MacroTile`).

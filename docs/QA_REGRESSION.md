@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-22 · covers through Home's weekly‑challenge card being wired to real data._
+_Last updated: 2026-09-22 · covers through Home's "Cook today" button being wired to a real recipe._
 
 ---
 
@@ -115,7 +115,11 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - Once eligible, tap **"Done"**: **the card switches to a "Completed" status, the button
      disappears, and the XP badge amount is added to your total XP** (check the level‑progress bar
      above). Reloading Home (background/foreground, or the ON_RESUME refresh) keeps it **"Completed"**.
-5. *(Known limitation — do not raise as a bug)* the **"Cook today"** button currently does nothing.
+5. Tap the **"Cook today — show me a recipe!"** button.
+   - **Navigates to Recipe Detail** for one of the 3 "Recommended for you" recipes — picked at
+     random each tap, so it won't always be the same one (back out and tap a few more times to
+     see it vary; two taps in a row landing on the same recipe is expected, not a bug).
+   - Go back — **returns to Home.**
 
 ### SM-03 · Recipe detail — open from Home
 

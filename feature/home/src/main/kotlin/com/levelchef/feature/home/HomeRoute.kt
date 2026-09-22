@@ -10,6 +10,7 @@ import org.koin.compose.viewmodel.koinViewModel
 /** Stateful entry point: collects [HomeViewModel]'s state and hands it to the stateless [HomeScreen]. */
 @Composable
 fun HomeRoute(
+    onCookToday: (RecipeRecommendation) -> Unit = {},
     onRecipeClick: (RecipeRecommendation) -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onIngredientsClick: () -> Unit = {},
@@ -23,6 +24,7 @@ fun HomeRoute(
 
     HomeScreen(
         state = state,
+        onCookToday = onCookToday,
         onRecipeClick = onRecipeClick,
         onChallengeDone = viewModel::onChallengeDoneClick,
         onSettingsClick = onSettingsClick,

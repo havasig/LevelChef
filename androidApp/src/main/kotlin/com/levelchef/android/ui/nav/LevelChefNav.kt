@@ -24,6 +24,7 @@ import com.levelchef.core.designsystem.LevelChefNavItem
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.feature.cookinglog.CookingLogRoute
 import com.levelchef.feature.home.HomeRoute
+import com.levelchef.feature.home.RecipeRecommendation
 import com.levelchef.feature.ingredients.IngredientDetailRoute
 import com.levelchef.feature.ingredients.IngredientFormRoute
 import com.levelchef.feature.ingredients.IngredientsListRoute
@@ -153,8 +154,11 @@ private fun LevelChefAppContent() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(LevelChefDestination.Home.route) {
+                val onRecipeSelected: (RecipeRecommendation) -> Unit =
+                    { rec -> navController.navigate(recipeDetailPath(rec.id)) }
                 HomeRoute(
-                    onRecipeClick = { rec -> navController.navigate(recipeDetailPath(rec.id)) },
+                    onCookToday = onRecipeSelected,
+                    onRecipeClick = onRecipeSelected,
                     onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
                     onIngredientsClick = { navController.navigate(INGREDIENTS_ROUTE) },
                 )
