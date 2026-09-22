@@ -24,6 +24,7 @@ fun HomeRoute(
     HomeScreen(
         state = state,
         onRecipeClick = onRecipeClick,
+        onChallengeDone = viewModel::onChallengeDoneClick,
         onSettingsClick = onSettingsClick,
         onIngredientsClick = onIngredientsClick,
     )

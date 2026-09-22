@@ -22,6 +22,8 @@ import com.levelchef.core.ui.theme.Violet600
  * button; [action] lets callers (e.g. Home's "Done" button) inject one without forking the base
  * component's look. The "WEEKLY CHALLENGE" caption is a hardcoded Figma literal ([Violet600]),
  * confirmed unchanged between the dark original and the light duplicate — not theme-flipping.
+ * [completed] overrides [inProgress]'s "In progress"/"Not started" text with "Completed" once the
+ * challenge has been marked done, so a just-finished challenge isn't mislabeled "Not started".
  */
 @Composable
 fun LevelChefWeeklyChallengeCard(
@@ -30,6 +32,7 @@ fun LevelChefWeeklyChallengeCard(
     inProgress: Boolean,
     modifier: Modifier = Modifier,
     category: String = "WEEKLY CHALLENGE",
+    completed: Boolean = false,
     action: (@Composable () -> Unit)? = null,
 ) {
     val colors = LevelChefTheme.colors
@@ -53,7 +56,11 @@ fun LevelChefWeeklyChallengeCard(
                     .size(8.dp)
                     .background(SuccessGreen, RoundedCornerShape(50)))
                 Text(
-                    if (inProgress) "In progress" else "Not started",
+                    when {
+                        completed -> "Completed"
+                        inProgress -> "In progress"
+                        else -> "Not started"
+                    },
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodySmallBold,
                 )

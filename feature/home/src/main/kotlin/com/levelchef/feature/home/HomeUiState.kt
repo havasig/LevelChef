@@ -8,10 +8,11 @@ data class HomeUiState(
     val xpForNextLevel: Int = 600,
     val cookingSessions: Int = 27,
     val ingredientsTried: Int = 14,
+    val challengeId: String = "",
     val challengeTitle: String = "Cook one Asian-inspired dish this week",
-    val challengeDescription: String = "Explore and master authentic eastern culinary techniques.",
     val challengeXp: Int = 200,
-    val challengeInProgress: Boolean = true,
+    val challengeCompleted: Boolean = false,
+    val challengeEligible: Boolean = false,
     val recommendations: List<RecipeRecommendation> = sampleRecommendations,
     val lastCooked: LastCooked? = LastCooked("Tofu stir-fry", "3 days ago", 3),
 )

@@ -89,13 +89,19 @@ internal fun WeeklyChallengeSection(state: HomeUiState, onDoneClick: () -> Unit)
     LevelChefWeeklyChallengeCard(
         title = state.challengeTitle,
         xp = state.challengeXp,
-        inProgress = state.challengeInProgress,
-        action = {
-            LevelChefButton(
-                label = stringResource(R.string.home_challenge_done),
-                type = ButtonType.SECONDARY,
-                onClick = onDoneClick,
-            )
+        inProgress = true,
+        completed = state.challengeCompleted,
+        action = if (state.challengeCompleted) {
+            null
+        } else {
+            {
+                LevelChefButton(
+                    label = stringResource(R.string.home_challenge_done),
+                    type = ButtonType.SECONDARY,
+                    enabled = state.challengeEligible,
+                    onClick = onDoneClick,
+                )
+            }
         },
     )
 }

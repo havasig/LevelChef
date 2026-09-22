@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-22 · covers through the Meal Review ("Log experience") screen and the Recipes tab ("My saved recipes")._
+_Last updated: 2026-09-22 · covers through Home's weekly‑challenge card being wired to real data._
 
 ---
 
@@ -105,7 +105,17 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Navigates to the Ingredients (pantry) list.** Go back.
 3. Tap the **gear** icon.
    - **Navigates to Settings.** Go back.
-4. *(Known limitations — do not raise as bugs)* the **"Cook today"** button and the weekly‑challenge **"Done"** button currently do nothing, and the challenge card shows static placeholder text.
+4. Look at the weekly‑challenge card.
+   - **Shows the current week's real challenge** (title + "+N XP" badge) — one of a rotating catalog
+     of 9, picked deterministically per calendar week, so the exact title/target varies by when you
+     test. The status line reads **"In progress"** until its condition is met.
+   - The **"Done"** button is **disabled** until the challenge's condition is actually met (e.g. log
+     enough cooking sessions, per the challenge's own description) — tapping it before then is
+     expected to do nothing, since it's disabled.
+   - Once eligible, tap **"Done"**: **the card switches to a "Completed" status, the button
+     disappears, and the XP badge amount is added to your total XP** (check the level‑progress bar
+     above). Reloading Home (background/foreground, or the ON_RESUME refresh) keeps it **"Completed"**.
+5. *(Known limitation — do not raise as a bug)* the **"Cook today"** button currently does nothing.
 
 ### SM-03 · Recipe detail — open from Home
 
