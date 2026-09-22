@@ -1,12 +1,25 @@
 package com.levelchef.core.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.levelchef.core.ui.R
 
-// Inter is used in the design; falls back to the platform default font family
-// unless an Inter font resource is added under res/font.
+/** The Figma-specced typeface, loaded from the variable font at `res/font/inter_variable.ttf`
+ * (see `THIRD_PARTY_NOTICES.md`); each weight below selects an instance on its `wght` axis.
+ * [FontVariation.Settings] is `@ExperimentalTextApi` — stable enough for a fixed weight axis
+ * lookup, just not yet a finalized public API. */
+@OptIn(ExperimentalTextApi::class)
+private val Inter = FontFamily(
+    Font(R.font.inter_variable, weight = FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(400))),
+    Font(R.font.inter_variable, weight = FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(600))),
+    Font(R.font.inter_variable, weight = FontWeight.Bold, variationSettings = FontVariation.Settings(FontVariation.weight(700))),
+)
 
 /**
  * The Figma "Text Styles" ramp (node 79:109), named and specced exactly as Figma has them.
@@ -15,16 +28,16 @@ import androidx.compose.ui.unit.sp
  * [LevelChefTypography] doesn't cover (e.g. [bodyLargeBold], [captionRegular]).
  */
 object LevelChefTextStyles {
-    val h1 = TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp, lineHeight = 40.sp)
-    val h2 = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp, lineHeight = 32.sp)
-    val bodyLarge = TextStyle(fontWeight = FontWeight.Normal, fontSize = 18.sp, lineHeight = 28.sp)
-    val bodyLargeBold = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 28.sp)
-    val bodyRegular = TextStyle(fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp)
-    val bodyRegularBold = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 24.sp)
-    val bodySmall = TextStyle(fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp)
-    val bodySmallBold = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 20.sp)
-    val captionRegular = TextStyle(fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp)
-    val captionBold = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp)
+    val h1 = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Bold, fontSize = 32.sp, lineHeight = 40.sp)
+    val h2 = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Bold, fontSize = 24.sp, lineHeight = 32.sp)
+    val bodyLarge = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Normal, fontSize = 18.sp, lineHeight = 28.sp)
+    val bodyLargeBold = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 28.sp)
+    val bodyRegular = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp)
+    val bodyRegularBold = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 24.sp)
+    val bodySmall = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp)
+    val bodySmallBold = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 20.sp)
+    val captionRegular = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp)
+    val captionBold = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp)
 }
 
 // Material3's 8 typography slots, re-derived from LevelChefTextStyles so existing

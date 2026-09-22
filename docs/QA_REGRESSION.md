@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-22 · covers through Home's "Cook today" button being wired to a real recipe._
+_Last updated: 2026-09-22 · covers through the app-wide switch to the Inter typeface._
 
 ---
 
@@ -63,6 +63,12 @@ Two states behave differently and several scenarios call one out explicitly:
 ### Themes
 
 The app follows the OS light/dark setting (plus an in‑app override — SM-09). Run the P0 scenarios once with the system in **light** and once in **dark**. Toggle via the OS quick settings or `adb shell "cmd uimode night yes|no"`.
+
+### Typeface
+
+All text now renders in **Inter** (previously the platform default). No dedicated scenario — while
+running any of the scenarios below, flag anything that looks like the system font instead (a sign
+the font resource failed to load) or new text wrapping/truncation versus a prior build.
 
 ### Logs & crashes
 
