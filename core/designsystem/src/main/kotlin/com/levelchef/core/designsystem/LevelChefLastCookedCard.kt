@@ -30,9 +30,11 @@ fun LevelChefLastCookedCard(
     stars: Int,
     modifier: Modifier = Modifier,
     label: String = "Last Cooked",
+    onClick: () -> Unit = {},
 ) {
     val colors = LevelChefTheme.colors
     Card(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = colors.surface),

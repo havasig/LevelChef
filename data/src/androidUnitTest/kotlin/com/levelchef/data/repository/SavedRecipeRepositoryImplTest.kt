@@ -14,27 +14,27 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 /** Exercises the real SQLDelight schema through an in-memory JDBC database. */
 class SavedRecipeRepositoryImplTest {
 
-    private class StoppedClock(private val instant: Instant) : Clock {
+    private class StoppedClock(var instant: Instant) : Clock {
         override fun now(): Instant = instant
     }
 
     private lateinit var driver: SqlDriver
+    private lateinit var clock: StoppedClock
     private lateinit var repository: SavedRecipeRepositoryImpl
 
     @BeforeTest
     fun setUp() {
         driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         LevelChefDatabase.Schema.create(driver)
-        repository = SavedRecipeRepositoryImpl(
-            LevelChefDatabase(driver),
-            StoppedClock(Instant.parse("2026-03-04T12:00:00Z")),
-        )
+        clock = StoppedClock(Instant.parse("2026-03-04T12:00:00Z"))
+        repository = SavedRecipeRepositoryImpl(LevelChefDatabase(driver), clock)
     }
 
     @AfterTest
@@ -77,6 +77,24 @@ class SavedRecipeRepositoryImplTest {
 
         repository.observeIsSaved("steak-bowl").test {
             assertFalse(awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun observing_saved_ids_lists_every_saved_recipe_most_recent_first() = runTest {
+        repository.observeSavedRecipeIds().test {
+            assertEquals(emptyList(), awaitItem())
+
+            repository.setSaved("lemon-chicken", true)
+            assertEquals(listOf("lemon-chicken"), awaitItem())
+
+            clock.instant = clock.instant.plus(1.hours)
+            repository.setSaved("steak-bowl", true)
+            assertEquals(listOf("steak-bowl", "lemon-chicken"), awaitItem())
+
+            repository.setSaved("lemon-chicken", false)
+            assertEquals(listOf("steak-bowl"), awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
     }
