@@ -35,7 +35,6 @@ import com.levelchef.core.designsystem.BadgeStyle
 import com.levelchef.core.designsystem.ButtonType
 import com.levelchef.core.designsystem.LevelChefBadge
 import com.levelchef.core.designsystem.LevelChefButton
-import com.levelchef.core.ui.theme.BackgroundSurfaceElevated
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.core.ui.theme.MacroCaloriesRed
@@ -223,7 +222,8 @@ private fun MacroStepperRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(BackgroundSurfaceElevated, RoundedCornerShape(12.dp))
+            .border(0.5.dp, colors.border, RoundedCornerShape(12.dp))
+            .background(colors.background, RoundedCornerShape(12.dp))
             .padding(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,

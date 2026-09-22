@@ -74,11 +74,11 @@ val TagRedBg = Color(0x33F24D4D)
 val TagRedStroke = Color(0xFFF24D4D)
 val TagRedTextLight = Color(0xFFA61F1F)
 
-// Meal Review's macro-row labels and nested row background (Figma node 385:586) — hardcoded
-// literals in that frame, not bound to any Figma variable, so kept invariant like the status
-// colors above rather than threaded through LevelChefColors.
+// Meal Review's macro-row labels (Figma node 385:586) — hardcoded literals in that frame, not
+// bound to any Figma variable, so kept invariant like the status colors above rather than
+// threaded through LevelChefColors. The row background itself uses colors.background (themed),
+// not a Figma literal — that frame was never duplicated for light mode.
 val MacroCaloriesRed = Color(0xFFFF7373)
 val MacroProteinPurple = Color(0xFF8C80FF)
 val MacroCarbsOrange = Color(0xFFFFA64D)
 val MacroFatGreen = Color(0xFF66D999)
-val BackgroundSurfaceElevated = Color(0xFF1E1E33)
