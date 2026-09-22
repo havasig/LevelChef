@@ -139,7 +139,7 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 ## 9. GitHub templates
 
 - **`.github/pull_request_template.md`** — Summary · Modules touched · Screenshots (required for `feature:*` UI changes) · checklist (build+detekt+konsist pass, no feature→feature dep, domain/model purity, English-only text, nav wired, tests).
-- **`.github/ISSUE_TEMPLATE/feature_screen.yml`** — form for building a stub screen; dropdown pre-filled with the 5 remaining screens and their Figma node IDs.
+- **`.github/ISSUE_TEMPLATE/feature_screen.yml`** — form for building a new screen from a Figma node; no `feature:*` stubs remain, so it takes a free-text module name and Figma node ID.
 - **`.github/ISSUE_TEMPLATE/bug_report.yml`**, **`chore.yml`** — structured forms; titles pre-seeded with `fix:` / `chore:`.
 - **`.github/ISSUE_TEMPLATE/config.yml`** — disables blank issues; adds a link to the Figma file.
 - **`.github/CODEOWNERS`** — `* @havasig` (auto-requests review).

@@ -34,17 +34,23 @@ core:database  ◀── data only
   Gemini recommender. `SavedRecipeRepositoryImpl` backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
-- **`feature:*`** — one Android-library module per screen. **No feature module depends on another.**
-  `feature:home` (Figma node `296:1929`), `feature:onboarding` (the mandatory first-launch survey —
-  `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored), `feature:settings`
-  (theme / language / retake-onboarding, reached from the Home gear) and `feature:ingredients` (the
+- **`feature:*`** — one Android-library module per screen, **all fully built** from their Figma
+  nodes. **No feature module depends on another.**
+  `feature:home` (Figma node `296:1929`); `feature:onboarding` (the mandatory first-launch survey —
+  `OnboardingGate` wraps the app's NavHost until a `SurveyResponse` is stored); `feature:settings`
+  (theme / language / retake-onboarding, reached from the Home gear); `feature:ingredients` (the
   pantry: list / detail / add-edit / delete, Figma nodes `437:1054` / `453:1520` / `447:1484`,
-  reached from the Home "Ingredients tried" card) and `feature:recipedetail` (Figma node
-  `371:728` — data-driven recipe detail: servings stepper, ingredient checklist, numbered steps,
-  "Save" bookmark, "I made it" → records a `CookingSession`; reached by tapping a Home
-  recommendation card, `recipeDetail/{recipeId}`) are fully built; the rest are `PlaceholderScreen`
-  stubs. The `Recipes` bottom-nav tab (`RecipesScreen`) is still a placeholder. `HomeRoute`
-  refreshes its stats on `ON_RESUME` so a logged cook shows up when you return.
+  reached from the Home "Ingredients tried" card); `feature:recipedetail` (Figma node `371:728` —
+  data-driven recipe detail: servings stepper, ingredient checklist, numbered steps, "Save"
+  bookmark, "I made it"; reached by tapping a Home recommendation card, `recipeDetail/{recipeId}`);
+  `feature:mealreview` (Figma node `385:586` — "Log experience": rate a just-cooked recipe, add a
+  note, adjust cook time/macros, then Save records the `CookingSession`; reached from recipe
+  detail's "I made it", `mealReview/{recipeId}`, pops back to Home on save); `feature:trophyroom`
+  (Figma node `504:1026` — chef-level header, weekly-challenge/kitchen-time stats, streaks and
+  badges; the Trophies bottom-nav tab); `feature:cookinglog` (Figma node `489:1362` — "My saved
+  recipes": search + an All/Cooked/New filter over saved recipes; this **is** the `Recipes`
+  bottom-nav tab's real content, not a separate drill-down screen). `HomeRoute` refreshes its
+  stats on `ON_RESUME` so a logged cook shows up when you return.
 
 Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/levelchef/konsist/`):
 - Never add a `feature:* → feature:*` dependency.
@@ -139,9 +145,10 @@ JVM target 11. JDK 17+ to run Gradle (the toolchain resolver fetches JDK 17 for 
 
 ## Building a screen from Figma
 
-There are 3 stub screens left to build (`mealreview`, `trophyroom`, `cookinglog`).
-Each has its Figma node ID in a `/** Figma node NNN:NNN */` KDoc on the stub composable.
-Use the **`new-feature-screen`** skill (`.claude/skills/new-feature-screen/`) — it captures the full workflow.
+No stub screens remain — every `feature:*` module is fully built (see the module list above).
+If a new screen is added to the Figma file, give its stub composable a
+`/** Figma node NNN:NNN */` KDoc and use the **`new-feature-screen`** skill
+(`.claude/skills/new-feature-screen/`), which captures the full workflow.
 
 ## Not yet done (see README "Next steps")
 
@@ -150,6 +157,6 @@ Use the **`new-feature-screen`** skill (`.claude/skills/new-feature-screen/`) �
 2. Wire `feature:home` fully to domain use cases (partly done via `HomeViewModel`).
 3. Add the Inter font under `core/ui/src/main/res/font` for pixel-accurate type.
 4. iOS target (KMP modules are ready; no iOS app shell yet).
-5. Recipe-detail follow-ups: a real step timer (the chip is a visual stub); grow the `Recipes`
-   tab into a saved/browse list; promote the local macro grid / servings stepper / numbered-step
-   card to `core:designsystem` (unify with `feature:ingredients`' private `MacroTile`).
+5. Recipe-detail follow-ups: a real step timer (the chip is a visual stub); promote the local
+   macro grid / servings stepper / numbered-step card to `core:designsystem` (unify with
+   `feature:ingredients`' private `MacroTile`).

@@ -1,18 +1,22 @@
 name: Feature screen
-description: Build one of the stub feature screens from its Figma node.
+description: Build a new feature screen from its Figma node (all current screens are already built).
 title: "feat(<module>): build <screen> screen from Figma"
 labels: [ feature-screen ]
 body:
-  - type: dropdown
-    id: screen
+  - type: input
+    id: module
     attributes:
-      label: Screen
-      options:
-        - "feature:recipedetail — Recipe Detail — node 371:728"
-        - "feature:mealreview — Meal Review — node 385:586"
-        - "feature:trophyroom — Trophy Room — node 504:1026"
-        - "feature:cookinglog — Cooking Log — node 489:1362"
-        - "feature:onboarding — Onboarding (4 steps) — nodes 296:1679, 296:1678, 296:1729, 465:645, 480:631"
+      label: Module
+      description: The new or existing feature:* module this screen belongs to (e.g. feature:mealprep).
+      placeholder: "feature:<name>"
+    validations:
+      required: true
+  - type: input
+    id: figma-node
+    attributes:
+      label: Figma node
+      description: The node ID(s) in the LevelChef Figma file for this screen.
+      placeholder: "NNN:NNN"
     validations:
       required: true
   - type: textarea
