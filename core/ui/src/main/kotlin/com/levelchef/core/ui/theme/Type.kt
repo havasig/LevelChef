@@ -1,6 +1,7 @@
 package com.levelchef.core.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -10,7 +11,10 @@ import androidx.compose.ui.unit.sp
 import com.levelchef.core.ui.R
 
 /** The Figma-specced typeface, loaded from the variable font at `res/font/inter_variable.ttf`
- * (see `THIRD_PARTY_NOTICES.md`); each weight below selects an instance on its `wght` axis. */
+ * (see `THIRD_PARTY_NOTICES.md`); each weight below selects an instance on its `wght` axis.
+ * [FontVariation.Settings] is `@ExperimentalTextApi` — stable enough for a fixed weight axis
+ * lookup, just not yet a finalized public API. */
+@OptIn(ExperimentalTextApi::class)
 private val Inter = FontFamily(
     Font(R.font.inter_variable, weight = FontWeight.Normal, variationSettings = FontVariation.Settings(FontVariation.weight(400))),
     Font(R.font.inter_variable, weight = FontWeight.SemiBold, variationSettings = FontVariation.Settings(FontVariation.weight(600))),
