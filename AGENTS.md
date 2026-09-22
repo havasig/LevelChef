@@ -25,11 +25,18 @@ core:database  ◀── data only
   optional `quantity`/`unit` so the recipe-detail servings stepper can scale it); `RecipeStep` is
   a `Recipe.steps` entry (text + optional `timerMinutes`). Ingredient imagery is the `emoji`
   field — no image library / `res/drawable` in the project.
-- **`core:database`** — KMP. SQLDelight schema (v4): `cookingSession`, `surveyResponse`,
-  `ingredient`, `savedRecipe` (bookmarked recipe ids). Each table's `CREATE` is mirrored into a
-  `migrations/N.sqm` file (no data in migrations); the schema version is the migration count + 1.
+- **`core:database`** — KMP. SQLDelight schema (v5): `cookingSession`, `surveyResponse`,
+  `ingredient` (+ the one-row `ingredientSeed` flag), `savedRecipe` (bookmarked recipe ids),
+  `badgeEarned`, `weeklyChallengeProgress`. **Every schema change ships with a
+  `migrations/N.sqm` file in the same PR** (a new table's `CREATE`, a new column's `ALTER`; no data
+  in migrations); the schema version is the migration count + 1. What SQL can't express goes in
+  `data`'s `DatabaseMigrations.kt` as an `AfterVersion` callback, and `DatabaseMigrationsTest`
+  upgrades a hand-built old database — extend it with each migration. SQLDelight reads `SELECT *`
+  rows by column position, so a migrated table's column order must match its `.sq` `CREATE`.
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
+  SQLDelight's `execute`/`executeAsOne` calls block, so every DB-backed repository wraps them in
+  `withContext(dispatcher)`; `databaseModule` passes `Dispatchers.IO`.
   `RecipeRepositoryImpl` is still a static sample-data stub (3 fully-populated recipes) pending the
   Gemini recommender. `SavedRecipeRepositoryImpl` backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.

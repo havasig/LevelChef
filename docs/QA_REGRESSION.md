@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the recipe-detail step timer becoming a real countdown._
+_Last updated: 2026-09-22 · covers through the v4→v5 migration fix, full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
 
 ---
 
@@ -232,6 +232,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Save is blocked / a validation error is shown.**
 8. Swipe the app away, relaunch, reopen the list.
    - **Your add / edit / delete all persisted;** the default items are **not** re‑added.
+9. Delete **every** ingredient, swipe the app away, relaunch, reopen the list.
+   - **The list stays empty** — the default items are seeded only once, not whenever the pantry is empty.
 
 ### SM-09 · Settings — theme
 
@@ -317,6 +319,12 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Cooking‑session count, XP, "Last cooked", and pantry items are all still there.**
 4. Open a recipe, tap **Save**, swipe the app away, relaunch, return to that recipe.
    - **Still "Saved"** — confirms the new `savedRecipe` table was added by the migration without wiping the existing data.
+5. Open the **Trophies** tab, then log a cook with a duration (SM-06 / SM-17) and return to Trophies.
+   - **No crash on either tab;** kitchen time includes the new cook, and the cook logged in step 1 still counts.
+   - Upgrade from **both** a build before the Trophy Room landed and one after it — the v4→v5
+     migration must handle a v4 database with and without the trophy tables.
+6. Empty the pantry (SM-08 step 9), swipe the app away, relaunch.
+   - **The pantry stays empty** — an upgraded install is not re‑seeded.
 
 ### SM-15 · Process death & configuration changes
 
@@ -335,7 +343,7 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 **Priority:** P1 · **Preconditions:** onboarding complete.
 
 1. Bottom nav → **Trophies** tab.
-   - **Shows a placeholder screen.**
+   - **Shows the Trophy Room** (see **SM-19**) — no screen is a placeholder any more.
 2. Tap the **Home** bottom‑nav item **5 times quickly**.
    - **The hidden Design System showcase opens.** Back returns to Home.
    - A slow tap, or tapping a different tab first, **resets the counter** (a normal tap on Home just goes Home).
@@ -380,6 +388,30 @@ one of them (SM-06) first.
    - **Opens Recipe Detail** for that recipe. Press Back.
    - **Returns to the Recipes tab**, bottom bar visible, list and tab selection unchanged.
 
+### SM-19 · Trophies tab — stats refresh on return
+
+**Priority:** P1 · **Preconditions:** onboarding complete.
+
+1. Open the **Trophies** tab and note the XP, kitchen time and cooking-session numbers.
+2. Switch to **Home**, open a recipe, tap **"I made it"**, set a rating and a duration, tap **Save**.
+3. Switch back to **Trophies**.
+   - **XP, kitchen time and the session count already include the new cook** — no app restart needed.
+   - Any badge the cook completed (e.g. *First Bite*) **shows as earned**.
+
+### SM-20 · Settings — delete account wipes everything
+
+**Priority:** P0 · **Preconditions:** onboarding complete; at least one logged cook (SM-06), one saved
+recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
+
+1. Settings → **Delete account** → confirm.
+   - **A success message shows, then the onboarding survey appears.**
+2. Complete the survey again.
+   - **Home shows Level 1 / 0 XP, 0 cooking sessions and no "Last cooked".** Weekly-challenge XP from before is gone too.
+   - **Recipes tab is empty** — no saved recipes left.
+   - **Trophies shows no earned badges.**
+   - **The pantry holds exactly the default starter items** — your custom item is gone and the defaults are back.
+   - **Theme and language are back to System.**
+
 ---
 
 ## 4. Results log
@@ -409,6 +441,8 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-16 Placeholders & showcase           | P1 |  |  |  |  |
 | SM-17 Meal Review controls              | P0 |  |  |  |  |
 | SM-18 Recipes tab — saved recipes       | P0 |  |  |  |  |
+| SM-19 Trophies — refresh on return      | P1 |  |  |  |  |
+| SM-20 Settings — delete account         | P0 |  |  |  |  |
 ```
 
 **Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install; **zero** crashes in any scenario.
