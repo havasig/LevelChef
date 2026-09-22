@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -54,8 +55,21 @@ fun LevelChefLastCookedCard(
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(label, color = colors.textSecondary, style = LevelChefTextStyles.captionBold)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(title, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
-                    Text("· $time", color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
+                    Text(
+                        title,
+                        color = colors.textPrimary,
+                        style = LevelChefTextStyles.bodyRegularBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    Text(
+                        "· $time",
+                        color = colors.textSecondary,
+                        style = LevelChefTextStyles.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
                 Text("★".repeat(stars) + "☆".repeat((5 - stars).coerceAtLeast(0)), color = WarningYellow)
             }
