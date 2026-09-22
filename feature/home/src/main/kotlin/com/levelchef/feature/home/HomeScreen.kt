@@ -25,7 +25,7 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 @Composable
 fun HomeScreen(
     state: HomeUiState = HomeUiState(),
-    onCookToday: () -> Unit = {},
+    onCookToday: (RecipeRecommendation) -> Unit = {},
     onRecipeClick: (RecipeRecommendation) -> Unit = {},
     onChallengeDone: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
@@ -57,7 +57,7 @@ fun HomeScreen(
                 LevelChefButton(
                     label = stringResource(R.string.home_cook_today_cta),
                     type = ButtonType.PRIMARY,
-                    onClick = onCookToday,
+                    onClick = { state.recommendations.randomOrNull()?.let(onCookToday) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
