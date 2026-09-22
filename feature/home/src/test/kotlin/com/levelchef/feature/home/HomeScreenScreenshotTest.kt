@@ -65,8 +65,12 @@ class HomeScreenScreenshotTest {
                 xpForNextLevel = 300,
                 cookingSessions = 1,
                 ingredientsTried = 0,
-                challengeInProgress = false,
             ),
         )
+    }
+
+    @Test
+    fun home_screen_challenge_completed() = captureLightAndDark("home_screen_challenge_completed") {
+        HomeScreen(state = HomeUiState(challengeCompleted = true))
     }
 }
