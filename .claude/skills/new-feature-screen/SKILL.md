@@ -1,27 +1,21 @@
 ---
 name: new-feature-screen
-description: Build out one of LevelChef's stub feature screens (recipedetail, mealreview, trophyroom, cookinglog) from its Figma node into a full Compose implementation, following the project's module and screen conventions. Use whenever asked to implement, build, flesh out, or "code up" a feature screen from Figma, or to replace a PlaceholderScreen.
+description: Build a new LevelChef feature screen from a Figma node into a full Compose implementation, following the project's module and screen conventions. Use whenever asked to implement, build, flesh out, or "code up" a feature screen from Figma, or to replace a PlaceholderScreen.
 ---
 
 # Build a LevelChef feature screen from Figma
 
-Several `feature:*` modules are still one-line `PlaceholderScreen` stubs with their Figma node ID
-in a KDoc comment. This skill turns one into a real screen.
+Every current `feature:*` module (`home`, `onboarding`, `settings`, `ingredients`, `recipedetail`,
+`mealreview`, `trophyroom`, `cookinglog`) is fully built — use them as reference implementations.
+This skill covers turning a *new* stub (a fresh `feature:*` module with a `PlaceholderScreen` and
+a `/** Figma node NNN:NNN */` KDoc) into a real screen, for whenever the Figma file gains one.
 
 Read `AGENTS.md` first for the module rules and conventions this skill assumes.
 
 ## 1. Identify the target
 
-| Module | Figma node | Screen |
-|---|---|---|
-| `feature:mealreview` | `385:586` | Meal Review |
-| `feature:trophyroom` | `504:1026` | Trophy Room |
-| `feature:cookinglog` | `489:1362` | Cooking Log |
-
-(`feature:home`, `feature:onboarding`, `feature:settings`, `feature:ingredients` and
-`feature:recipedetail` are already built — use them as reference implementations.)
-
-Confirm the node ID from the `/** Figma node NNN:NNN */` KDoc on the current stub composable.
+Confirm the node ID from the `/** Figma node NNN:NNN */` KDoc on the stub composable (or from the
+GitHub issue opened via `.github/ISSUE_TEMPLATE/feature_screen.yml`).
 
 ## 2. Pull the design
 
