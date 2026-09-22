@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="recipe_detail_title">Recipe</string>
-    <string name="saved_recipes_title">Recipes</string>
     <string name="recipe_detail_settings">Settings</string>
     <string name="recipe_detail_not_found">This recipe could not be found.</string>
 

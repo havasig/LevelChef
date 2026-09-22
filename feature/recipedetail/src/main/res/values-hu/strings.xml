@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="recipe_detail_title">Recept</string>
-    <string name="saved_recipes_title">Receptek</string>
     <string name="recipe_detail_settings">Beállítások</string>
     <string name="recipe_detail_not_found">Ez a recept nem található.</string>
 

@@ -1,20 +1,30 @@
 # Categorizes merged PRs by their (squash-merge) Conventional Commit title into a draft
 # GitHub Release, updated on every push to main. See docs/TOOLING.md.
+#
+# Each category's `labels` list is a secondary matcher (a PR carrying that label is filed
+# there too) but is mainly required by release-drafter's schema validation, which rejects
+# a config with more than one category that has an empty `labels` array.
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 
 categories:
   - title: '🚀 Features'
+    labels: [ 'feature', 'enhancement' ]
     title-regex: '^feat'
   - title: '🐛 Fixes'
+    labels: [ 'fix', 'bug' ]
     title-regex: '^fix'
   - title: '⚡ Performance & refactors'
+    labels: [ 'performance', 'refactor' ]
     title-regex: '^(perf|refactor)'
   - title: '✅ Tests'
+    labels: [ 'test' ]
     title-regex: '^test'
   - title: '📝 Docs'
+    labels: [ 'documentation' ]
     title-regex: '^docs'
   - title: '🧹 Chores & tooling'
+    labels: [ 'chore', 'ci', 'build', 'style' ]
     title-regex: '^(chore|ci|build|style)'
 
 exclude-labels:

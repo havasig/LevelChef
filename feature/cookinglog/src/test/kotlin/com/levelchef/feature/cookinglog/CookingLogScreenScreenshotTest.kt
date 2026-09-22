@@ -1,4 +1,4 @@
-package com.levelchef.feature.recipedetail
+package com.levelchef.feature.cookinglog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,13 +25,13 @@ private val screenshotOptions = RoborazziOptions(
 )
 
 /**
- * Screenshot baselines for the recipe detail screen in both themes. Regenerate with
- * `./gradlew :feature:recipedetail:recordRoborazziDebug` and review the PNG diff in the PR.
+ * Screenshot baselines for the Recipes tab (Cooking Log / "My saved recipes") in both themes.
+ * Regenerate with `./gradlew :feature:cookinglog:recordRoborazziDebug` and review the PNG diff in the PR.
  */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [34], qualifiers = "w411dp-h891dp-420dpi")
-class RecipeDetailScreenScreenshotTest {
+class CookingLogScreenScreenshotTest {
 
     @get:Rule
     val compose = createComposeRule()
@@ -47,12 +47,12 @@ class RecipeDetailScreenScreenshotTest {
     }
 
     @Test
-    fun recipe_detail_screen() = captureLightAndDark("recipe_detail_screen") {
-        RecipeDetailScreen(state = sampleRecipeDetailState)
+    fun cooking_log_screen() = captureLightAndDark("cooking_log_screen") {
+        CookingLogScreen(state = sampleCookingLogState)
     }
 
     @Test
-    fun recipe_detail_screen_saved() = captureLightAndDark("recipe_detail_screen_saved") {
-        RecipeDetailScreen(state = sampleRecipeDetailState.copy(isSaved = true, servings = 4))
+    fun cooking_log_screen_empty() = captureLightAndDark("cooking_log_screen_empty") {
+        CookingLogScreen(state = sampleCookingLogState.copy(allItems = emptyList()))
     }
 }

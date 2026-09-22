@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-22 · covers through the Meal Review ("Log experience") screen._
+_Last updated: 2026-09-22 · covers through the Meal Review ("Log experience") screen and the Recipes tab ("My saved recipes")._
 
 ---
 
@@ -230,9 +230,12 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **All visible text is Hungarian.** Spot‑check the recipe detail: **"Adagok beállítása"**, **"Hozzávalók"**, **"Lépések"**, **"Elkészítettem"**, **"Mentés"**; the confirmation messages are localised too.
 3. Tap "Elkészítettem" to open Meal Review.
    - **Spot‑check:** **"Élmény naplózása"** (title), **"ÉRTÉKELÉS"**, **"JEGYZET"**, **"MAKRÓ ÉRTÉKEK"**, **"HOZZÁVALÓK"**, **"Mentés"**.
-4. On Android 13+, open the OS **Settings → Apps → LevelChef → Language**.
+4. Open the **Recipes** tab.
+   - **Spot‑check:** **"Mentett receptjeim"** (title), **"Receptek keresése…"** (search placeholder),
+     **"Összes" / "Elkészítve" / "Új"** (tabs), **"Legutóbb elkészítve"** (last‑cooked label).
+5. On Android 13+, open the OS **Settings → Apps → LevelChef → Language**.
    - **LevelChef is listed with a per‑app language override.**
-5. Switch back to **English** in‑app, swipe the app away, relaunch.
+6. Switch back to **English** in‑app, swipe the app away, relaunch.
    - **The language choice persisted across the restart.**
 
 ### SM-11 · Settings — retake the survey
@@ -271,6 +274,9 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Each tab restores its previous state;** no duplicate stacking of a tab.
 6. Rotate the device on Recipe Detail and on the Ingredients list.
    - **No crash;** scroll position is roughly kept; **layout still clears the system bars.**
+7. Recipes tab → tap a saved recipe → Back.
+   - **Opens Recipe Detail, then returns to the Recipes tab** with the bottom bar visible again — see
+     **SM-18**.
 
 ### SM-14 · Database schema migration
 
@@ -300,11 +306,9 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 **Priority:** P1 · **Preconditions:** onboarding complete.
 
-1. Bottom nav → **Recipes** tab.
-   - **Shows a "Recipes — coming next" placeholder** (this is expected, not a bug).
-2. Bottom nav → **Trophies** tab.
+1. Bottom nav → **Trophies** tab.
    - **Shows a placeholder screen.**
-3. Tap the **Home** bottom‑nav item **5 times quickly**.
+2. Tap the **Home** bottom‑nav item **5 times quickly**.
    - **The hidden Design System showcase opens.** Back returns to Home.
    - A slow tap, or tapping a different tab first, **resets the counter** (a normal tap on Home just goes Home).
 
@@ -323,6 +327,30 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Each value changes independently by its own step size and never goes below 0.**
 5. Tap **Save**.
    - **Navigates back to Home** (see SM-06 step 3 for the resulting stats change).
+
+### SM-18 · Recipes tab — "My saved recipes"
+
+**Priority:** P0 · **Preconditions:** onboarding complete; save at least 2 recipes (SM-05) and cook
+one of them (SM-06) first.
+
+1. Bottom nav → **Recipes** tab.
+   - **Shows "My saved recipes"** — a search bar, an **All / Cooked / New** tab row, and your saved
+     recipes below. No back arrow; the bottom bar stays visible (it's a top‑level tab).
+   - **The recipe you cooked shows as a "Last cooked" card** (star rating + a checkmark); **the
+     others show as a plain card** ("+XP", "⏱ N min · Difficulty").
+2. Type part of a saved recipe's name into the search bar.
+   - **The list narrows to matching recipes only**, live as you type.
+3. Clear the search, then switch to the **Cooked** tab, then **New**.
+   - **Cooked** shows only the recipe(s) you've cooked; **New** shows only the ones you haven't.
+   - **All** shows the full list again.
+4. Tap the delete icon on a saved recipe.
+   - **It disappears from the list immediately.**
+5. Open that same recipe from Home or search, and check its **Save** button.
+   - **It shows "Save", not "Saved"** — deleting from the Recipes tab un‑saves it (does not delete
+     any cooking‑session history).
+6. Tap a saved recipe's card.
+   - **Opens Recipe Detail** for that recipe. Press Back.
+   - **Returns to the Recipes tab**, bottom bar visible, list and tab selection unchanged.
 
 ---
 
@@ -352,6 +380,7 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-15 Process death & rotation          | P1 |  |  |  |  |
 | SM-16 Placeholders & showcase           | P1 |  |  |  |  |
 | SM-17 Meal Review controls              | P0 |  |  |  |  |
+| SM-18 Recipes tab — saved recipes       | P0 |  |  |  |  |
 ```
 
 **Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install; **zero** crashes in any scenario.

@@ -9,6 +9,7 @@ import com.levelchef.android.logging.installGlobalExceptionHandler
 import com.levelchef.data.di.dataModule
 import com.levelchef.data.di.databaseModule
 import com.levelchef.domain.repository.IngredientRepository
+import com.levelchef.feature.cookinglog.di.cookingLogModule
 import com.levelchef.feature.home.di.homeModule
 import com.levelchef.feature.ingredients.di.ingredientsModule
 import com.levelchef.feature.mealreview.di.mealReviewModule
@@ -59,6 +60,7 @@ class LevelChefApplication : Application() {
                 trophyroomModule,
                 recipeDetailModule,
                 mealReviewModule,
+                cookingLogModule,
             )
         }
         appSettingsController.applyPersistedThemeMode()

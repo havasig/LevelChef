@@ -3,11 +3,13 @@
 package com.levelchef.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.domain.repository.SavedRecipeRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -21,6 +23,9 @@ class SavedRecipeRepositoryImpl(
 
     override fun observeIsSaved(recipeId: String): Flow<Boolean> =
         queries.isSaved(recipeId).asFlow().mapToOne(Dispatchers.Default)
+
+    override fun observeSavedRecipeIds(): Flow<List<String>> =
+        queries.selectAll().asFlow().mapToList(Dispatchers.Default).map { rows -> rows.map { it.recipeId } }
 
     override suspend fun setSaved(recipeId: String, saved: Boolean) {
         if (saved) queries.save(recipeId, clock.now().toString()) else queries.unsave(recipeId)
