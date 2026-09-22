@@ -27,6 +27,7 @@ dependencies {
     kover(project(":feature:ingredients"))
     kover(project(":feature:trophyroom"))
     kover(project(":feature:recipedetail"))
+    kover(project(":feature:mealreview"))
     kover(project(":feature:cookinglog"))
 }
 

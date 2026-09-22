@@ -12,6 +12,7 @@ import com.levelchef.domain.repository.IngredientRepository
 import com.levelchef.feature.cookinglog.di.cookingLogModule
 import com.levelchef.feature.home.di.homeModule
 import com.levelchef.feature.ingredients.di.ingredientsModule
+import com.levelchef.feature.mealreview.di.mealReviewModule
 import com.levelchef.feature.onboarding.di.onboardingModule
 import com.levelchef.feature.recipedetail.di.recipeDetailModule
 import com.levelchef.feature.settings.AppSettingsController
@@ -58,6 +59,7 @@ class LevelChefApplication : Application() {
                 ingredientsModule,
                 trophyroomModule,
                 recipeDetailModule,
+                mealReviewModule,
                 cookingLogModule,
             )
         }

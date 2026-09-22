@@ -99,7 +99,7 @@ private fun LoadedRecipe(recipe: Recipe, state: RecipeDetailUiState, actions: Re
                 actions.onDismissMessage()
             }
             LevelChefSnackbar(
-                message = message.text(recipe.xpReward),
+                message = message.text(),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(16.dp),

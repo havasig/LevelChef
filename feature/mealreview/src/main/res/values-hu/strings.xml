@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="meal_review_title">Értékelés</string>
+    <string name="meal_review_title">Élmény naplózása</string>
+    <string name="meal_review_xp_badge">+%1$d XP</string>
+
+    <string name="meal_review_rating_label">ÉRTÉKELÉS</string>
+    <string name="meal_review_rating_value">%1$d/5</string>
+    <string name="meal_review_rating_star">%1$d csillagos értékelés</string>
+
+    <string name="meal_review_note_label">JEGYZET</string>
+    <string name="meal_review_note_placeholder">Írd le a tapasztalataidat…</string>
+
+    <string name="meal_review_duration_unit">%1$d perc</string>
+    <string name="meal_review_duration_decrease">Kevesebb főzési idő</string>
+    <string name="meal_review_duration_increase">Több főzési idő</string>
+
+    <string name="meal_review_macros_label">MAKRÓ ÉRTÉKEK</string>
+    <string name="meal_review_macro_calories">Kalória</string>
+    <string name="meal_review_macro_protein">Fehérje</string>
+    <string name="meal_review_macro_carbs">Szénhidrát</string>
+    <string name="meal_review_macro_fat">Zsír</string>
+    <string name="meal_review_unit_kcal">kcal</string>
+    <string name="meal_review_unit_grams">g</string>
+    <string name="meal_review_macro_decrease">%1$s csökkentése</string>
+    <string name="meal_review_macro_increase">%1$s növelése</string>
+
+    <string name="meal_review_ingredients_label">HOZZÁVALÓK</string>
+
+    <string name="meal_review_save">Mentés</string>
 </resources>

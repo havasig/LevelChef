@@ -5,7 +5,6 @@ package com.levelchef.feature.recipedetail
 import app.cash.turbine.test
 import com.levelchef.core.model.Difficulty
 import com.levelchef.core.model.Recipe
-import com.levelchef.domain.usecase.RecordCookingSessionUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -43,13 +42,11 @@ class RecipeDetailViewModelTest {
     private fun viewModel(
         recipes: List<Recipe> = listOf(recipe),
         saved: Set<String> = emptySet(),
-        sessions: RecordingCookingSessionRepository = RecordingCookingSessionRepository(),
         savedRepo: FakeSavedRecipeRepository = FakeSavedRecipeRepository(saved),
     ) = RecipeDetailViewModel(
         recipeId = "lemon-chicken",
         recipeRepository = FakeRecipeRepository(recipes),
         savedRecipeRepository = savedRepo,
-        recordCookingSession = RecordCookingSessionUseCase(sessions) { "s" },
     )
 
     @Test
@@ -114,32 +111,6 @@ class RecipeDetailViewModelTest {
         advanceUntilIdle()
         assertFalse(vm.uiState.value.isSaved)
         assertEquals(TransientMessage.UNSAVED, vm.uiState.value.transientMessage)
-    }
-
-    @Test
-    fun marking_cooked_records_a_session_and_flashes_a_message() = runTest(dispatcher) {
-        val sessions = RecordingCookingSessionRepository()
-        val vm = viewModel(sessions = sessions)
-        advanceUntilIdle()
-
-        vm.markCooked()
-        advanceUntilIdle()
-
-        assertEquals("lemon-chicken", sessions.recorded.single().recipeId)
-        assertEquals(60, sessions.recorded.single().xpEarned)
-        assertEquals(TransientMessage.COOKED, vm.uiState.value.transientMessage)
-    }
-
-    @Test
-    fun marking_cooked_before_the_recipe_loads_is_a_no_op() = runTest(dispatcher) {
-        val sessions = RecordingCookingSessionRepository()
-        val vm = viewModel(recipes = emptyList(), sessions = sessions)
-
-        vm.markCooked()
-        advanceUntilIdle()
-
-        assertTrue(sessions.recorded.isEmpty())
-        assertEquals(null, vm.uiState.value.transientMessage)
     }
 
     @Test

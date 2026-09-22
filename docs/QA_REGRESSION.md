@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-22 · covers through the Recipes tab ("My saved recipes")._
+_Last updated: 2026-09-22 · covers through the Meal Review ("Log experience") screen and the Recipes tab ("My saved recipes")._
 
 ---
 
@@ -153,20 +153,24 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 5. Save recipe A; leave recipe B untouched. Open recipe B.
    - **Recipe B shows "Save", not "Saved"** — the state is per recipe.
 
-### SM-06 · Recipe detail — "I made it" updates Home stats
+### SM-06 · Recipe detail — "I made it" → Meal Review → Home stats
 
 **Priority:** P0 · **Preconditions:** a recipe detail screen open; note Home's cooking‑session count and XP first.
 
 1. Note the recipe's XP reward (the "+XP" badge). Tap **"I made it"**.
-   - **A message appears: "Logged! +<XP> XP earned".**
-   - **You stay on the recipe screen** — no navigation happens.
-2. Tap Back to return to Home.
+   - **Navigates to the "Log experience" (Meal Review) screen** — back arrow + title, **no bottom navigation bar**; nothing is logged yet.
+   - **The recipe name and "+XP" badge match**, and the macro fields (Calories/Protein/Carbs/Fat) are **pre‑filled from the recipe's own values**; **Save is disabled** (dimmed).
+2. Tap a star to rate the meal (see **SM-17** for the screen's own controls in detail), then tap **Save**.
+   - **Navigates back to Home** (not to the recipe) — both the recipe detail and Meal Review screens are popped off the back stack.
+3. On Home:
    - **The "🍳" cooking‑sessions count is 1 higher.**
    - **The XP value / progress bar has increased by the recipe's reward.**
    - **A "Last cooked" card now appears** showing this recipe.
    - If the reward crossed a level threshold, **the level badge/label updates too.**
-3. Reopen the recipe, tap "I made it" again, return to Home.
+4. Reopen the recipe, tap "I made it", rate it, and Save again.
    - **The count increases again** (repeat cooks are allowed).
+5. Tap "I made it", then press the **back arrow** on Meal Review without tapping Save.
+   - **Returns to Recipe Detail; nothing is recorded** — Home's stats are unchanged.
 
 ### SM-07 · Recipe detail — timer chip & related video
 
@@ -224,12 +228,14 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **The screen reloads and Settings labels are now in Hungarian.**
 2. Navigate to Home, the Ingredients list, and a **Recipe Detail**.
    - **All visible text is Hungarian.** Spot‑check the recipe detail: **"Adagok beállítása"**, **"Hozzávalók"**, **"Lépések"**, **"Elkészítettem"**, **"Mentés"**; the confirmation messages are localised too.
-3. Open the **Recipes** tab.
+3. Tap "Elkészítettem" to open Meal Review.
+   - **Spot‑check:** **"Élmény naplózása"** (title), **"ÉRTÉKELÉS"**, **"JEGYZET"**, **"MAKRÓ ÉRTÉKEK"**, **"HOZZÁVALÓK"**, **"Mentés"**.
+4. Open the **Recipes** tab.
    - **Spot‑check:** **"Mentett receptjeim"** (title), **"Receptek keresése…"** (search placeholder),
      **"Összes" / "Elkészítve" / "Új"** (tabs), **"Legutóbb elkészítve"** (last‑cooked label).
-4. On Android 13+, open the OS **Settings → Apps → LevelChef → Language**.
+5. On Android 13+, open the OS **Settings → Apps → LevelChef → Language**.
    - **LevelChef is listed with a per‑app language override.**
-5. Switch back to **English** in‑app, swipe the app away, relaunch.
+6. Switch back to **English** in‑app, swipe the app away, relaunch.
    - **The language choice persisted across the restart.**
 
 ### SM-11 · Settings — retake the survey
@@ -258,17 +264,19 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 1. Check where the **bottom navigation bar** appears.
    - **Visible only on Home, Recipes, and Trophies.**
-2. Drill into Recipe Detail, Ingredients (list → detail → form), Settings, and the onboarding wizard.
+2. Drill into Recipe Detail, Meal Review ("I made it"), Ingredients (list → detail → form), Settings, and the onboarding wizard.
    - **The bottom bar is hidden on all of these**; each screen draws its own top bar; **content is not clipped by the status bar or the gesture‑nav bar.**
 3. Recipe Detail → gear → Settings → Back → Back.
    - **Lands on Home via Recipe Detail** — the back stack is intact, no screens skipped, no double‑press needed.
-4. Switch between the Home / Recipes / Trophies tabs repeatedly.
+4. Recipe Detail → "I made it" → Meal Review → Save.
+   - **Lands directly on Home** — Recipe Detail and Meal Review are both popped, so Back from Home does not return to either.
+5. Switch between the Home / Recipes / Trophies tabs repeatedly.
    - **Each tab restores its previous state;** no duplicate stacking of a tab.
-5. Rotate the device on Recipe Detail and on the Ingredients list.
+6. Rotate the device on Recipe Detail and on the Ingredients list.
    - **No crash;** scroll position is roughly kept; **layout still clears the system bars.**
-6. Recipes tab → tap a saved recipe → Back.
+7. Recipes tab → tap a saved recipe → Back.
    - **Opens Recipe Detail, then returns to the Recipes tab** with the bottom bar visible again — see
-     **SM-17**.
+     **SM-18**.
 
 ### SM-14 · Database schema migration
 
@@ -304,7 +312,23 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **The hidden Design System showcase opens.** Back returns to Home.
    - A slow tap, or tapping a different tab first, **resets the counter** (a normal tap on Home just goes Home).
 
-### SM-17 · Recipes tab — "My saved recipes"
+### SM-17 · Meal Review ("Log experience") screen controls
+
+**Priority:** P0 · **Preconditions:** reached via Recipe Detail → "I made it" (see SM-06).
+
+1. Look at the screen.
+   - **Sections top to bottom:** recipe name + "+XP" badge, "RATING" (5 stars + "N/5"), "NOTE" (placeholder "Describe your experience…"), a bare cook‑time stepper ("N min"), "MACRO VALUES" (Calories/Protein/Carbs/Fat, each a colored label + a −/value/+ stepper), "INGREDIENTS" (a static checklist matching the recipe), and **Save**.
+   - **Save is disabled** until a star is tapped.
+2. Tap the 3rd star.
+   - **Stars 1–3 fill in, 4–5 stay outline; the "N/5" text reads "3/5"; Save becomes enabled.**
+3. Type a few words in the Note box.
+   - **The placeholder disappears and the typed text shows.**
+4. Tap **+** / **−** on the cook‑time row and on each macro row.
+   - **Each value changes independently by its own step size and never goes below 0.**
+5. Tap **Save**.
+   - **Navigates back to Home** (see SM-06 step 3 for the resulting stats change).
+
+### SM-18 · Recipes tab — "My saved recipes"
 
 **Priority:** P0 · **Preconditions:** onboarding complete; save at least 2 recipes (SM-05) and cook
 one of them (SM-06) first.
@@ -355,7 +379,8 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-14 Schema migration (upgrade)        | P0 |  |  |  |  |
 | SM-15 Process death & rotation          | P1 |  |  |  |  |
 | SM-16 Placeholders & showcase           | P1 |  |  |  |  |
-| SM-17 Recipes tab — saved recipes       | P0 |  |  |  |  |
+| SM-17 Meal Review controls              | P0 |  |  |  |  |
+| SM-18 Recipes tab — saved recipes       | P0 |  |  |  |  |
 ```
 
 **Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install; **zero** crashes in any scenario.

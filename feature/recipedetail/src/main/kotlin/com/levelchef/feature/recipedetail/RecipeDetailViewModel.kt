@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.levelchef.domain.repository.RecipeRepository
 import com.levelchef.domain.repository.SavedRecipeRepository
-import com.levelchef.domain.usecase.RecordCookingSessionUseCase
 import com.levelchef.feature.recipedetail.RecipeDetailUiState.Companion.MAX_SERVINGS
 import com.levelchef.feature.recipedetail.RecipeDetailUiState.Companion.MIN_SERVINGS
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +16,6 @@ class RecipeDetailViewModel(
     private val recipeId: String,
     recipeRepository: RecipeRepository,
     private val savedRecipeRepository: SavedRecipeRepository,
-    private val recordCookingSession: RecordCookingSessionUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RecipeDetailUiState())
@@ -52,12 +50,6 @@ class RecipeDetailViewModel(
         _uiState.update {
             it.copy(transientMessage = if (nowSaved) TransientMessage.SAVED else TransientMessage.UNSAVED)
         }
-    }
-
-    fun markCooked() {
-        val recipe = _uiState.value.recipe ?: return
-        viewModelScope.launch { recordCookingSession(recipe) }
-        _uiState.update { it.copy(transientMessage = TransientMessage.COOKED) }
     }
 
     fun showTimerStub() = _uiState.update { it.copy(transientMessage = TransientMessage.TIMER_STUB) }

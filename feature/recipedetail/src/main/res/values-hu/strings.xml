@@ -41,6 +41,5 @@
 
     <string name="recipe_detail_snackbar_saved">Recept elmentve</string>
     <string name="recipe_detail_snackbar_unsaved">Eltávolítva a mentettek közül</string>
-    <string name="recipe_detail_snackbar_cooked">Rögzítve! +%1$d XP jóváírva</string>
     <string name="recipe_detail_snackbar_timer">A lépés-időzítők hamarosan érkeznek</string>
 </resources>
