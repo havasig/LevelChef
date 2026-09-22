@@ -1,0 +1,18 @@
+-- v4 -> v5: add the badge earned-date ledger and the weekly-challenge progress table (see Badge.sq
+-- and WeeklyChallenge.sq for the queries).
+--
+-- `IF NOT EXISTS` on purpose: these tables (and cookingSession.durationMinutes) shipped once without
+-- a migration, so some v4 databases already have them and some don't. The durationMinutes column
+-- can't be added idempotently in SQL; `DatabaseMigrations.kt` in :data repairs it in an
+-- AfterVersion(4) callback that runs right after this file.
+CREATE TABLE IF NOT EXISTS badgeEarned (
+    badgeId TEXT NOT NULL PRIMARY KEY,
+    earnedAt TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS weeklyChallengeProgress (
+    weekKey TEXT NOT NULL PRIMARY KEY,
+    challengeId TEXT NOT NULL,
+    completedAt TEXT,
+    xpAwarded INTEGER NOT NULL DEFAULT 0
+);
