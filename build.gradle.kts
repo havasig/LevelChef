@@ -27,6 +27,7 @@ dependencies {
     kover(project(":feature:ingredients"))
     kover(project(":feature:trophyroom"))
     kover(project(":feature:recipedetail"))
+    kover(project(":feature:cookinglog"))
 }
 
 // Coverage — aggregated at the root; the plugin is applied per-module (see those build files).

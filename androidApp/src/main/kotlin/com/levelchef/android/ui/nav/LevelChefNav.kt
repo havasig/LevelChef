@@ -22,13 +22,13 @@ import com.levelchef.android.ui.showcase.DesignSystemShowcaseScreen
 import com.levelchef.core.designsystem.LevelChefBottomNavigationBar
 import com.levelchef.core.designsystem.LevelChefNavItem
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.cookinglog.CookingLogRoute
 import com.levelchef.feature.home.HomeRoute
 import com.levelchef.feature.ingredients.IngredientDetailRoute
 import com.levelchef.feature.ingredients.IngredientFormRoute
 import com.levelchef.feature.ingredients.IngredientsListRoute
 import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.recipedetail.RecipeDetailRoute
-import com.levelchef.feature.recipedetail.RecipesScreen
 import com.levelchef.feature.settings.SettingsRoute
 import com.levelchef.feature.trophyroom.TrophyRoomRoute
 
@@ -155,7 +155,9 @@ private fun LevelChefAppContent() {
                     onIngredientsClick = { navController.navigate(INGREDIENTS_ROUTE) },
                 )
             }
-            composable(LevelChefDestination.Recipes.route) { RecipesScreen() }
+            composable(LevelChefDestination.Recipes.route) {
+                CookingLogRoute(onRecipeClick = { id -> navController.navigate(recipeDetailPath(id)) })
+            }
             composable(LevelChefDestination.Trophies.route) { TrophyRoomRoute() }
             composable(
                 RECIPE_DETAIL_ROUTE,

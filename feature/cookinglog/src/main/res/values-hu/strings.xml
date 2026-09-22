@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="cooking_log_title">Főzési napló</string>
+    <string name="cooking_log_title">Mentett receptjeim</string>
+    <string name="cooking_log_search_placeholder">Receptek keresése…</string>
+
+    <string name="cooking_log_tab_all">Összes</string>
+    <string name="cooking_log_tab_cooked">Elkészítve</string>
+    <string name="cooking_log_tab_new">Új</string>
+
+    <string name="cooking_log_last_cooked_label">Legutóbb elkészítve</string>
+    <string name="cooking_log_cooked_today">Ma</string>
+    <string name="cooking_log_cooked_yesterday">Tegnap</string>
+    <string name="cooking_log_cooked_days_ago">%1$d napja</string>
+
+    <string name="cooking_log_difficulty_easy">Könnyű</string>
+    <string name="cooking_log_difficulty_medium">Közepes</string>
+    <string name="cooking_log_difficulty_hard">Nehéz</string>
+
+    <string name="cooking_log_delete">%1$s eltávolítása a mentett receptek közül</string>
+
+    <string name="cooking_log_empty_all">Még nem mentettél receptet.</string>
+    <string name="cooking_log_empty_cooked">Még egy mentett receptet sem készítettél el.</string>
+    <string name="cooking_log_empty_new">Nincs több kipróbálatlan mentett recept — szép munka!</string>
 </resources>

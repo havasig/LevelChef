@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="cooking_log_title">Cooking Log</string>
+    <string name="cooking_log_title">My saved recipes</string>
+    <string name="cooking_log_search_placeholder">Search recipes…</string>
+
+    <string name="cooking_log_tab_all">All</string>
+    <string name="cooking_log_tab_cooked">Cooked</string>
+    <string name="cooking_log_tab_new">New</string>
+
+    <string name="cooking_log_last_cooked_label">Last cooked</string>
+    <string name="cooking_log_cooked_today">Today</string>
+    <string name="cooking_log_cooked_yesterday">Yesterday</string>
+    <string name="cooking_log_cooked_days_ago">%1$d days ago</string>
+
+    <string name="cooking_log_difficulty_easy">Easy</string>
+    <string name="cooking_log_difficulty_medium">Medium</string>
+    <string name="cooking_log_difficulty_hard">Hard</string>
+
+    <string name="cooking_log_delete">Remove %1$s from saved recipes</string>
+
+    <string name="cooking_log_empty_all">You haven\'t saved any recipes yet.</string>
+    <string name="cooking_log_empty_cooked">You haven\'t cooked any saved recipes yet.</string>
+    <string name="cooking_log_empty_new">No saved recipes left to try — nice work!</string>
 </resources>
