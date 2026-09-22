@@ -16,7 +16,7 @@ private const val BEFORE_DURATION_COLUMN_VERSION = 4L
  * (which appends at the end) would misalign every read. Instead the table is rebuilt in the
  * declared column order, only when the column is missing.
  */
-val databaseMigrationCallbacks: Array<AfterVersion> = arrayOf(
+internal val databaseMigrationCallbacks: Array<AfterVersion> = arrayOf(
     AfterVersion(BEFORE_DURATION_COLUMN_VERSION) { driver ->
         if ("durationMinutes" !in driver.columnNames("cookingSession")) driver.rebuildCookingSessionWithDuration()
     },
@@ -24,15 +24,15 @@ val databaseMigrationCallbacks: Array<AfterVersion> = arrayOf(
 
 private fun SqlDriver.columnNames(table: String): Set<String> =
     executeQuery(
-        identifier = null,
-        sql = "PRAGMA table_info($table)",
-        mapper = { cursor ->
+        null,
+        "PRAGMA table_info($table)",
+        { cursor ->
             val names = mutableSetOf<String>()
             // PRAGMA table_info columns: cid, name, type, notnull, dflt_value, pk.
             while (cursor.next().value) cursor.getString(1)?.let(names::add)
             QueryResult.Value(names)
         },
-        parameters = 0,
+        0,
     ).value
 
 private fun SqlDriver.rebuildCookingSessionWithDuration() {
@@ -65,5 +65,5 @@ private fun SqlDriver.rebuildCookingSessionWithDuration() {
         """,
         "DROP TABLE cookingSession",
         "ALTER TABLE cookingSession_new RENAME TO cookingSession",
-    ).forEach { sql -> execute(identifier = null, sql = sql.trimIndent(), parameters = 0) }
+    ).forEach { sql -> execute(null, sql.trimIndent(), 0) }
 }
