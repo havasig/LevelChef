@@ -26,7 +26,7 @@ class UserProfileRepositoryImpl(
         return UserProfile(
             totalXp = cookingSessionRepository.totalXp() + weeklyChallengeRepository.totalAwardedXp(),
             cookingSessionsCount = cookingSessionRepository.sessionCount(),
-            newIngredientsCount = ingredientRepository.count(),
+            newIngredientsCount = ingredientRepository.observeAll().first().userAdded().size,
             kitchenTimeMinutes = cookingSessionRepository.totalDurationMinutes(),
             currentStreakDays = streakDays(sessions),
             avgRatingPercent = avgRatingPercent(sessions),

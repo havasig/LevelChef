@@ -25,7 +25,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-/** What every badge's progress is derived from. */
+/** What every badge's progress is derived from. [ingredients] excludes the seeded starter pantry. */
 private data class BadgeSnapshot(val sessions: List<CookingSession>, val ingredients: List<Ingredient>)
 
 /** One catalog entry: how a badge's progress is read off a [BadgeSnapshot], capped at [target]. */
@@ -116,7 +116,7 @@ class BadgeRepositoryImpl(
             ingredientRepository.observeAll(),
             database.badgeQueries.selectAll().asFlow().mapToList(Dispatchers.Default),
         ) { sessions, ingredients, earnedRows ->
-            val snapshot = BadgeSnapshot(sessions, ingredients)
+            val snapshot = BadgeSnapshot(sessions, ingredients.userAdded())
             val earnedAt = earnedRows.associate { it.badgeId to Instant.parse(it.earnedAt) }
             CATALOG.map { it.toBadge(snapshot, earnedAt[it.id]) }
         }
@@ -124,7 +124,7 @@ class BadgeRepositoryImpl(
     override suspend fun refreshEarned() {
         val snapshot = BadgeSnapshot(
             sessions = cookingSessionRepository.observeAll().first(),
-            ingredients = ingredientRepository.observeAll().first(),
+            ingredients = ingredientRepository.observeAll().first().userAdded(),
         )
         val now = Clock.System.now().toString()
         withContext(dispatcher) {

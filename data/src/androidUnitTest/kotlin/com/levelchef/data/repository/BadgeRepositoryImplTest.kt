@@ -113,4 +113,18 @@ class BadgeRepositoryImplTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun seeded_starter_pantry_does_not_count_toward_pantry_badges() = runTest {
+        ingredientRepository.seedDefaults()
+        ingredientRepository.save(Ingredient("my-own", "Tofu", IngredientCategory.OTHER, "🧈"))
+
+        lateinit var pantryStarter: Badge
+        repository.observeAll().test {
+            pantryStarter = awaitItem().single { it.id == "pantry-starter" }
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertEquals(1, pantryStarter.progressCurrent)
+    }
 }

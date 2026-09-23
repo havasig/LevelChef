@@ -146,3 +146,9 @@ internal val DEFAULT_INGREDIENTS: List<Ingredient> = listOf(
     default("banana", "Banana", IngredientCategory.FRUIT, "🍌", MeasurementUnit.PIECE, 89, 1.1, 23.0, 0.3),
     default("strawberry", "Strawberry", IngredientCategory.FRUIT, "🍓", MeasurementUnit.GRAM, 32, 0.7, 7.7, 0.3),
 )
+
+/** Ids of [DEFAULT_INGREDIENTS]: the starter pantry, which isn't something the user tried. */
+internal val DEFAULT_INGREDIENT_IDS: Set<String> = DEFAULT_INGREDIENTS.mapTo(mutableSetOf()) { it.id }
+
+/** The pantry minus the seeded starter items — what "ingredients tried" and the pantry badges count. */
+internal fun List<Ingredient>.userAdded(): List<Ingredient> = filterNot { it.id in DEFAULT_INGREDIENT_IDS }

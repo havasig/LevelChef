@@ -59,6 +59,17 @@ class UserProfileRepositoryImplTest {
     }
 
     @Test
+    fun new_ingredients_count_ignores_the_seeded_starter_pantry() = runTest {
+        val repository = UserProfileRepositoryImpl(
+            FakeCookingSessionRepository(),
+            FakeIngredientRepository(DEFAULT_INGREDIENTS + ingredient("my-own")),
+            FakeWeeklyChallengeRepository(),
+        )
+
+        assertEquals(1, repository.getProfile().newIngredientsCount)
+    }
+
+    @Test
     fun kitchen_time_reflects_total_duration_minutes() = runTest {
         val repository = UserProfileRepositoryImpl(
             FakeCookingSessionRepository(durationMinutes = 340),

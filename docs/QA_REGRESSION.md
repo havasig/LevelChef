@@ -116,7 +116,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 1. Look at the Home screen.
    - **Top bar** shows the app title and a **gear icon** on the right.
    - **Visible:** a level badge, an XP progress bar with an "X / Y XP" caption, two stat cards (**"🍳 N"** cooking sessions and **"🌿 N ingredients tried"**), a weekly‑challenge card, a "Cook today" button, and a **"Recommended for you"** list of recipe cards (count/content vary — see [Recipe recommendations](#recipe-recommendations) above).
-   - On a fresh install there is **no "Last cooked" card** yet.
+   - On a fresh install there is **no "Last cooked" card** yet, and **"ingredients tried" is 0** — the
+     seeded starter pantry doesn't count; only ingredients you add yourself do.
 2. Tap the **"🌿 ingredients tried"** stat card.
    - **Navigates to the Ingredients (pantry) list.** Go back.
 3. Tap the **gear** icon.
