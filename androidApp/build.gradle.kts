@@ -68,4 +68,6 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(libs.koin.test)
+    // For KoinModulesVerifyTest's HttpClientEngine reference (see databaseModule's HttpClient single).
+    testImplementation(libs.ktor.client.core)
 }
