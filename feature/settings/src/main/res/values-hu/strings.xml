@@ -46,7 +46,8 @@
     <string name="settings_feedback_input_label">A visszajelzésed</string>
     <string name="settings_feedback_input_placeholder">Jelents be egy hibát, vagy oszd meg az ötleted…</string>
     <string name="settings_feedback_send">Küldés</string>
-    <string name="settings_feedback_sent">Köszönjük a visszajelzést!</string>
+    <string name="settings_feedback_email_subject">LevelChef visszajelzés</string>
+    <string name="settings_feedback_email_unavailable">Nem található e-mail alkalmazás ezen az eszközön</string>
 
     <string name="settings_danger_zone_section">Veszélyzóna</string>
     <string name="settings_delete_account_title">Fiók törlése</string>

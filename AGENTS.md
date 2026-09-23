@@ -179,7 +179,5 @@ If a new screen is added to the Figma file, give its stub composable a
 ## Not yet done (see README "Next steps")
 
 1. iOS target (KMP modules are ready; no iOS app shell yet).
-2. Settings feedback has no backend: `SettingsViewModel.submitFeedback` shows "Feedback sent" and
-   discards the text. Wire a real channel (email draft or API) or hide the option before release.
-3. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
+2. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
    `./gradlew recordRoborazziDebug` and review the diff.

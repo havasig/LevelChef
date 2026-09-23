@@ -46,7 +46,8 @@
     <string name="settings_feedback_input_label">Your feedback</string>
     <string name="settings_feedback_input_placeholder">Report a bug or share a suggestion…</string>
     <string name="settings_feedback_send">Send</string>
-    <string name="settings_feedback_sent">Thanks for your feedback!</string>
+    <string name="settings_feedback_email_subject">LevelChef feedback</string>
+    <string name="settings_feedback_email_unavailable">No email app found on this device</string>
 
     <string name="settings_danger_zone_section">Danger Zone</string>
     <string name="settings_delete_account_title">Delete account</string>
