@@ -57,6 +57,9 @@ jobs:
       - name: Verify 90% logic-layer coverage
         run: ./gradlew koverVerify --stacktrace
 
+      - name: Dependency analysis (advisory)
+        run: ./gradlew buildHealth --stacktrace
+
       - name: Upload reports
         uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
