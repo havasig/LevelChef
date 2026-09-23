@@ -204,9 +204,9 @@ internal fun StepsSection(
                     trailingContent = step.timerMinutes?.let { minutes ->
                         {
                             if (index == runningTimerStepIndex) {
-                                TimerChip(secondsRemaining = timerSecondsRemaining, onClick = onCancelTimer)
+                                RunningTimerChip(secondsRemaining = timerSecondsRemaining, onClick = onCancelTimer)
                             } else {
-                                TimerChip(minutes = minutes, onClick = { onStartTimer(index, minutes) })
+                                IdleTimerChip(minutes = minutes, onClick = { onStartTimer(index, minutes) })
                             }
                         }
                     },
@@ -216,9 +216,9 @@ internal fun StepsSection(
     }
 }
 
-/** Idle overload: the "Start N min timer" pill. */
+/** The "Start N min timer" pill. */
 @Composable
-private fun TimerChip(minutes: Int, onClick: () -> Unit) {
+private fun IdleTimerChip(minutes: Int, onClick: () -> Unit) {
     TimerChipShell(
         icon = Icons.Filled.PlayArrow,
         label = stringResource(R.string.recipe_detail_start_timer, minutes),
@@ -226,9 +226,9 @@ private fun TimerChip(minutes: Int, onClick: () -> Unit) {
     )
 }
 
-/** Running overload: a live "MM:SS" countdown, tap to cancel. */
+/** A live "MM:SS" countdown, tap to cancel. */
 @Composable
-private fun TimerChip(secondsRemaining: Int, onClick: () -> Unit) {
+private fun RunningTimerChip(secondsRemaining: Int, onClick: () -> Unit) {
     val minutes = secondsRemaining / SECONDS_PER_MINUTE
     val seconds = secondsRemaining % SECONDS_PER_MINUTE
     TimerChipShell(
