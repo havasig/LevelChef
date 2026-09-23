@@ -23,6 +23,7 @@ kotlin {
             implementation(libs.sqldelight.android.driver)
             implementation(libs.ktor.client.android)
             implementation(libs.koin.android)
+            implementation(libs.androidx.appcompat)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

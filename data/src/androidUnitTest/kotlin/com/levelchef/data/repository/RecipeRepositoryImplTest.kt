@@ -77,6 +77,10 @@ class RecipeRepositoryImplTest {
     private lateinit var surveyRepository: FakeSurveyRepository
     private var requestCount = 0
 
+    /** Read by the repositories built below through a `languageTag = { currentLanguageTag }`
+     * lambda, so a test can switch it mid-test the same way [surveyRepository] is mutated. */
+    private var currentLanguageTag: String? = null
+
     @BeforeTest
     fun setUp() {
         driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
@@ -84,6 +88,7 @@ class RecipeRepositoryImplTest {
         database = LevelChefDatabase(driver)
         surveyRepository = FakeSurveyRepository(sampleSurvey)
         requestCount = 0
+        currentLanguageTag = null
     }
 
     @AfterTest
@@ -111,6 +116,7 @@ class RecipeRepositoryImplTest {
             httpClient = httpClient,
             apiKey = apiKey,
             clock = StoppedClock(Instant.parse("2026-03-04T12:00:00Z")),
+            languageTag = { currentLanguageTag },
         )
     }
 
@@ -151,6 +157,18 @@ class RecipeRepositoryImplTest {
     }
 
     @Test
+    fun a_changed_language_alone_triggers_a_new_generation() = runTest {
+        val repository = repository()
+        repository.getRecommendations()
+        assertEquals(1, requestCount)
+
+        currentLanguageTag = "hu"
+        repository.getRecommendations()
+
+        assertEquals(2, requestCount)
+    }
+
+    @Test
     fun a_non_2xx_response_falls_back_to_the_bundled_sample_set() = runTest {
         val recommendations = repository(status = HttpStatusCode.InternalServerError).getRecommendations()
 
@@ -170,6 +188,16 @@ class RecipeRepositoryImplTest {
 
         assertEquals(0, requestCount)
         assertTrue(recommendations.any { it.id == "chicken-curry" })
+    }
+
+    @Test
+    fun a_blank_api_key_with_hungarian_serves_the_hungarian_bundled_set() = runTest {
+        currentLanguageTag = "hu"
+
+        val recommendations = repository(apiKey = "").getRecommendations()
+
+        assertEquals(0, requestCount)
+        assertTrue(recommendations.any { it.id == "chicken-curry" && it.name == "Csirke curry kókusztejjel" })
     }
 
     @Test

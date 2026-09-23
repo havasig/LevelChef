@@ -43,14 +43,14 @@ private val json = Json { ignoreUnknownKeys = true }
 
 /**
  * Gemini-backed [RecipeRepository]. Recommendations are generated from the stored [SurveyResponse]
- * and cached in [LevelChefDatabase]'s `generatedRecipe` table, keyed by a fingerprint of the survey
- * that produced them — a repeat call with an unchanged survey is served from the cache, and only a
- * changed survey (or an empty cache) triggers a new Gemini call. [getById] resolves against the
- * whole cache history, not just the latest batch, so a saved/cooked recipe stays resolvable even
- * after a newer batch replaces it in [getRecommendations]. A blank [apiKey], or any failure talking
- * to Gemini, falls back to existing cache rows and finally to [fallbackRecipes] — the app never
- * shows an empty "Recommended for you." Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO`
- * on Android (see `databaseModule`).
+ * (and the current app [languageTag]) and cached in [LevelChefDatabase]'s `generatedRecipe` table,
+ * keyed by a fingerprint of both — a repeat call with an unchanged survey and language is served
+ * from the cache, and a changed survey, a changed language, or an empty cache triggers a new Gemini
+ * call. [getById] resolves against the whole cache history, not just the latest batch, so a
+ * saved/cooked recipe stays resolvable even after a newer batch replaces it in
+ * [getRecommendations]. A blank [apiKey], or any failure talking to Gemini, falls back to existing
+ * cache rows and finally to [fallbackRecipes] — the app never shows an empty "Recommended for you."
+ * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`).
  */
 class RecipeRepositoryImpl(
     private val database: LevelChefDatabase,
@@ -58,26 +58,28 @@ class RecipeRepositoryImpl(
     private val httpClient: HttpClient,
     private val apiKey: String,
     private val clock: Clock = Clock.System,
+    private val languageTag: () -> String? = { null },
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : RecipeRepository {
 
     private val queries: GeneratedRecipeQueries get() = database.generatedRecipeQueries
 
     override suspend fun getRecommendations(): List<Recipe> {
-        val survey = surveyRepository.observeResponse().first() ?: return fallbackRecipes
-        val fingerprint = survey.fingerprint()
+        val survey = surveyRepository.observeResponse().first() ?: return fallbackRecipes(languageTag())
+        val fingerprint = fingerprint(survey, languageTag())
 
         if (latestCachedFingerprint() == fingerprint) {
             val cached = cachedRecipes()
             if (cached.isNotEmpty()) return cached
         }
 
-        return generateRecommendations(survey, fingerprint) ?: cachedRecipes().ifEmpty { fallbackRecipes }
+        return generateRecommendations(survey, fingerprint)
+            ?: cachedRecipes().ifEmpty { fallbackRecipes(languageTag()) }
     }
 
     override suspend fun getById(id: String): Recipe? =
         withContext(dispatcher) { queries.selectById(id).executeAsOneOrNull() }?.decodeRecipeOrNull()
-            ?: fallbackRecipes.find { it.id == id }
+            ?: fallbackRecipes(languageTag()).find { it.id == id }
 
     private suspend fun latestCachedFingerprint(): String? =
         withContext(dispatcher) { queries.latestFingerprint().executeAsOneOrNull() }
@@ -103,7 +105,7 @@ class RecipeRepositoryImpl(
         val response = httpClient.post(GEMINI_ENDPOINT) {
             parameter("key", apiKey)
             contentType(ContentType.Application.Json)
-            setBody(geminiRecipeRequest(buildRecipePrompt(survey)))
+            setBody(geminiRecipeRequest(buildRecipePrompt(survey, languageTag())))
         }
         if (!response.status.isSuccess()) {
             Logger.w { "Gemini recommendation request failed: ${response.status}" }
@@ -141,13 +143,19 @@ private fun GeneratedRecipe.decodeRecipeOrNull(): Recipe? = try {
     null
 }
 
-/** A stable-enough hash of the answers that matter for recommendations — not security-sensitive,
- * only used to detect "the user retook the survey with different answers." */
-private fun SurveyResponse.fingerprint(): String = hashCode().toString()
+/** A stable-enough hash of the answers (plus the current app language, so a language switch also
+ * invalidates the cache) that matter for recommendations — not security-sensitive, only used to
+ * detect "the user retook the survey, or changed the app language, since the last generation." */
+private fun fingerprint(survey: SurveyResponse, languageTag: String?): String =
+    "${survey.hashCode()}-${languageTag ?: "en"}"
 
 /** Small bundled set served when there's no survey yet, no API key configured, or Gemini/the cache
- * are both unavailable — the last-resort source so Home never shows an empty recommendation list. */
-private val fallbackRecipes = listOf(
+ * are both unavailable — the last-resort source so Home never shows an empty recommendation list.
+ * [languageTag] picks [fallbackRecipesHu] for Hungarian, else the English [fallbackRecipesEn]. */
+private fun fallbackRecipes(languageTag: String?): List<Recipe> =
+    if (languageTag?.lowercase() == "hu") fallbackRecipesHu else fallbackRecipesEn
+
+private val fallbackRecipesEn = listOf(
     Recipe(
         id = "chicken-curry",
         name = "Chicken curry with coconut milk",
@@ -232,5 +240,96 @@ private val fallbackRecipes = listOf(
             RecipeStep("Toss the drained pasta through the sauce with basil."),
         ),
         videoUrl = "https://www.youtube.com/results?search_query=easy+tomato+pasta",
+    ),
+)
+
+/** Hungarian translation of [fallbackRecipesEn] — same `id`s and numeric fields (macros, time,
+ * difficulty, servings, xpReward) so a recipe saved/cooked under one language still resolves by
+ * id under the other; only the display text is translated. */
+private val fallbackRecipesHu = listOf(
+    Recipe(
+        id = "chicken-curry",
+        name = "Csirke curry kókusztejjel",
+        emoji = "🍲",
+        xpReward = 45,
+        timeMinutes = 25,
+        difficulty = Difficulty.EASY,
+        servings = 2,
+        caloriesKcal = 520,
+        proteinGrams = 38,
+        carbsGrams = 18,
+        fatGrams = 32,
+        tags = listOf("Laktató", "Egytálétel"),
+        ingredients = listOf(
+            RecipeIngredient("csirkecomb", quantity = 300.0, unit = "g"),
+            RecipeIngredient("kókusztej", quantity = 400.0, unit = "ml"),
+            RecipeIngredient("sárga curry paszta", quantity = 2.0, unit = "evőkanál"),
+            RecipeIngredient("vöröshagyma", quantity = 1.0),
+            RecipeIngredient("Koriander, lime, só"),
+        ),
+        steps = listOf(
+            RecipeStep("Kockázd fel a csirkét, és szeleteld fel a hagymát."),
+            RecipeStep("Pirítsd meg a curry pasztát a hagymával, amíg illatos nem lesz."),
+            RecipeStep("Add hozzá a csirkét, és süsd körbe minden oldalról."),
+            RecipeStep("Öntsd hozzá a kókusztejet, és forrald fel.", timerMinutes = 15),
+            RecipeStep("Fejezd be lime lével és friss korianderrel."),
+        ),
+        videoUrl = "https://www.youtube.com/results?search_query=csirke+curry+kokusztejjel",
+    ),
+    Recipe(
+        id = "steak-quinoa-bowl",
+        name = "Steak quinoa tál",
+        emoji = "🥩",
+        xpReward = 120,
+        timeMinutes = 35,
+        difficulty = Difficulty.MEDIUM,
+        servings = 2,
+        caloriesKcal = 610,
+        proteinGrams = 46,
+        carbsGrams = 52,
+        fatGrams = 24,
+        tags = listOf("Fehérjedús", "Előre elkészíthető"),
+        ingredients = listOf(
+            RecipeIngredient("marha steak", quantity = 250.0, unit = "g"),
+            RecipeIngredient("quinoa", quantity = 150.0, unit = "g"),
+            RecipeIngredient("koktélparadicsom", quantity = 100.0, unit = "g"),
+            RecipeIngredient("avokádó", quantity = 1.0),
+            RecipeIngredient("Olívaolaj, citrom, só, bors"),
+        ),
+        steps = listOf(
+            RecipeStep("Öblítsd le a quinoát, majd főzd meg sós vízben.", timerMinutes = 15),
+            RecipeStep("Fűszerezd bőségesen sóval és borssal a steaket."),
+            RecipeStep("Süsd a steaket 3-4 percig oldalanként, majd pihentesd.", timerMinutes = 5),
+            RecipeStep("Vágd félbe a paradicsomokat, és szeleteld fel az avokádót."),
+            RecipeStep("Szeleteld fel a steaket a rostokkal szemben, és állítsd össze a tálat."),
+        ),
+        videoUrl = "https://www.youtube.com/results?search_query=steak+quinoa+tal",
+    ),
+    Recipe(
+        id = "juicy-pasta",
+        name = "Szaftos tészta",
+        emoji = "🍝",
+        xpReward = 80,
+        timeMinutes = 14,
+        difficulty = Difficulty.EASY,
+        servings = 2,
+        caloriesKcal = 480,
+        proteinGrams = 17,
+        carbsGrams = 72,
+        fatGrams = 14,
+        tags = listOf("Gyors", "Vegetáriánus"),
+        ingredients = listOf(
+            RecipeIngredient("spagetti", quantity = 200.0, unit = "g"),
+            RecipeIngredient("konzerv paradicsom", quantity = 400.0, unit = "g"),
+            RecipeIngredient("fokhagyma", quantity = 2.0, unit = "gerezd"),
+            RecipeIngredient("Bazsalikom, olívaolaj, só", isNewToUser = true),
+        ),
+        steps = listOf(
+            RecipeStep("Főzd meg a spagettit bőséges sós vízben.", timerMinutes = 9),
+            RecipeStep("Pirítsd meg enyhén a szeletelt fokhagymát olívaolajon."),
+            RecipeStep("Add hozzá a paradicsomot, és főzd, amíg besűrűsödik."),
+            RecipeStep("Forgasd össze a leszűrt tésztát a szósszal és a bazsalikommal."),
+        ),
+        videoUrl = "https://www.youtube.com/results?search_query=szaftos+teszta",
     ),
 )
