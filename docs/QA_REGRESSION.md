@@ -288,7 +288,7 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **With `GEMINI_API_KEY` configured:** the recommended recipes' names, tags, ingredients and
      steps are in Hungarian (Gemini follows the app-language instruction in the prompt).
    - **Without a key** (or after clearing it): the bundled fallback recipes show their Hungarian
-     names — **"Csirke curry kókusztejjel"**, **"Steak quinoa tál"**, **"Szaftos tészta"**.
+     names — **"Csirke curry kókusztejjel"**, **"Steak quinoa tál"**, **"Szószos tészta"**.
    - Switch back to English and confirm recommendations regenerate/revert to English (switching
      the app language alone invalidates the cached batch, same as retaking the survey).
 5. On Android 13+, open the OS **Settings → Apps → LevelChef → Language**.

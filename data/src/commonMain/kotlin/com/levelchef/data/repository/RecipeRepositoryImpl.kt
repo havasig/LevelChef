@@ -271,8 +271,8 @@ private val fallbackRecipesHu = listOf(
             RecipeStep("Kockázd fel a csirkét, és szeleteld fel a hagymát."),
             RecipeStep("Pirítsd meg a curry pasztát a hagymával, amíg illatos nem lesz."),
             RecipeStep("Add hozzá a csirkét, és süsd körbe minden oldalról."),
-            RecipeStep("Öntsd hozzá a kókusztejet, és forrald fel.", timerMinutes = 15),
-            RecipeStep("Fejezd be lime lével és friss korianderrel."),
+            RecipeStep("Öntsd hozzá a kókusztejet, és főzd lassú tűzön.", timerMinutes = 15),
+            RecipeStep("Fejezd be lime levével és friss korianderrel."),
         ),
         videoUrl = "https://www.youtube.com/results?search_query=csirke+curry+kokusztejjel",
     ),
@@ -307,7 +307,7 @@ private val fallbackRecipesHu = listOf(
     ),
     Recipe(
         id = "juicy-pasta",
-        name = "Szaftos tészta",
+        name = "Szószos tészta",
         emoji = "🍝",
         xpReward = 80,
         timeMinutes = 14,
@@ -330,6 +330,6 @@ private val fallbackRecipesHu = listOf(
             RecipeStep("Add hozzá a paradicsomot, és főzd, amíg besűrűsödik."),
             RecipeStep("Forgasd össze a leszűrt tésztát a szósszal és a bazsalikommal."),
         ),
-        videoUrl = "https://www.youtube.com/results?search_query=szaftos+teszta",
+        videoUrl = "https://www.youtube.com/results?search_query=szoszos+teszta",
     ),
 )
