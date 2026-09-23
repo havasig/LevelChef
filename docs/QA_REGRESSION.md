@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender, debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, and the Hungarian translations for levels, badges, challenges and shared labels._
+_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender, debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, and the mailto-based Settings feedback flow._
 
 ---
 
@@ -288,6 +288,9 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **LevelChef is listed with a per‑app language override.**
 6. Switch back to **English** in‑app, swipe the app away, relaunch.
    - **The language choice persisted across the restart.**
+7. Back in Hungarian (see SM-21 for the full feedback flow), open Settings → **Send feedback** with
+   no mail app installed.
+   - **Spot‑check:** the snackbar reads **"Nem található e-mail alkalmazás ezen az eszközön"**.
 
 ### SM-11 · Settings — retake the survey
 
@@ -449,6 +452,22 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
    - **The pantry holds exactly the default starter items** — your custom item is gone and the defaults are back.
    - **Theme and language are back to System.**
 
+### SM-21 · Settings — send feedback
+
+**Priority:** P1 · **Preconditions:** onboarding complete; a mail app installed.
+
+1. Settings → **Send feedback**.
+   - **A dialog opens with a text field; "Send" is disabled until text is entered.**
+2. Type a message, tap **Send**.
+   - **The dialog closes and the device's email app opens** with the To field pre-filled, the
+     subject **"LevelChef feedback"**, and the typed message as the body.
+3. Return to LevelChef without sending the email.
+   - **The Settings screen is unchanged;** no confirmation snackbar is shown (sending the email is
+     the user's own action, not something the app can confirm).
+4. Repeat on a device/emulator with **no mail app installed**.
+   - **A snackbar reads "No email app found on this device"** (Hungarian: "Nem található e-mail
+     alkalmazás ezen az eszközön").
+
 ---
 
 ## 4. Results log
@@ -480,6 +499,7 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-18 Recipes tab — saved recipes       | P0 |  |  |  |  |
 | SM-19 Trophies — refresh on return      | P1 |  |  |  |  |
 | SM-20 Settings — delete account         | P0 |  |  |  |  |
+| SM-21 Settings — send feedback          | P1 |  |  |  |  |
 ```
 
 **Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install (once a previous release exists); **zero** crashes in any scenario.

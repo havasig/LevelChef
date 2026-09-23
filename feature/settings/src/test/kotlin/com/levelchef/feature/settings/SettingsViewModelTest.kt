@@ -264,24 +264,14 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun submit_feedback_shows_then_clears_a_snackbar_message() = runTest(dispatcher) {
+    fun feedback_email_unavailable_shows_then_clears_a_snackbar_message() = runTest(dispatcher) {
         val vm = viewModel()
 
-        vm.submitFeedback("Great app!")
+        vm.onFeedbackEmailUnavailable()
         runCurrent()
-        assertEquals(SettingsSnackbarMessage.FEEDBACK_SENT, vm.uiState.value.snackbarMessage)
+        assertEquals(SettingsSnackbarMessage.FEEDBACK_EMAIL_UNAVAILABLE, vm.uiState.value.snackbarMessage)
 
         advanceUntilIdle()
-        assertNull(vm.uiState.value.snackbarMessage)
-    }
-
-    @Test
-    fun submit_feedback_is_a_no_op_for_blank_text() = runTest(dispatcher) {
-        val vm = viewModel()
-
-        vm.submitFeedback("   ")
-        advanceUntilIdle()
-
         assertNull(vm.uiState.value.snackbarMessage)
     }
 

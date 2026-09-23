@@ -33,6 +33,5 @@ Dependency direction is one-way: `feature:*` → `core:designsystem`/`core:ui` (
 2. Add `GEMINI_API_KEY=<your key>` to `local.properties` (gitignored) to enable live recipe
    recommendations — without it, `RecipeRepositoryImpl` serves its bundled fallback recipes instead.
 3. See [`AGENTS.md`](AGENTS.md)'s "Not yet done" section for the current list of open work
-   (the iOS app shell, the Settings feedback backend, recipes in the user's language, and
-   re-recording screenshot baselines) — kept there rather than duplicated here so it doesn't
-   drift out of sync.
+   (the iOS app shell, recipes in the user's language, and re-recording screenshot baselines) —
+   kept there rather than duplicated here so it doesn't drift out of sync.

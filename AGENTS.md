@@ -176,9 +176,7 @@ If a new screen is added to the Figma file, give its stub composable a
 ## Not yet done (see README "Next steps")
 
 1. iOS target (KMP modules are ready; no iOS app shell yet).
-2. Settings feedback has no backend: `SettingsViewModel.submitFeedback` shows "Feedback sent" and
-   discards the text. Wire a real channel (email draft or API) or hide the option before release.
-3. Recipes are English-only: the Gemini prompt doesn't pass the app language, and the bundled
+2. Recipes are English-only: the Gemini prompt doesn't pass the app language, and the bundled
    fallback recipes are English. Send the user's language in the prompt (and cache per language).
-4. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
+3. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
    `./gradlew recordRoborazziDebug` and review the diff.
