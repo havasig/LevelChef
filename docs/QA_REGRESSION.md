@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender._
+_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender, the pre-release schema reset to v1, the full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
 
 ---
 
@@ -58,7 +58,7 @@ Two states behave differently and several scenarios call one out explicitly:
   ```bash
   adb shell pm clear com.levelchef.android
   ```
-- **Upgrade install** — install the *previous* released build, use it, then install the new build **over it** without clearing. This is the only way to exercise the SQLDelight schema migration (SM-14).
+- **Upgrade install** — install the *previous* released build, use it, then install the new build **over it** without clearing. This is the only way to exercise the SQLDelight schema migration (SM-14). **Not possible until the first release** — see SM-14.
 
 ### Themes
 
@@ -243,6 +243,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Save is blocked / a validation error is shown.**
 8. Swipe the app away, relaunch, reopen the list.
    - **Your add / edit / delete all persisted;** the default items are **not** re‑added.
+9. Delete **every** ingredient, swipe the app away, relaunch, reopen the list.
+   - **The list stays empty** — the default items are seeded only once, not whenever the pantry is empty.
 
 ### SM-09 · Settings — theme
 
@@ -324,18 +326,25 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 **Priority:** P0 · **Preconditions:** **upgrade install** (see [Install states](#install-states)).
 
-1. Install the **previous** release. Complete onboarding, log a cook (SM-06), and add a pantry item (SM-08).
+> **Skipped until the first release.** Nothing is installed outside development yet, so the schema
+> was reset to a single v1 baseline with no migrations. Mark this row *Skipped* until a previous
+> release exists. Dev devices holding a pre-reset database must clear app data once
+> (`adb shell pm clear com.levelchef.android`) — Android refuses to open a database whose version
+> is newer than the app's schema.
+
+1. Install the **previous** release. Complete onboarding, log a cook (SM-06), save a recipe (SM-05),
+   earn a badge (SM-19) and add a pantry item (SM-08).
 2. Install **this** build over it — **do not** clear data.
 3. Launch the app.
    - **Opens straight to Home** (survey not shown again).
-   - **Cooking‑session count, XP, "Last cooked", and pantry items are all still there.**
-4. Open a recipe, tap **Save**, swipe the app away, relaunch, return to that recipe.
-   - **Still "Saved"** — confirms the new `savedRecipe` table was added by the migration without wiping the existing data.
-5. **App still launches without crashing** — confirms the v4→v5 migration adding the `generatedRecipe`
-   table applied cleanly. If `GEMINI_API_KEY` is configured (see
-   [Recipe recommendations](#recipe-recommendations)), first load Home on the previous release so a
-   recommendation batch is cached, then upgrade: **the same recommendations still resolve by id from
-   the Recipes tab / recipe detail after the upgrade.**
+   - **Cooking‑session count, XP, "Last cooked", saved recipes, earned badges and pantry items are all still there.**
+4. Exercise whatever the new schema adds (the migration's PR lists it) and relaunch.
+   - **No crash; the new data persists.** For the `generatedRecipe` table: if `GEMINI_API_KEY` is
+     configured (see [Recipe recommendations](#recipe-recommendations)), load Home on the previous
+     release so a recommendation batch is cached, then upgrade — **the same recommendations still
+     resolve by id from the Recipes tab / recipe detail after the upgrade.**
+5. Empty the pantry (SM-08 step 9), swipe the app away, relaunch.
+   - **The pantry stays empty** — an upgraded install is not re‑seeded.
 
 ### SM-15 · Process death & configuration changes
 
@@ -354,7 +363,7 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 **Priority:** P1 · **Preconditions:** onboarding complete.
 
 1. Bottom nav → **Trophies** tab.
-   - **Shows a placeholder screen.**
+   - **Shows the Trophy Room** (see **SM-19**) — no screen is a placeholder any more.
 2. Tap the **Home** bottom‑nav item **5 times quickly**.
    - **The hidden Design System showcase opens.** Back returns to Home.
    - A slow tap, or tapping a different tab first, **resets the counter** (a normal tap on Home just goes Home).
@@ -399,6 +408,30 @@ one of them (SM-06) first.
    - **Opens Recipe Detail** for that recipe. Press Back.
    - **Returns to the Recipes tab**, bottom bar visible, list and tab selection unchanged.
 
+### SM-19 · Trophies tab — stats refresh on return
+
+**Priority:** P1 · **Preconditions:** onboarding complete.
+
+1. Open the **Trophies** tab and note the XP, kitchen time and cooking-session numbers.
+2. Switch to **Home**, open a recipe, tap **"I made it"**, set a rating and a duration, tap **Save**.
+3. Switch back to **Trophies**.
+   - **XP, kitchen time and the session count already include the new cook** — no app restart needed.
+   - Any badge the cook completed (e.g. *First Bite*) **shows as earned**.
+
+### SM-20 · Settings — delete account wipes everything
+
+**Priority:** P0 · **Preconditions:** onboarding complete; at least one logged cook (SM-06), one saved
+recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
+
+1. Settings → **Delete account** → confirm.
+   - **A success message shows, then the onboarding survey appears.**
+2. Complete the survey again.
+   - **Home shows Level 1 / 0 XP, 0 cooking sessions and no "Last cooked".** Weekly-challenge XP from before is gone too.
+   - **Recipes tab is empty** — no saved recipes left.
+   - **Trophies shows no earned badges.**
+   - **The pantry holds exactly the default starter items** — your custom item is gone and the defaults are back.
+   - **Theme and language are back to System.**
+
 ---
 
 ## 4. Results log
@@ -428,9 +461,11 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-16 Placeholders & showcase           | P1 |  |  |  |  |
 | SM-17 Meal Review controls              | P0 |  |  |  |  |
 | SM-18 Recipes tab — saved recipes       | P0 |  |  |  |  |
+| SM-19 Trophies — refresh on return      | P1 |  |  |  |  |
+| SM-20 Settings — delete account         | P0 |  |  |  |  |
 ```
 
-**Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install; **zero** crashes in any scenario.
+**Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install (once a previous release exists); **zero** crashes in any scenario.
 
 ---
 

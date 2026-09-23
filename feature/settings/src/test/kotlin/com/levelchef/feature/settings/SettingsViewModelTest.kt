@@ -3,6 +3,7 @@
 package com.levelchef.feature.settings
 
 import com.levelchef.core.model.Allergen
+import com.levelchef.core.model.Badge
 import com.levelchef.core.model.CookingExperience
 import com.levelchef.core.model.CookingGoal
 import com.levelchef.core.model.CookingSession
@@ -13,16 +14,22 @@ import com.levelchef.core.model.Ingredient
 import com.levelchef.core.model.IngredientCategory
 import com.levelchef.core.model.SpiceTolerance
 import com.levelchef.core.model.SurveyResponse
+import com.levelchef.core.model.WeeklyChallenge
 import com.levelchef.core.model.WeeknightTime
+import com.levelchef.domain.repository.BadgeRepository
 import com.levelchef.domain.repository.CookingSessionRepository
 import com.levelchef.domain.repository.IngredientRepository
+import com.levelchef.domain.repository.SavedRecipeRepository
 import com.levelchef.domain.repository.SurveyRepository
+import com.levelchef.domain.repository.WeeklyChallengeRepository
 import com.levelchef.domain.usecase.ClearSurveyResponseUseCase
 import com.levelchef.domain.usecase.DeleteAccountDataUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -33,6 +40,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.ExperimentalTime
@@ -72,6 +80,8 @@ private class FakeSurveyRepository(initial: SurveyResponse? = null) : SurveyRepo
 private class FakeIngredientRepository(initial: List<Ingredient> = emptyList()) : IngredientRepository {
     private val state = MutableStateFlow(initial)
     val stored: List<Ingredient> get() = state.value
+    var seeded = false
+        private set
     override fun observeAll(): Flow<List<Ingredient>> = state
     override suspend fun getById(id: String): Ingredient? = state.value.firstOrNull { it.id == id }
     override suspend fun save(ingredient: Ingredient) {
@@ -84,7 +94,41 @@ private class FakeIngredientRepository(initial: List<Ingredient> = emptyList()) 
         state.value = emptyList()
     }
     override suspend fun count(): Int = state.value.size
-    override suspend fun seedDefaults() = Unit
+    override suspend fun seedDefaults() {
+        seeded = true
+    }
+}
+
+private class FakeSavedRecipeRepository(initial: List<String> = emptyList()) : SavedRecipeRepository {
+    private val state = MutableStateFlow(initial)
+    val stored: List<String> get() = state.value
+    override fun observeIsSaved(recipeId: String): Flow<Boolean> = flowOf(recipeId in state.value)
+    override fun observeSavedRecipeIds(): Flow<List<String>> = state
+    override suspend fun setSaved(recipeId: String, saved: Boolean) {
+        state.value = if (saved) state.value + recipeId else state.value - recipeId
+    }
+    override suspend fun deleteAll() {
+        state.value = emptyList()
+    }
+}
+
+private class FakeBadgeRepository : BadgeRepository {
+    var hasEarnedDates = true
+        private set
+    override fun observeAll(): Flow<List<Badge>> = emptyFlow()
+    override suspend fun refreshEarned() = Unit
+    override suspend fun deleteAll() {
+        hasEarnedDates = false
+    }
+}
+
+private class FakeWeeklyChallengeRepository(private var awardedXp: Int = 0) : WeeklyChallengeRepository {
+    override fun observeCurrent(): Flow<WeeklyChallenge> = emptyFlow()
+    override suspend fun complete(id: String) = Unit
+    override suspend fun totalAwardedXp(): Int = awardedXp
+    override suspend fun deleteAll() {
+        awardedXp = 0
+    }
 }
 
 private class FakeCookingSessionRepository(initial: List<CookingSession> = emptyList()) : CookingSessionRepository {
@@ -130,11 +174,20 @@ class SettingsViewModelTest {
         surveyRepository: FakeSurveyRepository = FakeSurveyRepository(storedResponse),
         ingredientRepository: FakeIngredientRepository = FakeIngredientRepository(),
         cookingSessionRepository: FakeCookingSessionRepository = FakeCookingSessionRepository(),
+        savedRecipeRepository: FakeSavedRecipeRepository = FakeSavedRecipeRepository(),
+        badgeRepository: FakeBadgeRepository = FakeBadgeRepository(),
+        weeklyChallengeRepository: FakeWeeklyChallengeRepository = FakeWeeklyChallengeRepository(),
     ) = SettingsViewModel(
         controller,
         ClearSurveyResponseUseCase(surveyRepository),
         surveyRepository,
-        DeleteAccountDataUseCase(ingredientRepository, cookingSessionRepository),
+        DeleteAccountDataUseCase(
+            ingredientRepository,
+            cookingSessionRepository,
+            savedRecipeRepository,
+            badgeRepository,
+            weeklyChallengeRepository,
+        ),
     )
 
     @Test
@@ -233,7 +286,7 @@ class SettingsViewModelTest {
     }
 
     @Test
-    fun delete_account_wipes_ingredients_sessions_and_survey_and_resets_settings() = runTest(dispatcher) {
+    fun delete_account_wipes_all_user_data_and_survey_and_resets_settings() = runTest(dispatcher) {
         val controller = FakeAppSettingsController(ThemeMode.DARK, AppLanguage.HUNGARIAN)
         val surveyRepository = FakeSurveyRepository(storedResponse)
         val ingredientRepository = FakeIngredientRepository(
@@ -250,13 +303,28 @@ class SettingsViewModelTest {
                 ),
             ),
         )
-        val vm = viewModel(controller, surveyRepository, ingredientRepository, cookingSessionRepository)
+        val savedRecipeRepository = FakeSavedRecipeRepository(listOf("jucy-pasta"))
+        val badgeRepository = FakeBadgeRepository()
+        val weeklyChallengeRepository = FakeWeeklyChallengeRepository(awardedXp = 150)
+        val vm = viewModel(
+            controller,
+            surveyRepository,
+            ingredientRepository,
+            cookingSessionRepository,
+            savedRecipeRepository,
+            badgeRepository,
+            weeklyChallengeRepository,
+        )
 
         vm.deleteAccount()
         advanceUntilIdle()
 
         assertTrue(ingredientRepository.stored.isEmpty())
+        assertTrue(ingredientRepository.seeded)
         assertTrue(cookingSessionRepository.stored.isEmpty())
+        assertTrue(savedRecipeRepository.stored.isEmpty())
+        assertFalse(badgeRepository.hasEarnedDates)
+        assertEquals(0, weeklyChallengeRepository.totalAwardedXp())
         assertNull(surveyRepository.stored)
         assertEquals(ThemeMode.SYSTEM, controller.themeMode())
         assertEquals(AppLanguage.SYSTEM, controller.language())

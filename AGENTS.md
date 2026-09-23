@@ -25,13 +25,22 @@ core:database  ◀── data only
   optional `quantity`/`unit` so the recipe-detail servings stepper can scale it); `RecipeStep` is
   a `Recipe.steps` entry (text + optional `timerMinutes`). Ingredient imagery is the `emoji`
   field — no image library / `res/drawable` in the project.
-- **`core:database`** — KMP. SQLDelight schema (v5): `cookingSession`, `surveyResponse`,
-  `ingredient`, `savedRecipe` (bookmarked recipe ids), `generatedRecipe` (every Gemini-generated
+- **`core:database`** — KMP. SQLDelight schema (**v1**, no migrations): `cookingSession`,
+  `surveyResponse`, `ingredient` (+ the one-row `ingredientSeed` flag), `savedRecipe` (bookmarked
+  recipe ids), `badgeEarned`, `weeklyChallengeProgress`, `generatedRecipe` (every Gemini-generated
   recipe ever shown, cached as JSON — never deleted, so a saved/cooked recipe stays resolvable even
-  after a newer recommendation batch replaces it). Each table's `CREATE` is mirrored into a
-  `migrations/N.sqm` file (no data in migrations); the schema version is the migration count + 1.
+  after a newer recommendation batch replaces it). **Pre-release:** nothing is installed
+  outside development, so edit the `.sq` files directly and clear app data on dev devices — don't
+  add migrations. **From the first release on**, every schema change ships a
+  `migrations/N.sqm` file in the same PR (the version is the migration count + 1; no data in
+  migrations), plus a `data` `androidUnitTest` that upgrades a hand-built old database. What SQL
+  can't express goes in an `AfterVersion` callback passed to `AndroidSqliteDriver.Callback`.
+  SQLDelight reads `SELECT *` rows by column position, so a migrated table's column order must
+  match its `.sq` `CREATE` (an `ALTER TABLE … ADD COLUMN` column must be last in the `.sq`).
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
+  SQLDelight's `execute`/`executeAsOne` calls block, so every DB-backed repository wraps them in
+  `withContext(dispatcher)`; `databaseModule` passes `Dispatchers.IO`.
   `RecipeRepositoryImpl` builds a prompt from the stored `SurveyResponse` (see `SurveyRepository`),
   calls the Gemini API (structured JSON output), and caches the result in `generatedRecipe`; a
   repeat call with an unchanged survey is served from the cache instead of calling Gemini again. A

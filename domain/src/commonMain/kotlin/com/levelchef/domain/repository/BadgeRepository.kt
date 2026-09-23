@@ -12,4 +12,7 @@ interface BadgeRepository {
 
     /** Persists the earned date for any badge whose progress has newly reached its target. */
     suspend fun refreshEarned()
+
+    /** Forgets every earned date — backs account deletion. */
+    suspend fun deleteAll()
 }

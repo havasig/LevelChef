@@ -26,7 +26,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
@@ -46,7 +49,8 @@ private val json = Json { ignoreUnknownKeys = true }
  * whole cache history, not just the latest batch, so a saved/cooked recipe stays resolvable even
  * after a newer batch replaces it in [getRecommendations]. A blank [apiKey], or any failure talking
  * to Gemini, falls back to existing cache rows and finally to [fallbackRecipes] — the app never
- * shows an empty "Recommended for you."
+ * shows an empty "Recommended for you." Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO`
+ * on Android (see `databaseModule`).
  */
 class RecipeRepositoryImpl(
     private val database: LevelChefDatabase,
@@ -54,6 +58,7 @@ class RecipeRepositoryImpl(
     private val httpClient: HttpClient,
     private val apiKey: String,
     private val clock: Clock = Clock.System,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : RecipeRepository {
 
     private val queries: GeneratedRecipeQueries get() = database.generatedRecipeQueries
@@ -62,7 +67,7 @@ class RecipeRepositoryImpl(
         val survey = surveyRepository.observeResponse().first() ?: return fallbackRecipes
         val fingerprint = survey.fingerprint()
 
-        if (queries.latestFingerprint().executeAsOneOrNull() == fingerprint) {
+        if (latestCachedFingerprint() == fingerprint) {
             val cached = cachedRecipes()
             if (cached.isNotEmpty()) return cached
         }
@@ -71,10 +76,15 @@ class RecipeRepositoryImpl(
     }
 
     override suspend fun getById(id: String): Recipe? =
-        queries.selectById(id).executeAsOneOrNull()?.decodeRecipeOrNull() ?: fallbackRecipes.find { it.id == id }
+        withContext(dispatcher) { queries.selectById(id).executeAsOneOrNull() }?.decodeRecipeOrNull()
+            ?: fallbackRecipes.find { it.id == id }
 
-    private fun cachedRecipes(): List<Recipe> =
-        queries.selectRecent(RECOMMENDATION_COUNT).executeAsList().mapNotNull { it.decodeRecipeOrNull() }
+    private suspend fun latestCachedFingerprint(): String? =
+        withContext(dispatcher) { queries.latestFingerprint().executeAsOneOrNull() }
+
+    private suspend fun cachedRecipes(): List<Recipe> =
+        withContext(dispatcher) { queries.selectRecent(RECOMMENDATION_COUNT).executeAsList() }
+            .mapNotNull { it.decodeRecipeOrNull() }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun generateRecommendations(survey: SurveyResponse, fingerprint: String): List<Recipe>? {
@@ -107,16 +117,18 @@ class RecipeRepositoryImpl(
         return json.decodeFromString<List<Recipe>>(recipesJson).ifEmpty { null }
     }
 
-    private fun cacheRecipes(recipes: List<Recipe>, fingerprint: String) {
+    private suspend fun cacheRecipes(recipes: List<Recipe>, fingerprint: String) {
         val generatedAt = clock.now().toString()
-        queries.transaction {
-            recipes.forEach { recipe ->
-                queries.insert(
-                    id = recipe.id,
-                    recipeJson = json.encodeToString(recipe),
-                    generatedAt = generatedAt,
-                    surveyFingerprint = fingerprint,
-                )
+        withContext(dispatcher) {
+            queries.transaction {
+                recipes.forEach { recipe ->
+                    queries.insert(
+                        id = recipe.id,
+                        recipeJson = json.encodeToString(recipe),
+                        generatedAt = generatedAt,
+                        surveyFingerprint = fingerprint,
+                    )
+                }
             }
         }
     }

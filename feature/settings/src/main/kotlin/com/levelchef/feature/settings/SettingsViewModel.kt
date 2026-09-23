@@ -79,8 +79,9 @@ class SettingsViewModel(
     }
 
     /**
-     * Wipes every local ingredient, cooking session and the survey response, and resets the theme
-     * and language back to their System defaults. The survey response is cleared *last*, after the
+     * Wipes all local user data (pantry — re-seeded with the starter set — cooking history, saved
+     * recipes, badges, weekly-challenge progress) and the survey response, and resets the theme and
+     * language back to their System defaults. The survey response is cleared *last*, after the
      * success message has had time to show: `OnboardingGate` observes it and swaps this whole
      * screen out for the mandatory survey the instant it becomes null.
      */

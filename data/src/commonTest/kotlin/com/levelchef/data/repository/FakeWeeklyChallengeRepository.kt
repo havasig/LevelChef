@@ -17,4 +17,5 @@ internal class FakeWeeklyChallengeRepository(
         completed += id
     }
     override suspend fun totalAwardedXp(): Int = awardedXp
+    override suspend fun deleteAll() = Unit
 }

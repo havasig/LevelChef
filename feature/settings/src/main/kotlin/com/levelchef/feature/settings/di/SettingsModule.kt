@@ -12,6 +12,6 @@ import org.koin.dsl.module
 val settingsModule = module {
     single<AppSettingsController> { AndroidAppSettingsController(androidContext()) }
     factory { ClearSurveyResponseUseCase(get()) }
-    factory { DeleteAccountDataUseCase(get(), get()) }
+    factory { DeleteAccountDataUseCase(get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get()) }
 }

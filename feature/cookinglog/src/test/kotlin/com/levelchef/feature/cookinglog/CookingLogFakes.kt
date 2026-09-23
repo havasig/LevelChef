@@ -36,6 +36,10 @@ internal class FakeSavedRecipeRepository(initialIds: List<String> = emptyList())
         calls += recipeId to saved
         savedIds.value = if (saved) listOf(recipeId) + savedIds.value else savedIds.value - recipeId
     }
+
+    override suspend fun deleteAll() {
+        savedIds.value = emptyList()
+    }
 }
 
 internal class FakeCookingSessionRepository(initial: List<CookingSession> = emptyList()) : CookingSessionRepository {

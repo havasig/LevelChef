@@ -24,4 +24,8 @@ internal class FakeSavedRecipeRepository(initial: Set<String> = emptySet()) : Sa
         calls += recipeId to saved
         this.saved.value = if (saved) this.saved.value + recipeId else this.saved.value - recipeId
     }
+
+    override suspend fun deleteAll() {
+        saved.value = emptySet()
+    }
 }

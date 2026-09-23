@@ -98,4 +98,17 @@ class SavedRecipeRepositoryImplTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun delete_all_removes_every_saved_recipe() = runTest {
+        repository.setSaved("lemon-chicken", true)
+        repository.setSaved("steak-bowl", true)
+
+        repository.deleteAll()
+
+        repository.observeSavedRecipeIds().test {
+            assertEquals(emptyList(), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }

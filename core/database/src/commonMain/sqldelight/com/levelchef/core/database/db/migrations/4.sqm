@@ -1,7 +1,0 @@
--- v4 -> v5: add the cached AI-generated recipe table (see GeneratedRecipe.sq for the queries).
-CREATE TABLE generatedRecipe (
-    id TEXT NOT NULL PRIMARY KEY,
-    recipeJson TEXT NOT NULL,
-    generatedAt TEXT NOT NULL,
-    surveyFingerprint TEXT NOT NULL
-);

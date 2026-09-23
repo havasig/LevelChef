@@ -152,10 +152,12 @@ private class FakeBadgeRepository(private val badges: List<Badge> = emptyList())
     override suspend fun refreshEarned() {
         refreshEarnedCalled = true
     }
+    override suspend fun deleteAll() = Unit
 }
 
 private class FakeWeeklyChallengeRepository(private val current: WeeklyChallenge) : WeeklyChallengeRepository {
     override fun observeCurrent(): Flow<WeeklyChallenge> = flowOf(current)
     override suspend fun complete(id: String) = Unit
     override suspend fun totalAwardedXp(): Int = 0
+    override suspend fun deleteAll() = Unit
 }

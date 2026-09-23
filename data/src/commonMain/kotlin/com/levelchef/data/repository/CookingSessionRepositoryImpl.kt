@@ -5,14 +5,18 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.core.model.CookingSession
 import com.levelchef.domain.repository.CookingSessionRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 
-/** SQLDelight-backed [CookingSessionRepository]. */
+/** SQLDelight-backed [CookingSessionRepository]. Blocking SQLite calls run on [dispatcher] —
+ * `Dispatchers.IO` on Android (see `databaseModule`). */
 class CookingSessionRepositoryImpl(
     private val database: LevelChefDatabase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : CookingSessionRepository {
 
     override fun observeAll(): Flow<List<CookingSession>> =
@@ -22,36 +26,42 @@ class CookingSessionRepositoryImpl(
             .map { rows -> rows.map { it.toDomain() } }
 
     override suspend fun recordSession(session: CookingSession) {
-        database.cookingSessionQueries.insertSession(
-            id = session.id,
-            recipeId = session.recipeId,
-            recipeName = session.recipeName,
-            cookedAt = session.cookedAt.toString(),
-            xpEarned = session.xpEarned.toLong(),
-            durationMinutes = session.durationMinutes.toLong(),
-            rating = session.rating?.toLong(),
-            improvementNote = session.improvementNote,
-            kcal = session.kcal?.toLong(),
-            proteinGrams = session.proteinGrams?.toLong(),
-            carbsGrams = session.carbsGrams?.toLong(),
-            fatGrams = session.fatGrams?.toLong(),
-        )
+        withContext(dispatcher) {
+            database.cookingSessionQueries.insertSession(
+                id = session.id,
+                recipeId = session.recipeId,
+                recipeName = session.recipeName,
+                cookedAt = session.cookedAt.toString(),
+                xpEarned = session.xpEarned.toLong(),
+                durationMinutes = session.durationMinutes.toLong(),
+                rating = session.rating?.toLong(),
+                improvementNote = session.improvementNote,
+                kcal = session.kcal?.toLong(),
+                proteinGrams = session.proteinGrams?.toLong(),
+                carbsGrams = session.carbsGrams?.toLong(),
+                fatGrams = session.fatGrams?.toLong(),
+            )
+        }
     }
 
-    override suspend fun mostRecent(): CookingSession? =
+    override suspend fun mostRecent(): CookingSession? = withContext(dispatcher) {
         database.cookingSessionQueries.selectRecent().executeAsOneOrNull()?.toDomain()
+    }
 
-    override suspend fun totalXp(): Int =
+    override suspend fun totalXp(): Int = withContext(dispatcher) {
         database.cookingSessionQueries.totalXp().executeAsOne().toInt()
+    }
 
-    override suspend fun sessionCount(): Int =
+    override suspend fun sessionCount(): Int = withContext(dispatcher) {
         database.cookingSessionQueries.sessionCount().executeAsOne().toInt()
+    }
 
-    override suspend fun totalDurationMinutes(): Int =
+    override suspend fun totalDurationMinutes(): Int = withContext(dispatcher) {
         database.cookingSessionQueries.totalDurationMinutes().executeAsOne().toInt()
+    }
 
     override suspend fun deleteAll() {
-        database.cookingSessionQueries.deleteAll()
+        withContext(dispatcher) { database.cookingSessionQueries.deleteAll() }
     }
 }
 
