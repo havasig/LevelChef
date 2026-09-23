@@ -30,6 +30,7 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 - **compose-rules** (`io.nlopez.compose.rules:detekt` `0.6.6`) — Compose-specific lint: `Modifier` defaults & naming, param ordering, state hoisting, preview naming, unstable collections, etc.
 - **Android Lint** — bundled with AGP; runs per Android module as part of `./gradlew build` (or `./gradlew lint`). HTML reports under `<module>/build/reports/`.
 - **Kover** (`org.jetbrains.kotlinx.kover` `0.9.9`) — code coverage, aggregated at the repo root. `./gradlew koverVerify` **fails if line coverage of the logic layer drops below 90%**; `./gradlew koverHtmlReport` → `build/reports/kover/html/index.html`. Scope = `com.levelchef.domain.usecase.*`, `com.levelchef.data.repository.*`, feature `*ViewModel` + `*DomainMappersKt`; all `@Composable` code is excluded (Kover 0.9 can't filter individual verify rules, so the reports carry the same scope). The plugin is applied per-module — add `alias(libs.plugins.kover)` + a root `kover(project(...))` entry when a feature gets a ViewModel. Currently **100%**.
+- **dependency-analysis** (`com.autonomousapps.dependency-analysis` `3.19.2`) — flags unused, misdeclared (`api` vs `implementation`) and undeclared-but-used dependencies per module; applied at root only, like detekt. `./gradlew buildHealth` writes the report to `build/reports/dependency-analysis/build-health-report.txt`; `./gradlew :<module>:reason --id <dependency>` explains a single finding. No `issues { severity('fail') }` override is set, so it stays advisory (report-only) for now — see §12 for promoting it to a failing CI check once the report is confirmed clean.
 - Current status: **0 detekt findings**, lint clean, coverage 100% of the logic layer.
 
 ## 3. Architecture enforcement — Konsist
@@ -74,7 +75,8 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
   5. `mikepenz/action-junit-report@v5` — turns `**/build/test-results/**/TEST-*.xml` into PR check annotations.
   6. `madrapps/jacoco-report@v1.7.1` (PRs only) — posts/updates a **Logic-layer coverage** comment from `build/reports/kover/report.xml`.
   7. `./gradlew koverVerify` — **the coverage gate**; fails the `build` check (and blocks the PR) if logic-layer line coverage < 90%.
-  8. `actions/upload-artifact@v4` — uploads `build-reports` (all `build/reports/**` + `build/test-results/**`), kept 7 days.
+  8. `./gradlew buildHealth` — dependency-analysis report (advisory, doesn't fail the job — see §2).
+  9. `actions/upload-artifact@v4` — uploads `build-reports` (all `build/reports/**` + `build/test-results/**`, including the dependency-analysis report), kept 7 days.
 - **Cold run ≈ 6–11 min**; warm runs reuse the Gradle build + configuration cache and are much faster.
 
 ## 6a. Screenshot comparison — `.github/workflows/screenshots.yml`
@@ -164,6 +166,7 @@ For *architecture* and code conventions see [`AGENTS.md`](../AGENTS.md); for the
 ./gradlew :konsist:test              # architecture rule tests
 ./gradlew :domain:allTests           # KMP module tests
 ./gradlew lint                       # Android lint only
+./gradlew buildHealth                # dependency-analysis report (advisory)
 ./gradlew :androidApp:installDebug   # deploy to a connected device/emulator
 
 ./gradlew build detekt :konsist:test # run before every push (same as CI)
@@ -177,6 +180,9 @@ git config commit.template .gitmessage
 
 Each is a tracked issue — [`tooling` label](https://github.com/havasig/LevelChef/labels/tooling).
 
-- **[#5](https://github.com/havasig/LevelChef/issues/5) dependency-analysis plugin** — flags unused / misdeclared dependencies and `api` vs `implementation` mistakes.
+- Promote dependency-analysis (§2, §5) from advisory to a failing CI check — add
+  `dependencyAnalysis { issues { all { onAny { severity("fail") } } } }` to the root
+  `build.gradle.kts` once a `./gradlew buildHealth` run is reviewed and confirmed clean (no
+  tracked issue yet — the plugin itself was #5).
 
-**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#6 Renovate~~ (§6d, needs the GitHub App installed) · ~~#7 CodeQL~~ (§6b) · ~~#8 release-drafter~~ (§6c) · ~~#9 Danger~~ (§6e) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#12 Koin `module.verify()`~~ (§4) · ~~#13 Turbine~~ (§4).
+**Done:** ~~#2 Gradle build + configuration cache~~ (§1) · ~~#3 Kover~~ (90% logic gate, §2) · ~~#4 Roborazzi screenshot tests~~ (§4, §6a) · ~~#5 dependency-analysis plugin~~ (§2, §5, advisory only for now) · ~~#6 Renovate~~ (§6d, needs the GitHub App installed) · ~~#7 CodeQL~~ (§6b) · ~~#8 release-drafter~~ (§6c) · ~~#9 Danger~~ (§6e) · ~~#10 LICENSE~~ · ~~#11 Claude Code hooks~~ (§10) · ~~#12 Koin `module.verify()`~~ (§4) · ~~#13 Turbine~~ (§4).
