@@ -1,5 +1,6 @@
 package com.levelchef.data.di
 
+import androidx.appcompat.app.AppCompatDelegate
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.data.local.DatabaseDriverFactory
 import com.levelchef.data.repository.BadgeRepositoryImpl
@@ -40,6 +41,25 @@ val databaseModule = module {
     // named("geminiApiKey") is registered by androidApp's LevelChefApplication (BuildConfig.GEMINI_API_KEY) —
     // `data` never references BuildConfig directly to stay platform-agnostic.
     single<RecipeRepository> {
-        RecipeRepositoryImpl(get(), get(), get(), get(named("geminiApiKey")), dispatcher = Dispatchers.IO)
+        RecipeRepositoryImpl(
+            get(),
+            get(),
+            get(),
+            get(named("geminiApiKey")),
+            languageTag = { currentAppLanguageTag() },
+            dispatcher = Dispatchers.IO,
+        )
     }
 }
+
+/** The app's current per-app language override (see `feature:settings`'
+ * `AndroidAppSettingsController.language()`, which resolves the same
+ * [AppCompatDelegate.getApplicationLocales] into its `AppLanguage` enum — `data` can't depend on
+ * `feature:settings`, so this inlines the same tag parsing). `null` means "System" (no override),
+ * which [RecipeRepositoryImpl] treats as English. */
+private fun currentAppLanguageTag(): String? =
+    AppCompatDelegate.getApplicationLocales()
+        .toLanguageTags()
+        .substringBefore(',')
+        .substringBefore('-')
+        .ifBlank { null }

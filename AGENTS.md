@@ -44,11 +44,14 @@ core:database  ◀── data only
   day or week (badges, streaks, weekly challenges) reads dates in the **device time zone** via an
   injected `timeZone` provider (tests pass a fixed zone); challenge weeks run Monday to Sunday.
   The starter pantry (`DEFAULT_INGREDIENTS`) doesn't count as ingredients tried or toward badges.
-  `RecipeRepositoryImpl` builds a prompt from the stored `SurveyResponse` (see `SurveyRepository`),
-  calls the Gemini API (structured JSON output), and caches the result in `generatedRecipe`; a
-  repeat call with an unchanged survey is served from the cache instead of calling Gemini again. A
-  blank `GEMINI_API_KEY` (see root `README.md`), no survey yet, or any Gemini/cache failure falls
-  back to a small bundled recipe set — recommendations are never empty. `SavedRecipeRepositoryImpl`
+  `RecipeRepositoryImpl` builds a prompt from the stored `SurveyResponse` (see `SurveyRepository`)
+  and the current app language (an injected `languageTag` provider — `data` can't depend on
+  `feature:settings`, so `databaseModule` reads `AppCompatDelegate.getApplicationLocales()`
+  directly), calls the Gemini API (structured JSON output), and caches the result in
+  `generatedRecipe`; a repeat call with an unchanged survey *and* language is served from the
+  cache instead of calling Gemini again. A blank `GEMINI_API_KEY` (see root `README.md`), no
+  survey yet, or any Gemini/cache failure falls back to a small bundled recipe set — English or
+  Hungarian, matching the app language — recommendations are never empty. `SavedRecipeRepositoryImpl`
   backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `LevelChefRecipeCard`, …). Their built-in text (screen-reader labels, status chips, default button labels) comes from `core:designsystem`'s own `strings.xml` + `values-hu`. Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
@@ -178,7 +181,5 @@ If a new screen is added to the Figma file, give its stub composable a
 1. iOS target (KMP modules are ready; no iOS app shell yet).
 2. Settings feedback has no backend: `SettingsViewModel.submitFeedback` shows "Feedback sent" and
    discards the text. Wire a real channel (email draft or API) or hide the option before release.
-3. Recipes are English-only: the Gemini prompt doesn't pass the app language, and the bundled
-   fallback recipes are English. Send the user's language in the prompt (and cache per language).
-4. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
+3. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
    `./gradlew recordRoborazziDebug` and review the diff.

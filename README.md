@@ -18,7 +18,7 @@ Generated from the [LevelChef Figma file](https://www.figma.com/design/GymJ5JNm5
 - **`core:model`** — KMP: pure data models (`Recipe`, `CookingSession`, `Badge`, `ChefLevel`, ...), one type per file, no framework dependencies.
 - **`core:database`** — KMP: the SQLDelight schema (cooking sessions, survey response, pantry, saved recipes, badges, weekly challenges). Still at a v1 baseline with no migrations — see AGENTS.md.
 - **`domain`** — KMP: repository interfaces (`CookingSessionRepository`, `RecipeRepository`, `UserProfileRepository`) and use cases, depends only on `core:model`. Kept intentionally thin — `GetChefLevelUseCase` is the only use case, since it's the only one with real logic beyond a 1:1 repository delegation; has its own unit tests (`domain/src/commonTest`).
-- **`data`** — KMP: repository implementations backed by `core:database` (SQLDelight) and a Koin DI wiring (`dataModule` / `databaseModule`); `RecipeRepositoryImpl` generates recommendations from the stored survey via the Gemini API (Ktor), caching each batch in SQLDelight and falling back to a small bundled recipe set when there's no API key, no survey yet, or Gemini/the cache are unavailable. Requires a `GEMINI_API_KEY` entry in `local.properties` to call the live API — see "Next steps" below.
+- **`data`** — KMP: repository implementations backed by `core:database` (SQLDelight) and a Koin DI wiring (`dataModule` / `databaseModule`); `RecipeRepositoryImpl` generates recommendations from the stored survey and the current app language via the Gemini API (Ktor), caching each batch in SQLDelight keyed by both, and falling back to a small bundled recipe set (English or Hungarian) when there's no API key, no survey yet, or Gemini/the cache are unavailable. Requires a `GEMINI_API_KEY` entry in `local.properties` to call the live API — see "Next steps" below.
 - **`core:ui`** — Compose theme (`Color`/`Theme`/`Type`). Follows the system light/dark setting; both palettes come from the Figma file (dark: `#0f0f1a` background, `#534AB7` accent). Flat/no-shadow cards, 12px radius, 0.5px borders.
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `LevelChefDivider`, ...), depends on `core:ui`.
 - **`feature:home`** — fully implemented from Figma node `296:1929`: level pill + XP bar, stat cards, weekly challenge card, primary CTA, recipe recommendations, last-cooked card. Wired end-to-end: `HomeRoute` (stateful) resolves a Koin-injected `HomeViewModel`, which loads real data from `domain` (profile, chef level, weekly challenge, last-cooked session, recipe recommendations) into the stateless `HomeScreen`/`HomeUiState`.
@@ -33,6 +33,5 @@ Dependency direction is one-way: `feature:*` → `core:designsystem`/`core:ui` (
 2. Add `GEMINI_API_KEY=<your key>` to `local.properties` (gitignored) to enable live recipe
    recommendations — without it, `RecipeRepositoryImpl` serves its bundled fallback recipes instead.
 3. See [`AGENTS.md`](AGENTS.md)'s "Not yet done" section for the current list of open work
-   (the iOS app shell, the Settings feedback backend, recipes in the user's language, and
-   re-recording screenshot baselines) — kept there rather than duplicated here so it doesn't
-   drift out of sync.
+   (the iOS app shell, the Settings feedback backend, and re-recording screenshot baselines) —
+   kept there rather than duplicated here so it doesn't drift out of sync.
