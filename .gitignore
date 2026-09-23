@@ -3,6 +3,8 @@ build/
 .idea/
 .kotlin/
 local.properties
+*.jks
+*.keystore
 *.iml
 *.hprof
 *.log
