@@ -181,3 +181,11 @@ If a new screen is added to the Figma file, give its stub composable a
 1. iOS target (KMP modules are ready; no iOS app shell yet).
 2. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
    `./gradlew recordRoborazziDebug` and review the diff.
+3. **DB migration policy flips at the first release.** The `core:database` section above
+   documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
+   directly and dev devices just clear app data. That exception ends the moment a build is
+   actually released — the very next PR that changes the SQLDelight schema after that point must
+   ship a `migrations/N.sqm` file (version = migration count + 1, no data in migrations) plus a
+   `data` `androidUnitTest` upgrading a hand-built old database, and must extend `SM-14` in
+   `docs/QA_REGRESSION.md` with an upgrade check for the new data. Update this note (and
+   `core:database`'s wording above) to drop the pre-release exception once that first release ships.

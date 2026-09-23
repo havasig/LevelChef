@@ -35,3 +35,22 @@ Dependency direction is one-way: `feature:*` → `core:designsystem`/`core:ui` (
 3. See [`AGENTS.md`](AGENTS.md)'s "Not yet done" section for the current list of open work
    (the iOS app shell and re-recording screenshot baselines) — kept there rather than duplicated
    here so it doesn't drift out of sync.
+
+## Signing a release build
+
+`androidApp`'s `release` build type is unsigned by default, falling back to debug signing so
+`./gradlew build`/CI keep working without a keystore. To produce a real, Play Store–ready build,
+generate a keystore (`keytool -genkeypair -v -keystore release.jks -keyalg RSA -keysize 2048
+-validity 10000 -alias levelchef`), keep the `.jks` file **out of the repo** (already gitignored),
+and supply these four properties — either in `local.properties` on a release manager's machine, or
+as identically named env vars in a CI/CD release job:
+
+```
+RELEASE_STORE_FILE=/absolute/or/root-relative/path/to/release.jks
+RELEASE_STORE_PASSWORD=<store password>
+RELEASE_KEY_ALIAS=<key alias>
+RELEASE_KEY_PASSWORD=<key password>
+```
+
+With all four set, `./gradlew :androidApp:bundleRelease` / `assembleRelease` produce a
+properly-signed artifact.
