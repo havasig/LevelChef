@@ -12,5 +12,7 @@ data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val language: AppLanguage = AppLanguage.SYSTEM,
     val appVersion: String = "",
+    /** Debug builds only — the "Developer" section (clear onboarding storage). */
+    val showDeveloperSection: Boolean = false,
     val snackbarMessage: SettingsSnackbarMessage? = null,
 )

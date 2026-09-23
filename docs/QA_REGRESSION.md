@@ -295,12 +295,14 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 ### SM-12 · Settings — developer: clear onboarding storage
 
-**Priority:** P1 · **Preconditions:** onboarding completed.
+**Priority:** P1 · **Preconditions:** onboarding completed; **debug build**.
 
 1. Settings → developer section → **"Clear onboarding storage"**.
 2. Swipe the app away and relaunch.
    - **The onboarding survey is shown again** (the gate re‑triggers because no survey response is stored).
    - **Home stats, pantry, and saved recipes are unaffected.**
+3. On a **release build**, open Settings.
+   - **There is no Developer section.**
 
 ### SM-13 · Navigation chrome & back stack
 
@@ -364,9 +366,11 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 1. Bottom nav → **Trophies** tab.
    - **Shows the Trophy Room** (see **SM-19**) — no screen is a placeholder any more.
-2. Tap the **Home** bottom‑nav item **5 times quickly**.
+2. On a **debug build**, tap the **Home** bottom‑nav item **5 times quickly**.
    - **The hidden Design System showcase opens.** Back returns to Home.
    - A slow tap, or tapping a different tab first, **resets the counter** (a normal tap on Home just goes Home).
+3. On a **release build**, tap Home 5 times quickly.
+   - **Nothing opens** — Home just stays on Home.
 
 ### SM-17 · Meal Review ("Log experience") screen controls
 

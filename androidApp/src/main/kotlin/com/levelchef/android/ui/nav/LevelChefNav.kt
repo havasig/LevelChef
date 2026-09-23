@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.levelchef.android.BuildConfig
 import com.levelchef.android.ui.showcase.DesignSystemShowcaseScreen
 import com.levelchef.core.designsystem.LevelChefBottomNavigationBar
 import com.levelchef.core.designsystem.LevelChefNavItem
@@ -60,8 +61,8 @@ private fun ingredientDetailPath(id: String) = "ingredients/$id"
 private fun ingredientFormPath(id: String? = null) =
     if (id == null) "ingredientForm" else "ingredientForm?$INGREDIENT_ID_ARG=$id"
 
-/** Hidden route for [DesignSystemShowcaseScreen] — not in [bottomNavItems], reachable only by
- * tapping the Home nav item 5x quickly (see [HomeTapCounter] below). */
+/** Hidden route for [DesignSystemShowcaseScreen] — not in [bottomNavItems], reachable only in debug
+ * builds by tapping the Home nav item 5x quickly (see [HomeTapCounter] below). */
 private const val DESIGN_SYSTEM_SHOWCASE_ROUTE = "designSystemShowcase"
 
 /** Taps on the Home nav item within [RAPID_TAP_WINDOW_MS] of each other count toward the streak;
@@ -89,15 +90,15 @@ private class HomeTapCounter {
     }
 }
 
-/** Handles a bottom-nav item tap: opens the hidden design-system showcase on a 5x rapid Home-tap
- * streak, otherwise navigates to [dest] as a single-top, state-restoring destination. */
+/** Handles a bottom-nav item tap: in debug builds, opens the hidden design-system showcase on a 5x
+ * rapid Home-tap streak; otherwise navigates to [dest] as a single-top, state-restoring destination. */
 private fun onNavItemClick(
     dest: LevelChefDestination,
     navController: NavController,
     homeTapCounter: HomeTapCounter,
 ) {
     if (dest == LevelChefDestination.Home) {
-        if (homeTapCounter.registerHomeTap()) {
+        if (BuildConfig.DEBUG && homeTapCounter.registerHomeTap()) {
             navController.navigate(DESIGN_SYSTEM_SHOWCASE_ROUTE)
             return
         }
@@ -190,7 +191,10 @@ private fun LevelChefAppContent() {
                 )
             }
             composable(SETTINGS_ROUTE) {
-                SettingsRoute(onBackClick = { navController.popBackStack() })
+                SettingsRoute(
+                    onBackClick = { navController.popBackStack() },
+                    showDeveloperOptions = BuildConfig.DEBUG,
+                )
             }
             composable(INGREDIENTS_ROUTE) {
                 IngredientsListRoute(
@@ -226,8 +230,10 @@ private fun LevelChefAppContent() {
                     onSaved = { navController.popBackStack() },
                 )
             }
-            composable(DESIGN_SYSTEM_SHOWCASE_ROUTE) {
-                DesignSystemShowcaseScreen(onBackClick = { navController.popBackStack() })
+            if (BuildConfig.DEBUG) {
+                composable(DESIGN_SYSTEM_SHOWCASE_ROUTE) {
+                    DesignSystemShowcaseScreen(onBackClick = { navController.popBackStack() })
+                }
             }
         }
     }
