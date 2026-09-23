@@ -85,8 +85,12 @@ jobs:
           mkdir -p "/tmp/pages/pr-${PR}"
           cp /tmp/shots/*.png "/tmp/pages/pr-${PR}/"
           git -C /tmp/pages add -A
-          git -C /tmp/pages commit -m "screenshots: PR #${PR} (${GITHUB_SHA})"
-          git -C /tmp/pages push origin HEAD:ci/screenshots
+          # A push that doesn't change any screenshot leaves nothing to commit; reuse the
+          # already-published images instead of failing the job.
+          if ! git -C /tmp/pages diff --cached --quiet; then
+            git -C /tmp/pages commit -m "screenshots: PR #${PR} (${GITHUB_SHA})"
+            git -C /tmp/pages push origin HEAD:ci/screenshots
+          fi
           echo "sha=$(git -C /tmp/pages rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Build comment body
