@@ -64,7 +64,6 @@ dependencies {
 
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
-    implementation(libs.vico.compose)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.koin.test)

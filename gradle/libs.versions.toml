@@ -9,11 +9,11 @@ kotlinx-datetime = "0.8.0"
 kotlinx-coroutines = "1.9.0"
 koin = "4.2.2"
 kermit = "2.0.4"
-vico = "2.1.2"
 coreKtx = "1.15.0"
 appcompat = "1.7.0"
 lifecycle = "2.8.7"
 activityCompose = "1.9.3"
+navigationCompose = "2.8.4"
 detekt = "2.0.0-alpha.6"
 detektComposeRules = "0.6.6"
 konsist = "0.17.3"
@@ -40,7 +40,7 @@ compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
-compose-navigation = { module = "androidx.navigation:navigation-compose", version = "2.8.4" }
+compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -60,7 +60,6 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
-vico-compose = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "vico" }
 detekt-ktlint-wrapper = { module = "dev.detekt:detekt-rules-ktlint-wrapper", version.ref = "detekt" }
 detekt-rules-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektComposeRules" }
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }

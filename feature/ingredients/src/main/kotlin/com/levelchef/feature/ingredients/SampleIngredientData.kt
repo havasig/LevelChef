@@ -29,7 +29,7 @@ internal val sampleIngredients: List<Ingredient> = listOf(
     sample("broccoli", "Broccoli", IngredientCategory.VEGETABLE, "🥦"),
     sample("avocado", "Avocado", IngredientCategory.VEGETABLE, "🥑", MeasurementUnit.PIECE),
     sample("spinach", "Spinach", IngredientCategory.VEGETABLE, "🥬"),
-    sample("bell-pepper", "Bell pepper", IngredientCategory.VEGETABLE, "🌶️", MeasurementUnit.PIECE),
+    sample("bell-pepper", "Bell pepper", IngredientCategory.VEGETABLE, "🫑", MeasurementUnit.PIECE),
     sample("zucchini", "Zucchini", IngredientCategory.VEGETABLE, "🥒", MeasurementUnit.PIECE),
     sample("lemon", "Lemon", IngredientCategory.FRUIT, "🍋", MeasurementUnit.PIECE),
     sample("apple", "Apple", IngredientCategory.FRUIT, "🍎", MeasurementUnit.PIECE),

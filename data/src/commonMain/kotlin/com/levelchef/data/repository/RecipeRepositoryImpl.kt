@@ -207,8 +207,8 @@ private val fallbackRecipes = listOf(
         videoUrl = "https://www.youtube.com/results?search_query=steak+quinoa+bowl",
     ),
     Recipe(
-        id = "jucy-pasta",
-        name = "Jucy pasta",
+        id = "juicy-pasta",
+        name = "Juicy pasta",
         emoji = "🍝",
         xpReward = 80,
         timeMinutes = 14,

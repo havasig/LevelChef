@@ -72,7 +72,13 @@ class SettingsViewModel(
         viewModelScope.launch { surveyRepository.save(update(current)) }
     }
 
-    /** No feedback backend exists yet — this just confirms locally that the message was captured. */
+    /**
+     * Confirms locally that the message was captured.
+     *
+     * TODO: no feedback backend exists yet, so the text is discarded after the "Feedback sent"
+     *  snackbar. Wire a real channel (email draft or API) or hide the option before release;
+     *  tracked in AGENTS.md "Not yet done".
+     */
     fun submitFeedback(text: String) {
         if (text.isBlank()) return
         showSnackbarThenDismiss(SettingsSnackbarMessage.FEEDBACK_SENT)

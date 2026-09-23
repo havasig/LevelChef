@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender, the pre-release schema reset to v1, the full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
+_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender, debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, and the Hungarian translations for levels, badges, challenges and shared labels._
 
 ---
 
@@ -77,7 +77,7 @@ id, are generated from your survey answers by the Gemini API when the build has 
 set in `local.properties`. With a key configured, the exact recipes, their count and their content
 will vary between builds/testers and change whenever you retake the survey (SM-11) — that's
 expected, not a bug. **Most test builds won't have a key set** and will instead see the fixed
-bundled fallback set of 3 recipes ("Chicken curry with coconut milk", "Steak quinoa bowl", "Jucy
+bundled fallback set of 3 recipes ("Chicken curry with coconut milk", "Steak quinoa bowl", "Juicy
 pasta") that the scenarios below were written against; note in the results log which case you ran.
 
 ### Logs & crashes
