@@ -1,0 +1,24 @@
+-- Every AI-generated recipe the app has ever shown, cached so a saved/cooked recipe stays
+-- resolvable by id forever, even once a newer recommendation batch replaces it on Home.
+-- `recipeJson` is the whole Recipe serialized as JSON (no need to normalize a cache table).
+-- `surveyFingerprint` identifies which SurveyResponse produced this row, so the repository can
+-- tell whether the survey has changed since the last generation. `generatedAt` is an ISO-8601
+-- instant; the most recent batch (same generation call) shares the same timestamp.
+CREATE TABLE generatedRecipe (
+    id TEXT NOT NULL PRIMARY KEY,
+    recipeJson TEXT NOT NULL,
+    generatedAt TEXT NOT NULL,
+    surveyFingerprint TEXT NOT NULL
+);
+
+selectRecent:
+SELECT * FROM generatedRecipe ORDER BY generatedAt DESC LIMIT :limit;
+
+selectById:
+SELECT * FROM generatedRecipe WHERE id = ?;
+
+latestFingerprint:
+SELECT surveyFingerprint FROM generatedRecipe ORDER BY generatedAt DESC LIMIT 1;
+
+insert:
+INSERT OR REPLACE INTO generatedRecipe(id, recipeJson, generatedAt, surveyFingerprint) VALUES (?, ?, ?, ?);

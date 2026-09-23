@@ -26,6 +26,8 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
 class LevelChefApplication : Application() {
 
@@ -51,6 +53,7 @@ class LevelChefApplication : Application() {
         startKoin {
             androidContext(this@LevelChefApplication)
             modules(
+                module { single(named("geminiApiKey")) { BuildConfig.GEMINI_API_KEY } },
                 databaseModule,
                 dataModule,
                 homeModule,

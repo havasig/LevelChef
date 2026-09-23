@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the recipe-detail step timer becoming a real countdown._
+_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender._
 
 ---
 
@@ -70,6 +70,16 @@ All text now renders in **Inter** (previously the platform default). No dedicate
 running any of the scenarios below, flag anything that looks like the system font instead (a sign
 the font resource failed to load) or new text wrapping/truncation versus a prior build.
 
+### Recipe recommendations
+
+Home's "Recommended for you" list, and every recipe the Recipes tab and recipe detail resolve by
+id, are generated from your survey answers by the Gemini API when the build has `GEMINI_API_KEY`
+set in `local.properties`. With a key configured, the exact recipes, their count and their content
+will vary between builds/testers and change whenever you retake the survey (SM-11) — that's
+expected, not a bug. **Most test builds won't have a key set** and will instead see the fixed
+bundled fallback set of 3 recipes ("Chicken curry with coconut milk", "Steak quinoa bowl", "Jucy
+pasta") that the scenarios below were written against; note in the results log which case you ran.
+
 ### Logs & crashes
 
 There is **no in‑app crash screen** by design — an unhandled error is logged and then the process exits to the OS. Keep a logcat open while testing:
@@ -105,7 +115,7 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 1. Look at the Home screen.
    - **Top bar** shows the app title and a **gear icon** on the right.
-   - **Visible:** a level badge, an XP progress bar with an "X / Y XP" caption, two stat cards (**"🍳 N"** cooking sessions and **"🌿 N ingredients tried"**), a weekly‑challenge card, a "Cook today" button, and a **"Recommended for you"** list of 3 recipe cards.
+   - **Visible:** a level badge, an XP progress bar with an "X / Y XP" caption, two stat cards (**"🍳 N"** cooking sessions and **"🌿 N ingredients tried"**), a weekly‑challenge card, a "Cook today" button, and a **"Recommended for you"** list of recipe cards (count/content vary — see [Recipe recommendations](#recipe-recommendations) above).
    - On a fresh install there is **no "Last cooked" card** yet.
 2. Tap the **"🌿 ingredients tried"** stat card.
    - **Navigates to the Ingredients (pantry) list.** Go back.
@@ -122,7 +132,7 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
      disappears, and the XP badge amount is added to your total XP** (check the level‑progress bar
      above). Reloading Home (background/foreground, or the ON_RESUME refresh) keeps it **"Completed"**.
 5. Tap the **"Cook today — show me a recipe!"** button.
-   - **Navigates to Recipe Detail** for one of the 3 "Recommended for you" recipes — picked at
+   - **Navigates to Recipe Detail** for one of the "Recommended for you" recipes — picked at
      random each tap, so it won't always be the same one (back out and tap a few more times to
      see it vary; two taps in a row landing on the same recipe is expected, not a bug).
    - Go back — **returns to Home.**
@@ -131,7 +141,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 **Priority:** P0 · **Preconditions:** onboarding complete.
 
-1. On Home, tap the first recommendation card ("Chicken curry with coconut milk").
+1. On Home, tap the first recommendation card (with the fallback set: "Chicken curry with coconut
+   milk" — see [Recipe recommendations](#recipe-recommendations)).
    - **Opens the Recipe Detail screen:** back arrow + the recipe name as the title + a gear icon; **no bottom navigation bar**.
    - **Contains, top to bottom:** an emoji hero tile with a **"+XP" badge** (value matches the card), the recipe name, a row of tags (time / protein / difficulty / "N ingredients"), a 4‑cell macro grid (Calories / Protein / Carbs / Fat), a "Set servings" control, an "Ingredients" checklist, numbered "Steps", a "Related video" row, an "I made it" button and a "Save" button.
 2. Tap the **gear** icon.
@@ -139,7 +150,7 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Returns to the same Recipe Detail screen** (not Home).
 3. Tap the **back arrow**.
    - **Returns to Home.**
-4. Open each of the 3 recommendation cards in turn.
+4. Open each recommendation card in turn.
    - **Each shows its own name, emoji, XP, ingredients and steps** — never a stale/previous recipe.
 
 ### SM-04 · Recipe detail — servings stepper & ingredient checklist
@@ -272,8 +283,11 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 1. Settings → **"Retake the survey"** (or similarly named).
    - **The onboarding wizard opens at step 1 (cooking level)** — *not* at the last step or a summary.
-2. Complete the wizard again.
+2. Complete the wizard again, changing at least one answer (e.g. dietary preference).
    - **Returns to the app** with the new answers stored.
+   - If `GEMINI_API_KEY` is configured (see [Recipe recommendations](#recipe-recommendations)),
+     **Home's "Recommended for you" list regenerates to reflect the new answers** the next time it
+     loads (may take a moment); without a key, the fallback set is unchanged.
 3. If the wizard allows Back/cancel partway, do that.
    - **The app returns to a normal onboarded state;** the previous response is not lost.
 
@@ -317,6 +331,11 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Cooking‑session count, XP, "Last cooked", and pantry items are all still there.**
 4. Open a recipe, tap **Save**, swipe the app away, relaunch, return to that recipe.
    - **Still "Saved"** — confirms the new `savedRecipe` table was added by the migration without wiping the existing data.
+5. **App still launches without crashing** — confirms the v4→v5 migration adding the `generatedRecipe`
+   table applied cleanly. If `GEMINI_API_KEY` is configured (see
+   [Recipe recommendations](#recipe-recommendations)), first load Home on the previous release so a
+   recommendation batch is cached, then upgrade: **the same recommendations still resolve by id from
+   the Recipes tab / recipe detail after the upgrade.**
 
 ### SM-15 · Process death & configuration changes
 

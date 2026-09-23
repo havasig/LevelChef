@@ -10,7 +10,7 @@ import kotlin.time.Instant
 
 /** Resolves saved recipe ids (most-recently-saved first) into [SavedRecipeItem]s, cross-referencing
  * [recipes] for details and [sessions] for whether — and how well — each was last cooked. A saved id
- * with no matching [Recipe] (not in the sample catalog) is dropped. */
+ * with no matching [Recipe] (its cache row was never populated) is dropped. */
 @OptIn(ExperimentalTime::class)
 internal fun toSavedRecipeItems(
     savedRecipeIds: List<String>,

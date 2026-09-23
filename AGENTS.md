@@ -25,13 +25,19 @@ core:database  ◀── data only
   optional `quantity`/`unit` so the recipe-detail servings stepper can scale it); `RecipeStep` is
   a `Recipe.steps` entry (text + optional `timerMinutes`). Ingredient imagery is the `emoji`
   field — no image library / `res/drawable` in the project.
-- **`core:database`** — KMP. SQLDelight schema (v4): `cookingSession`, `surveyResponse`,
-  `ingredient`, `savedRecipe` (bookmarked recipe ids). Each table's `CREATE` is mirrored into a
+- **`core:database`** — KMP. SQLDelight schema (v5): `cookingSession`, `surveyResponse`,
+  `ingredient`, `savedRecipe` (bookmarked recipe ids), `generatedRecipe` (every Gemini-generated
+  recipe ever shown, cached as JSON — never deleted, so a saved/cooked recipe stays resolvable even
+  after a newer recommendation batch replaces it). Each table's `CREATE` is mirrored into a
   `migrations/N.sqm` file (no data in migrations); the schema version is the migration count + 1.
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
-  `RecipeRepositoryImpl` is still a static sample-data stub (3 fully-populated recipes) pending the
-  Gemini recommender. `SavedRecipeRepositoryImpl` backs the recipe-detail "Save" bookmark.
+  `RecipeRepositoryImpl` builds a prompt from the stored `SurveyResponse` (see `SurveyRepository`),
+  calls the Gemini API (structured JSON output), and caches the result in `generatedRecipe`; a
+  repeat call with an unchanged survey is served from the cache instead of calling Gemini again. A
+  blank `GEMINI_API_KEY` (see root `README.md`), no survey yet, or any Gemini/cache failure falls
+  back to a small bundled recipe set — recommendations are never empty. `SavedRecipeRepositoryImpl`
+  backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
 - **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen, **all fully built** from their Figma
@@ -152,6 +158,4 @@ If a new screen is added to the Figma file, give its stub composable a
 
 ## Not yet done (see README "Next steps")
 
-1. Replace `RecipeRepositoryImpl`'s static list with a Gemini-API-backed recommender (Ktor already
-   wired in `data`); feed it the stored `SurveyResponse` (see `SurveyRepository`).
-2. iOS target (KMP modules are ready; no iOS app shell yet).
+1. iOS target (KMP modules are ready; no iOS app shell yet).

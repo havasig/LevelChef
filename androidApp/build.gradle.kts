@@ -1,6 +1,16 @@
+import java.util.Properties
+
 plugins {
     id("levelchef.android.application")
 }
+
+// Read from local.properties (gitignored) rather than committing a real key. Empty when unset —
+// RecipeRepositoryImpl treats a blank key as "no live recommender configured" and falls back to
+// its bundled sample recipes instead of failing.
+val geminiApiKey = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use(::load)
+}.getProperty("GEMINI_API_KEY", "")
 
 android {
     namespace = "com.levelchef.android"
@@ -9,6 +19,7 @@ android {
         applicationId = "com.levelchef.android"
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
     }
 
     buildTypes {
