@@ -14,6 +14,7 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val PLAY_STORE_APP_ID = "com.levelchef.android"
 private const val PLAY_STORE_URI = "market://details?id=$PLAY_STORE_APP_ID"
 private const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id=$PLAY_STORE_APP_ID"
+private const val FEEDBACK_EMAIL = "havasi.gaabor@gmail.com"
 
 /** Stateful entry point: collects [SettingsViewModel]'s state and wires it to [SettingsScreen]. */
 @Composable
@@ -35,7 +36,9 @@ fun SettingsRoute(
             onHouseholdSizeChange = viewModel::setHouseholdSize,
             onThemeModeChange = viewModel::setThemeMode,
             onLanguageChange = viewModel::setLanguage,
-            onSendFeedback = viewModel::submitFeedback,
+            onSendFeedback = { text ->
+                context.sendFeedbackEmail(text, onUnavailable = viewModel::onFeedbackEmailUnavailable)
+            },
             onReviewClick = { context.openPlayStoreListing() },
             onDeleteAccount = viewModel::deleteAccount,
             onClearOnboardingStorage = viewModel::clearOnboarding,
@@ -52,5 +55,19 @@ private fun Context.openPlayStoreListing() {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_URI)))
     } catch (_: ActivityNotFoundException) {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(PLAY_STORE_WEB_URL)))
+    }
+}
+
+/** Opens the user's email app pre-addressed to [FEEDBACK_EMAIL] with [body] as the draft text. */
+private fun Context.sendFeedbackEmail(body: String, onUnavailable: () -> Unit) {
+    val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(FEEDBACK_EMAIL))
+        putExtra(Intent.EXTRA_SUBJECT, getString(R.string.settings_feedback_email_subject))
+        putExtra(Intent.EXTRA_TEXT, body)
+    }
+    try {
+        startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        onUnavailable()
     }
 }

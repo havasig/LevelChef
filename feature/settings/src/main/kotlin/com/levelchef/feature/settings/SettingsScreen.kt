@@ -67,7 +67,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingsSnackbarMessage.text(): String = stringResource(
     when (this) {
-        SettingsSnackbarMessage.FEEDBACK_SENT -> R.string.settings_feedback_sent
+        SettingsSnackbarMessage.FEEDBACK_EMAIL_UNAVAILABLE -> R.string.settings_feedback_email_unavailable
         SettingsSnackbarMessage.ACCOUNT_DELETION_SUCCESS -> R.string.settings_account_deletion_success
     },
 )
