@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-22 · covers through the v4→v5 migration fix, full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
+_Last updated: 2026-09-23 · covers through the pre-release schema reset to v1, full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
 
 ---
 
@@ -58,7 +58,7 @@ Two states behave differently and several scenarios call one out explicitly:
   ```bash
   adb shell pm clear com.levelchef.android
   ```
-- **Upgrade install** — install the *previous* released build, use it, then install the new build **over it** without clearing. This is the only way to exercise the SQLDelight schema migration (SM-14).
+- **Upgrade install** — install the *previous* released build, use it, then install the new build **over it** without clearing. This is the only way to exercise the SQLDelight schema migration (SM-14). **Not possible until the first release** — see SM-14.
 
 ### Themes
 
@@ -312,18 +312,21 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 **Priority:** P0 · **Preconditions:** **upgrade install** (see [Install states](#install-states)).
 
-1. Install the **previous** release. Complete onboarding, log a cook (SM-06), and add a pantry item (SM-08).
+> **Skipped until the first release.** Nothing is installed outside development yet, so the schema
+> was reset to a single v1 baseline with no migrations. Mark this row *Skipped* until a previous
+> release exists. Dev devices holding a pre-reset database must clear app data once
+> (`adb shell pm clear com.levelchef.android`) — Android refuses to open a database whose version
+> is newer than the app's schema.
+
+1. Install the **previous** release. Complete onboarding, log a cook (SM-06), save a recipe (SM-05),
+   earn a badge (SM-19) and add a pantry item (SM-08).
 2. Install **this** build over it — **do not** clear data.
 3. Launch the app.
    - **Opens straight to Home** (survey not shown again).
-   - **Cooking‑session count, XP, "Last cooked", and pantry items are all still there.**
-4. Open a recipe, tap **Save**, swipe the app away, relaunch, return to that recipe.
-   - **Still "Saved"** — confirms the new `savedRecipe` table was added by the migration without wiping the existing data.
-5. Open the **Trophies** tab, then log a cook with a duration (SM-06 / SM-17) and return to Trophies.
-   - **No crash on either tab;** kitchen time includes the new cook, and the cook logged in step 1 still counts.
-   - Upgrade from **both** a build before the Trophy Room landed and one after it — the v4→v5
-     migration must handle a v4 database with and without the trophy tables.
-6. Empty the pantry (SM-08 step 9), swipe the app away, relaunch.
+   - **Cooking‑session count, XP, "Last cooked", saved recipes, earned badges and pantry items are all still there.**
+4. Exercise whatever the new schema adds (the migration's PR lists it) and relaunch.
+   - **No crash; the new data persists.**
+5. Empty the pantry (SM-08 step 9), swipe the app away, relaunch.
    - **The pantry stays empty** — an upgraded install is not re‑seeded.
 
 ### SM-15 · Process death & configuration changes
@@ -445,7 +448,7 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-20 Settings — delete account         | P0 |  |  |  |  |
 ```
 
-**Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install; **zero** crashes in any scenario.
+**Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install (once a previous release exists); **zero** crashes in any scenario.
 
 ---
 

@@ -25,14 +25,16 @@ core:database  ◀── data only
   optional `quantity`/`unit` so the recipe-detail servings stepper can scale it); `RecipeStep` is
   a `Recipe.steps` entry (text + optional `timerMinutes`). Ingredient imagery is the `emoji`
   field — no image library / `res/drawable` in the project.
-- **`core:database`** — KMP. SQLDelight schema (v5): `cookingSession`, `surveyResponse`,
-  `ingredient` (+ the one-row `ingredientSeed` flag), `savedRecipe` (bookmarked recipe ids),
-  `badgeEarned`, `weeklyChallengeProgress`. **Every schema change ships with a
-  `migrations/N.sqm` file in the same PR** (a new table's `CREATE`, a new column's `ALTER`; no data
-  in migrations); the schema version is the migration count + 1. What SQL can't express goes in
-  `data`'s `DatabaseMigrations.kt` as an `AfterVersion` callback, and `DatabaseMigrationsTest`
-  upgrades a hand-built old database — extend it with each migration. SQLDelight reads `SELECT *`
-  rows by column position, so a migrated table's column order must match its `.sq` `CREATE`.
+- **`core:database`** — KMP. SQLDelight schema (**v1**, no migrations): `cookingSession`,
+  `surveyResponse`, `ingredient` (+ the one-row `ingredientSeed` flag), `savedRecipe` (bookmarked
+  recipe ids), `badgeEarned`, `weeklyChallengeProgress`. **Pre-release:** nothing is installed
+  outside development, so edit the `.sq` files directly and clear app data on dev devices — don't
+  add migrations. **From the first release on**, every schema change ships a
+  `migrations/N.sqm` file in the same PR (the version is the migration count + 1; no data in
+  migrations), plus a `data` `androidUnitTest` that upgrades a hand-built old database. What SQL
+  can't express goes in an `AfterVersion` callback passed to `AndroidSqliteDriver.Callback`.
+  SQLDelight reads `SELECT *` rows by column position, so a migrated table's column order must
+  match its `.sq` `CREATE` (an `ALTER TABLE … ADD COLUMN` column must be last in the `.sq`).
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
   SQLDelight's `execute`/`executeAsOne` calls block, so every DB-backed repository wraps them in

@@ -64,7 +64,7 @@ class IngredientRepositoryImpl(
             withContext(dispatcher) {
                 if (queries.isSeeded().executeAsOne()) return@withContext
                 queries.transaction {
-                    // A pantry that already has rows (a pre-flag install) only gets the flag.
+                    // Never add defaults on top of a pantry that already has rows; just record the seed.
                     if (queries.countAll().executeAsOne() == 0L) DEFAULT_INGREDIENTS.forEach(queries::upsert)
                     queries.markSeeded()
                 }
