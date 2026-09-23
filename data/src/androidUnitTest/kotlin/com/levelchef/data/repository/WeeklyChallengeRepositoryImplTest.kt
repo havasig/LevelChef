@@ -8,6 +8,7 @@ import com.levelchef.core.model.CookingSession
 import com.levelchef.core.model.WeeklyChallenge
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -21,7 +22,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 class WeeklyChallengeRepositoryImplTest {
 
-    private val fixedNow = Instant.parse("2026-01-05T12:00:00Z") // a Monday
+    private val fixedNow = Instant.parse("2025-12-29T12:00:00Z") // a Monday
     private val clock = object : Clock {
         override fun now(): Instant = fixedNow
     }
@@ -37,7 +38,12 @@ class WeeklyChallengeRepositoryImplTest {
         LevelChefDatabase.Schema.create(driver)
         database = LevelChefDatabase(driver)
         cookingSessionRepository = CookingSessionRepositoryImpl(database)
-        repository = WeeklyChallengeRepositoryImpl(database, cookingSessionRepository, clock)
+        repository = WeeklyChallengeRepositoryImpl(
+            database,
+            cookingSessionRepository,
+            clock,
+            timeZone = { TimeZone.UTC },
+        )
     }
 
     @AfterTest
@@ -83,7 +89,7 @@ class WeeklyChallengeRepositoryImplTest {
 
     @Test
     fun completing_the_active_challenge_awards_its_xp_once_its_target_is_reached() = runTest {
-        // Deterministic for fixedNow (2026-01-05): resolves to catalog entry "rate-three"
+        // Deterministic for fixedNow (2025-12-29, UTC): resolves to catalog entry "rate-three"
         // ("Critic's Corner" - rate 3 different meals this week, target 3).
         val challenge = currentChallenge()
         assertEquals("rate-three", challenge.id)
@@ -105,5 +111,17 @@ class WeeklyChallengeRepositoryImplTest {
 
         assertEquals(0, repository.totalAwardedXp())
         assertTrue(!currentChallenge().isCompleted)
+    }
+
+    @Test
+    fun weeks_run_monday_to_sunday_so_last_sunday_does_not_count() = runTest {
+        // fixedNow's week is Mon 2025-12-29 .. Sun 2026-01-04; "rate-three" needs 3 rated meals.
+        val challenge = currentChallenge()
+        cookingSessionRepository.recordSession(session("sun", Instant.parse("2025-12-28T20:00:00Z"), rating = 5))
+        cookingSessionRepository.recordSession(session("mon", Instant.parse("2025-12-29T08:00:00Z"), rating = 5))
+        cookingSessionRepository.recordSession(session("next-sun", Instant.parse("2026-01-04T20:00:00Z"), rating = 5))
+
+        assertEquals(2, currentChallenge().progressCurrent)
+        assertEquals("rate-three", challenge.id)
     }
 }

@@ -124,4 +124,16 @@ class IngredientFormViewModelTest {
         assertEquals("123", vm.uiState.value.calories)
         assertEquals("1.23", vm.uiState.value.fat)
     }
+
+    @Test
+    fun a_decimal_comma_is_read_as_a_decimal_point() = runTest(dispatcher) {
+        val vm = viewModel(null, FakeIngredientRepository())
+        advanceUntilIdle()
+
+        vm.setProtein("2,5")
+        vm.setCarbs("1,2,3")
+
+        assertEquals("2.5", vm.uiState.value.protein)
+        assertEquals("1.23", vm.uiState.value.carbs)
+    }
 }

@@ -98,8 +98,10 @@ private fun IngredientFormUiState.macros(): IngredientMacros? {
     )
 }
 
+/** Keeps digits and one decimal point. A `,` (the decimal separator on e.g. Hungarian keyboards)
+ * is read as `.`, so "2,5" is 2.5 rather than 25. */
 private fun decimal(raw: String): String {
-    val filtered = raw.filter { it.isDigit() || it == '.' }
+    val filtered = raw.replace(',', '.').filter { it.isDigit() || it == '.' }
     val dot = filtered.indexOf('.')
     return if (dot == -1) filtered else filtered.substring(0, dot + 1) + filtered.substring(dot + 1).replace(".", "")
 }

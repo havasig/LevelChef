@@ -124,8 +124,9 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Navigates to Settings.** Go back.
 4. Look at the weekly‑challenge card.
    - **Shows the current week's real challenge** (title + "+N XP" badge) — one of a rotating catalog
-     of 9, picked deterministically per calendar week, so the exact title/target varies by when you
-     test. The status line reads **"In progress"** until its condition is met.
+     of 9, picked deterministically per calendar week (**Monday–Sunday in the device's time zone**),
+     so the exact title/target varies by when you test. The status line reads **"In progress"**
+     until its condition is met.
    - The **"Done"** button is **disabled** until the challenge's condition is actually met (e.g. log
      enough cooking sessions, per the challenge's own description) — tapping it before then is
      expected to do nothing, since it's disabled.
@@ -242,6 +243,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **The new item appears in the correct category group**, with an emoji derived from the category.
 7. Try to save the form with a **blank name**.
    - **Save is blocked / a validation error is shown.**
+7a. With the Hungarian keyboard (or any keyboard that offers `,`), type protein **"2,5"**.
+   - **The field shows "2.5"** and the saved detail shows 2.5 g — not 25.
 8. Swipe the app away, relaunch, reopen the list.
    - **Your add / edit / delete all persisted;** the default items are **not** re‑added.
 9. Delete **every** ingredient, swipe the app away, relaunch, reopen the list.
@@ -422,6 +425,9 @@ one of them (SM-06) first.
 3. Switch back to **Trophies**.
    - **XP, kitchen time and the session count already include the new cook** — no app restart needed.
    - Any badge the cook completed (e.g. *First Bite*) **shows as earned**.
+4. Log a cook **after 10pm device time** (or before 7am).
+   - ***Night Owl*** (or ***Early Bird***) **is earned** — the hour is read in the device's time
+     zone, not UTC.
 
 ### SM-20 · Settings — delete account wipes everything
 
