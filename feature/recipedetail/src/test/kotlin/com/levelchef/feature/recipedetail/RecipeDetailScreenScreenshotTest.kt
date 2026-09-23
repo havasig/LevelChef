@@ -55,4 +55,11 @@ class RecipeDetailScreenScreenshotTest {
     fun recipe_detail_screen_saved() = captureLightAndDark("recipe_detail_screen_saved") {
         RecipeDetailScreen(state = sampleRecipeDetailState.copy(isSaved = true, servings = 4))
     }
+
+    @Test
+    fun recipe_detail_screen_timer_running() = captureLightAndDark("recipe_detail_screen_timer_running") {
+        RecipeDetailScreen(
+            state = sampleRecipeDetailState.copy(runningTimerStepIndex = 2, timerSecondsRemaining = 754),
+        )
+    }
 }

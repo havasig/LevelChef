@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -23,10 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +32,7 @@ import com.levelchef.core.designsystem.BadgeStyle
 import com.levelchef.core.designsystem.ButtonType
 import com.levelchef.core.designsystem.LevelChefBadge
 import com.levelchef.core.designsystem.LevelChefButton
+import com.levelchef.core.designsystem.LevelChefStepCard
 import com.levelchef.core.designsystem.LevelChefTag
 import com.levelchef.core.designsystem.TagColor
 import com.levelchef.core.model.Recipe
@@ -97,101 +96,19 @@ internal fun TitleAndTags(recipe: Recipe) {
 private data class TagSpec(val label: String, val emoji: String?, val color: TagColor)
 
 @Composable
-internal fun MacrosGrid(recipe: Recipe) {
+internal fun recipeMacroCells(recipe: Recipe): List<Pair<String, String>> {
     val gramsFormat = R.string.recipe_detail_macro_grams_value
-    val cells = listOf(
-        R.string.recipe_detail_macro_calories to
-            recipe.caloriesKcal?.let { stringResource(R.string.recipe_detail_macro_kcal_value, it) },
-        R.string.recipe_detail_macro_protein to recipe.proteinGrams?.let { stringResource(gramsFormat, it) },
-        R.string.recipe_detail_macro_carbs to recipe.carbsGrams?.let { stringResource(gramsFormat, it) },
-        R.string.recipe_detail_macro_fat to recipe.fatGrams?.let { stringResource(gramsFormat, it) },
-    )
     val unknown = stringResource(R.string.recipe_detail_macro_unknown)
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-        cells.forEach { (labelRes, value) ->
-            MacroCard(stringResource(labelRes), value ?: unknown, Modifier.weight(1f))
-        }
-    }
-}
-
-@Composable
-private fun MacroCard(label: String, value: String, modifier: Modifier = Modifier) {
-    val colors = LevelChefTheme.colors
-    Column(
-        modifier = modifier
-            .background(colors.surface, RoundedCornerShape(12.dp))
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Text(label, color = colors.textSecondary, style = LevelChefTextStyles.captionRegular, maxLines = 1)
-        Text(value, color = colors.textPrimary, style = LevelChefTextStyles.bodySmallBold, maxLines = 1)
-    }
-}
-
-@Composable
-internal fun ServingsCard(servings: Int, onChange: (Int) -> Unit) {
-    val colors = LevelChefTheme.colors
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(0.5.dp, colors.border, RoundedCornerShape(16.dp))
-            .background(colors.surface, RoundedCornerShape(16.dp))
-            .padding(14.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            stringResource(R.string.recipe_detail_servings_label),
-            color = colors.textPrimary,
-            style = LevelChefTextStyles.bodyRegularBold,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            StepperButton(
-                symbol = "−",
-                contentDescription = stringResource(R.string.recipe_detail_servings_decrease),
-                background = colors.accentPrimary.copy(alpha = 0.14f),
-                tint = colors.accentPrimary,
-                onClick = { onChange(-1) },
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("$servings", color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
-                Text(
-                    stringResource(R.string.recipe_detail_servings_count),
-                    color = colors.textSecondary,
-                    style = LevelChefTextStyles.bodySmall,
-                )
-            }
-            StepperButton(
-                symbol = "+",
-                contentDescription = stringResource(R.string.recipe_detail_servings_increase),
-                background = colors.accentPrimary,
-                tint = OnAccent,
-                onClick = { onChange(1) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun StepperButton(
-    symbol: String,
-    contentDescription: String,
-    background: Color,
-    tint: Color,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(background, RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .size(32.dp)
-            .semantics { this.contentDescription = contentDescription },
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(symbol, color = tint, style = LevelChefTextStyles.bodyLargeBold)
-    }
+    return listOf(
+        stringResource(R.string.recipe_detail_macro_calories) to
+            (recipe.caloriesKcal?.let { stringResource(R.string.recipe_detail_macro_kcal_value, it) } ?: unknown),
+        stringResource(R.string.recipe_detail_macro_protein) to
+            (recipe.proteinGrams?.let { stringResource(gramsFormat, it) } ?: unknown),
+        stringResource(R.string.recipe_detail_macro_carbs) to
+            (recipe.carbsGrams?.let { stringResource(gramsFormat, it) } ?: unknown),
+        stringResource(R.string.recipe_detail_macro_fat) to
+            (recipe.fatGrams?.let { stringResource(gramsFormat, it) } ?: unknown),
+    )
 }
 
 @Composable
@@ -265,7 +182,13 @@ private fun IngredientRow(text: String, isNew: Boolean, checked: Boolean, onTogg
 }
 
 @Composable
-internal fun StepsSection(steps: List<RecipeStep>, onStartTimer: () -> Unit) {
+internal fun StepsSection(
+    steps: List<RecipeStep>,
+    runningTimerStepIndex: Int?,
+    timerSecondsRemaining: Int,
+    onStartTimer: (stepIndex: Int, minutes: Int) -> Unit,
+    onCancelTimer: () -> Unit,
+) {
     val colors = LevelChefTheme.colors
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
@@ -274,55 +197,69 @@ internal fun StepsSection(steps: List<RecipeStep>, onStartTimer: () -> Unit) {
             style = LevelChefTextStyles.bodyLargeBold,
         )
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            steps.forEachIndexed { index, step -> StepItem(index + 1, step, onStartTimer) }
+            steps.forEachIndexed { index, step ->
+                LevelChefStepCard(
+                    number = index + 1,
+                    text = step.text,
+                    trailingContent = step.timerMinutes?.let { minutes ->
+                        {
+                            if (index == runningTimerStepIndex) {
+                                TimerChip(secondsRemaining = timerSecondsRemaining, onClick = onCancelTimer)
+                            } else {
+                                TimerChip(minutes = minutes, onClick = { onStartTimer(index, minutes) })
+                            }
+                        }
+                    },
+                )
+            }
         }
     }
 }
 
-@Composable
-private fun StepItem(number: Int, step: RecipeStep, onStartTimer: () -> Unit) {
-    val colors = LevelChefTheme.colors
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(0.5.dp, colors.border, RoundedCornerShape(16.dp))
-            .background(colors.surface, RoundedCornerShape(16.dp))
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .background(colors.accentPrimary, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("$number", color = OnAccent, style = LevelChefTextStyles.bodySmallBold)
-        }
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(step.text, color = colors.textPrimary, style = LevelChefTextStyles.bodySmall)
-            step.timerMinutes?.let { minutes -> TimerChip(minutes, onStartTimer) }
-        }
-    }
-}
-
+/** Idle overload: the "Start N min timer" pill. */
 @Composable
 private fun TimerChip(minutes: Int, onClick: () -> Unit) {
+    TimerChipShell(
+        icon = Icons.Filled.PlayArrow,
+        label = stringResource(R.string.recipe_detail_start_timer, minutes),
+        onClick = onClick,
+    )
+}
+
+/** Running overload: a live "MM:SS" countdown, tap to cancel. */
+@Composable
+private fun TimerChip(secondsRemaining: Int, onClick: () -> Unit) {
+    val minutes = secondsRemaining / SECONDS_PER_MINUTE
+    val seconds = secondsRemaining % SECONDS_PER_MINUTE
+    TimerChipShell(
+        icon = Icons.Filled.Close,
+        label = "%d:%02d".format(minutes, seconds),
+        contentDescription = stringResource(R.string.recipe_detail_cancel_timer),
+        onClick = onClick,
+    )
+}
+
+private const val SECONDS_PER_MINUTE = 60
+
+@Composable
+private fun TimerChipShell(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    contentDescription: String? = null,
+) {
     val colors = LevelChefTheme.colors
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .background(colors.accentPrimary.copy(alpha = 0.14f), RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
+            .clickable(onClickLabel = contentDescription, onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Filled.PlayArrow, contentDescription = null, tint = colors.accentPrimary, modifier = Modifier.size(14.dp))
-        Text(
-            stringResource(R.string.recipe_detail_start_timer, minutes),
-            color = colors.accentPrimary,
-            style = LevelChefTextStyles.captionBold,
-        )
+        Icon(icon, contentDescription = null, tint = colors.accentPrimary, modifier = Modifier.size(14.dp))
+        Text(label, color = colors.accentPrimary, style = LevelChefTextStyles.captionBold)
     }
 }
 
@@ -396,5 +333,5 @@ internal fun ActionButtons(
 internal fun TransientMessage.text(): String = when (this) {
     TransientMessage.SAVED -> stringResource(R.string.recipe_detail_snackbar_saved)
     TransientMessage.UNSAVED -> stringResource(R.string.recipe_detail_snackbar_unsaved)
-    TransientMessage.TIMER_STUB -> stringResource(R.string.recipe_detail_snackbar_timer)
+    TransientMessage.TIMER_DONE -> stringResource(R.string.recipe_detail_snackbar_timer_done)
 }

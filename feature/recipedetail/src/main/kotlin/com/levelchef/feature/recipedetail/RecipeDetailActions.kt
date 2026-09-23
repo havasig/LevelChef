@@ -8,7 +8,8 @@ data class RecipeDetailActions(
     val onIngredientToggle: (index: Int) -> Unit = {},
     val onToggleSaved: () -> Unit = {},
     val onMadeIt: () -> Unit = {},
-    val onStartTimer: () -> Unit = {},
+    val onStartTimer: (stepIndex: Int, minutes: Int) -> Unit = { _, _ -> },
+    val onCancelTimer: () -> Unit = {},
     val onOpenVideo: (url: String) -> Unit = {},
     val onDismissMessage: () -> Unit = {},
 )

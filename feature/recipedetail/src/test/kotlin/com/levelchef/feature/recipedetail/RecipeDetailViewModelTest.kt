@@ -8,8 +8,10 @@ import com.levelchef.core.model.Recipe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -114,12 +116,69 @@ class RecipeDetailViewModelTest {
     }
 
     @Test
-    fun timer_stub_and_dismiss_drive_the_transient_message() = runTest(dispatcher) {
+    fun starting_a_timer_sets_the_running_step_and_its_seconds() = runTest(dispatcher) {
         val vm = viewModel()
         advanceUntilIdle()
 
-        vm.showTimerStub()
-        assertEquals(TransientMessage.TIMER_STUB, vm.uiState.value.transientMessage)
+        vm.startTimer(stepIndex = 0, minutes = 1)
+
+        assertEquals(0, vm.uiState.value.runningTimerStepIndex)
+        assertEquals(60, vm.uiState.value.timerSecondsRemaining)
+    }
+
+    @Test
+    fun a_running_timer_ticks_down_and_completes_with_a_message() = runTest(dispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.startTimer(stepIndex = 0, minutes = 1)
+        advanceTimeBy(5_000)
+        runCurrent()
+        assertEquals(0, vm.uiState.value.runningTimerStepIndex)
+        assertEquals(55, vm.uiState.value.timerSecondsRemaining)
+
+        advanceUntilIdle()
+        assertEquals(null, vm.uiState.value.runningTimerStepIndex)
+        assertEquals(TransientMessage.TIMER_DONE, vm.uiState.value.transientMessage)
+    }
+
+    @Test
+    fun cancelling_a_timer_clears_state_without_a_message() = runTest(dispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.startTimer(stepIndex = 0, minutes = 1)
+        advanceTimeBy(5_000)
+        runCurrent()
+
+        vm.cancelTimer()
+        assertEquals(null, vm.uiState.value.runningTimerStepIndex)
+        assertEquals(0, vm.uiState.value.timerSecondsRemaining)
+        assertEquals(null, vm.uiState.value.transientMessage)
+    }
+
+    @Test
+    fun starting_a_new_timer_replaces_the_one_already_running() = runTest(dispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.startTimer(stepIndex = 0, minutes = 1)
+        vm.startTimer(stepIndex = 1, minutes = 1)
+        advanceTimeBy(30_000)
+        runCurrent()
+
+        assertEquals(1, vm.uiState.value.runningTimerStepIndex)
+        assertEquals(30, vm.uiState.value.timerSecondsRemaining)
+    }
+
+    @Test
+    fun dismiss_message_clears_the_transient_message() = runTest(dispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.startTimer(stepIndex = 0, minutes = 1)
+        advanceUntilIdle()
+        assertEquals(TransientMessage.TIMER_DONE, vm.uiState.value.transientMessage)
 
         vm.dismissMessage()
         assertEquals(null, vm.uiState.value.transientMessage)

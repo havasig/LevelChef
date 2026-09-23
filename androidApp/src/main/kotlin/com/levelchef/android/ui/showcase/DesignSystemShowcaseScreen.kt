@@ -39,13 +39,16 @@ import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefLastCookedCard
 import com.levelchef.core.designsystem.LevelChefList
 import com.levelchef.core.designsystem.LevelChefListEntry
+import com.levelchef.core.designsystem.LevelChefMacroGrid
 import com.levelchef.core.designsystem.LevelChefModal
 import com.levelchef.core.designsystem.LevelChefNavItem
 import com.levelchef.core.designsystem.LevelChefPageIndicator
 import com.levelchef.core.designsystem.LevelChefRadioButton
 import com.levelchef.core.designsystem.LevelChefRecipeCard
 import com.levelchef.core.designsystem.LevelChefSearchBar
+import com.levelchef.core.designsystem.LevelChefServingsStepper
 import com.levelchef.core.designsystem.LevelChefSnackbar
+import com.levelchef.core.designsystem.LevelChefStepCard
 import com.levelchef.core.designsystem.LevelChefSwitch
 import com.levelchef.core.designsystem.LevelChefTabBar
 import com.levelchef.core.designsystem.LevelChefTag
@@ -87,6 +90,18 @@ fun DesignSystemShowcaseScreen(onBackClick: () -> Unit) {
                 ShowcaseSection("Avatar") { LevelChefAvatar(initials = "AB") }
                 ShowcaseSection("Divider") { LevelChefDivider() }
                 ShowcaseSection("Card") { CardSection() }
+                ShowcaseSection("Macro Grid") {
+                    LevelChefMacroGrid(
+                        cells = listOf("Calories" to "450 kcal", "Protein" to "30 g", "Carbs" to "40 g", "Fat" to "12 g"),
+                    )
+                }
+                ShowcaseSection("Servings Stepper") { ServingsStepperSection() }
+                ShowcaseSection("Step Card") {
+                    LevelChefStepCard(
+                        number = 1,
+                        text = "Preheat the oven to 200°C and grease the baking tray.",
+                    )
+                }
                 ShowcaseSection("Recipe Card") {
                     LevelChefRecipeCard(
                         emoji = "🥩",
@@ -270,6 +285,17 @@ private fun TagSection() {
             }
         }
     }
+}
+
+@Composable
+private fun ServingsStepperSection() {
+    var servings by remember { mutableIntStateOf(2) }
+    LevelChefServingsStepper(
+        label = "Set servings",
+        value = servings,
+        unitLabel = "servings",
+        onChange = { delta -> servings = (servings + delta).coerceIn(1, 12) },
+    )
 }
 
 @Composable
