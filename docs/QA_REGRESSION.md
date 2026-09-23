@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the pre-release schema reset to v1, full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
+_Last updated: 2026-09-23 · covers through the recipe-detail step timer (#45), the pre-release schema reset to v1, the full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
 
 ---
 
