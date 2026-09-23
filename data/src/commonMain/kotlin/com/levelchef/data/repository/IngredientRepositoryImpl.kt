@@ -10,13 +10,17 @@ import com.levelchef.core.model.IngredientCategory
 import com.levelchef.core.model.IngredientMacros
 import com.levelchef.core.model.MeasurementUnit
 import com.levelchef.domain.repository.IngredientRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
-/** SQLDelight-backed [IngredientRepository]. Enum columns store the enum `name`; macros are null-all-four. */
+/** SQLDelight-backed [IngredientRepository]. Enum columns store the enum `name`; macros are null-all-four.
+ * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`). */
 class IngredientRepositoryImpl(
     private val database: LevelChefDatabase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : IngredientRepository {
 
     private val queries: IngredientQueries get() = database.ingredientQueries
@@ -27,31 +31,43 @@ class IngredientRepositoryImpl(
             .mapToList(Dispatchers.Default)
             .map { rows -> rows.map { it.toDomain() } }
 
-    override suspend fun getById(id: String): Ingredient? =
+    override suspend fun getById(id: String): Ingredient? = withContext(dispatcher) {
         queries.selectById(id).executeAsOneOrNull()?.toDomain()
+    }
 
     override suspend fun save(ingredient: Ingredient) {
-        queries.upsert(ingredient)
+        withContext(dispatcher) { queries.upsert(ingredient) }
     }
 
     override suspend fun delete(id: String) {
-        queries.deleteById(id)
+        withContext(dispatcher) { queries.deleteById(id) }
     }
 
     override suspend fun deleteAll() {
-        queries.deleteAll()
+        withContext(dispatcher) {
+            queries.transaction {
+                queries.deleteAll()
+                queries.clearSeeded()
+            }
+        }
     }
 
-    override suspend fun count(): Int = queries.countAll().executeAsOne().toInt()
+    override suspend fun count(): Int = withContext(dispatcher) {
+        queries.countAll().executeAsOne().toInt()
+    }
 
     // A seed failure must surface regardless of the SQLDelight exception type; it is rethrown so the
     // caller's CoroutineExceptionHandler still sees it.
     @Suppress("TooGenericExceptionCaught")
     override suspend fun seedDefaults() {
         try {
-            if (queries.countAll().executeAsOne() != 0L) return
-            queries.transaction {
-                DEFAULT_INGREDIENTS.forEach(queries::upsert)
+            withContext(dispatcher) {
+                if (queries.isSeeded().executeAsOne()) return@withContext
+                queries.transaction {
+                    // Never add defaults on top of a pantry that already has rows; just record the seed.
+                    if (queries.countAll().executeAsOne() == 0L) DEFAULT_INGREDIENTS.forEach(queries::upsert)
+                    queries.markSeeded()
+                }
             }
         } catch (e: Exception) {
             Logger.e(e) { "Failed to seed default ingredients" }

@@ -7,16 +7,20 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.domain.repository.SavedRecipeRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-/** SQLDelight-backed [SavedRecipeRepository]. `savedAt` stores the ISO-8601 instant of the save. */
+/** SQLDelight-backed [SavedRecipeRepository]. `savedAt` stores the ISO-8601 instant of the save.
+ * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`). */
 class SavedRecipeRepositoryImpl(
     private val database: LevelChefDatabase,
     private val clock: Clock = Clock.System,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : SavedRecipeRepository {
 
     private val queries get() = database.savedRecipeQueries
@@ -28,6 +32,12 @@ class SavedRecipeRepositoryImpl(
         queries.selectAll().asFlow().mapToList(Dispatchers.Default).map { rows -> rows.map { it.recipeId } }
 
     override suspend fun setSaved(recipeId: String, saved: Boolean) {
-        if (saved) queries.save(recipeId, clock.now().toString()) else queries.unsave(recipeId)
+        withContext(dispatcher) {
+            if (saved) queries.save(recipeId, clock.now().toString()) else queries.unsave(recipeId)
+        }
+    }
+
+    override suspend fun deleteAll() {
+        withContext(dispatcher) { queries.deleteAll() }
     }
 }

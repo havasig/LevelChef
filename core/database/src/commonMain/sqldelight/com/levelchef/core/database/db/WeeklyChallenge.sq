@@ -21,3 +21,6 @@ WHERE weekKey = ? AND completedAt IS NULL;
 
 totalAwardedXp:
 SELECT IFNULL(SUM(xpAwarded), 0) FROM weeklyChallengeProgress;
+
+deleteAll:
+DELETE FROM weeklyChallengeProgress;

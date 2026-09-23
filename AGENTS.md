@@ -25,11 +25,20 @@ core:database  ◀── data only
   optional `quantity`/`unit` so the recipe-detail servings stepper can scale it); `RecipeStep` is
   a `Recipe.steps` entry (text + optional `timerMinutes`). Ingredient imagery is the `emoji`
   field — no image library / `res/drawable` in the project.
-- **`core:database`** — KMP. SQLDelight schema (v4): `cookingSession`, `surveyResponse`,
-  `ingredient`, `savedRecipe` (bookmarked recipe ids). Each table's `CREATE` is mirrored into a
-  `migrations/N.sqm` file (no data in migrations); the schema version is the migration count + 1.
+- **`core:database`** — KMP. SQLDelight schema (**v1**, no migrations): `cookingSession`,
+  `surveyResponse`, `ingredient` (+ the one-row `ingredientSeed` flag), `savedRecipe` (bookmarked
+  recipe ids), `badgeEarned`, `weeklyChallengeProgress`. **Pre-release:** nothing is installed
+  outside development, so edit the `.sq` files directly and clear app data on dev devices — don't
+  add migrations. **From the first release on**, every schema change ships a
+  `migrations/N.sqm` file in the same PR (the version is the migration count + 1; no data in
+  migrations), plus a `data` `androidUnitTest` that upgrades a hand-built old database. What SQL
+  can't express goes in an `AfterVersion` callback passed to `AndroidSqliteDriver.Callback`.
+  SQLDelight reads `SELECT *` rows by column position, so a migrated table's column order must
+  match its `.sq` `CREATE` (an `ALTER TABLE … ADD COLUMN` column must be last in the `.sq`).
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
+  SQLDelight's `execute`/`executeAsOne` calls block, so every DB-backed repository wraps them in
+  `withContext(dispatcher)`; `databaseModule` passes `Dispatchers.IO`.
   `RecipeRepositoryImpl` is still a static sample-data stub (3 fully-populated recipes) pending the
   Gemini recommender. `SavedRecipeRepositoryImpl` backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.

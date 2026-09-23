@@ -12,3 +12,6 @@ SELECT * FROM badgeEarned;
 markEarned:
 INSERT OR IGNORE INTO badgeEarned(badgeId, earnedAt)
 VALUES (?, ?);
+
+deleteAll:
+DELETE FROM badgeEarned;

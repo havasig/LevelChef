@@ -118,4 +118,24 @@ class IngredientRepositoryImplTest {
 
         assertFailsWith<Exception> { brokenRepository.seedDefaults() }
     }
+
+    @Test
+    fun seed_defaults_does_not_refill_a_pantry_the_user_emptied() = runTest {
+        repository.seedDefaults()
+        DEFAULT_INGREDIENTS.forEach { repository.delete(it.id) }
+
+        repository.seedDefaults()
+
+        assertEquals(0, repository.count())
+    }
+
+    @Test
+    fun delete_all_lets_seed_defaults_run_again() = runTest {
+        repository.seedDefaults()
+        repository.deleteAll()
+
+        repository.seedDefaults()
+
+        assertEquals(DEFAULT_INGREDIENTS.size, repository.count())
+    }
 }

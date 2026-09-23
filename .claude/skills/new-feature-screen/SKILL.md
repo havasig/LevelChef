@@ -108,7 +108,7 @@ In the same PR:
   a **bold expected** result per step. Cover the happy path plus any persisted state, new settings,
   and the new nav entry/back path.
 - Add its row to the results-log table; extend `SM-13` (navigation) and `SM-10` (Hungarian
-  spot-check) if this screen adds routes or strings; extend `SM-14` if it persists anything new.
+  spot-check) if this screen adds routes or strings; extend `SM-14` if it persists anything new (and, after the first release, add a schema migration — see AGENTS.md).
 - Bump the file's "Last updated" line (date + PR number).
 
 Follow the checklist in that file's *Extending this script* section.

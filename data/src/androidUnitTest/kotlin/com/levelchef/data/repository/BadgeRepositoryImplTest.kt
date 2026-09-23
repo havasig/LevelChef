@@ -100,4 +100,17 @@ class BadgeRepositoryImplTest {
         }
         assertEquals(firstEarnedAt, secondEarnedAt)
     }
+
+    @Test
+    fun delete_all_forgets_earned_dates() = runTest {
+        cookingSessionRepository.recordSession(session("s0"))
+        repository.refreshEarned()
+
+        repository.deleteAll()
+
+        repository.observeAll().test {
+            assertNull(awaitItem().single { it.id == "first-bite" }.earnedAt)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }

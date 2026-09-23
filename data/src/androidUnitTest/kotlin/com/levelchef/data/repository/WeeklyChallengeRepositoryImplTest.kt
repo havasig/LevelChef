@@ -94,4 +94,16 @@ class WeeklyChallengeRepositoryImplTest {
         assertTrue(currentChallenge().isCompleted)
         assertEquals(challenge.xpReward, repository.totalAwardedXp())
     }
+
+    @Test
+    fun delete_all_resets_completion_and_awarded_xp() = runTest {
+        val challenge = currentChallenge()
+        repeat(3) { cookingSessionRepository.recordSession(session("s$it", fixedNow, rating = 5)) }
+        repository.complete(challenge.id)
+
+        repository.deleteAll()
+
+        assertEquals(0, repository.totalAwardedXp())
+        assertTrue(!currentChallenge().isCompleted)
+    }
 }

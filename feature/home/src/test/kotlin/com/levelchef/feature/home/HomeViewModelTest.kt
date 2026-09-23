@@ -234,4 +234,6 @@ private class FakeWeeklyChallengeRepository(initial: WeeklyChallenge) : WeeklyCh
     }
 
     override suspend fun totalAwardedXp(): Int = 0
+
+    override suspend fun deleteAll() = Unit
 }

@@ -12,4 +12,7 @@ interface SavedRecipeRepository {
     fun observeSavedRecipeIds(): Flow<List<String>>
 
     suspend fun setSaved(recipeId: String, saved: Boolean)
+
+    /** Removes every bookmark — backs account deletion. */
+    suspend fun deleteAll()
 }
