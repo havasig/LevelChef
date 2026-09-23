@@ -112,6 +112,35 @@ class CookingLogViewModelTest {
     }
 
     @Test
+    fun a_saved_recipe_outside_todays_recommendations_still_resolves_via_get_by_id() = runTest(dispatcher) {
+        // Recommendations rotate with the survey, so a recipe saved from an older batch must still
+        // resolve here even once it drops out of getRecommendations()'s "today's batch" result.
+        val archivedRecipe = Recipe(
+            id = "archived-recipe",
+            name = "Archived recipe",
+            emoji = "📦",
+            xpReward = 30,
+            timeMinutes = 10,
+            difficulty = Difficulty.EASY,
+        )
+        val recipeRepo = FakeRecipeRepository(
+            catalog = listOf(lemonChicken, steakBowl, archivedRecipe),
+            recommendations = listOf(lemonChicken),
+        )
+        val vm = CookingLogViewModel(
+            savedRecipeRepository = FakeSavedRecipeRepository(listOf("archived-recipe")),
+            cookingSessionRepository = FakeCookingSessionRepository(),
+            recipeRepository = recipeRepo,
+        )
+
+        vm.uiState.test {
+            advanceUntilIdle()
+            val item = expectMostRecentItem().allItems.single()
+            assertEquals("Archived recipe", item.name)
+        }
+    }
+
+    @Test
     fun selecting_a_tab_updates_state() = runTest(dispatcher) {
         val vm = viewModel()
         advanceUntilIdle()

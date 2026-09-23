@@ -7,6 +7,7 @@ import com.levelchef.feature.ingredients.di.ingredientsModule
 import com.levelchef.feature.onboarding.di.onboardingModule
 import com.levelchef.feature.recipedetail.di.recipeDetailModule
 import com.levelchef.feature.settings.di.settingsModule
+import io.ktor.client.engine.HttpClientEngine
 import kotlin.test.Test
 import org.koin.dsl.module
 import org.koin.test.verify.verify
@@ -30,6 +31,10 @@ class KoinModulesVerifyTest {
     @Test
     fun koin_modules_declare_every_dependency() {
         // String is the runtime-provided ingredientId parameter of the detail/form ViewModels.
-        appModule.verify(extraTypes = listOf(String::class))
+        // HttpClientEngine: `HttpClient(Android) { ... }` is a factory function that creates its
+        // engine internally, but Koin's bytecode-based verify() reads it as HttpClient's primary
+        // constructor needing an HttpClientEngine dependency — there is no such Koin definition,
+        // and none is needed, since the factory already satisfies it.
+        appModule.verify(extraTypes = listOf(String::class, HttpClientEngine::class))
     }
 }

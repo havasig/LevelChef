@@ -10,9 +10,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 
-internal class FakeRecipeRepository(private val recipes: List<Recipe>) : RecipeRepository {
-    override suspend fun getRecommendations(): List<Recipe> = recipes
-    override suspend fun getById(id: String): Recipe? = recipes.firstOrNull { it.id == id }
+/**
+ * [catalog] is every recipe resolvable by id (mirrors the persisted generation history a real
+ * [RecipeRepository] never drops); [recommendations] is only [getRecommendations]'s "today's batch"
+ * result and defaults to the same list. Passing a narrower [recommendations] lets a test prove a
+ * saved/cooked recipe outside today's batch still resolves via [getById].
+ */
+internal class FakeRecipeRepository(
+    private val catalog: List<Recipe>,
+    private val recommendations: List<Recipe> = catalog,
+) : RecipeRepository {
+    override suspend fun getRecommendations(): List<Recipe> = recommendations
+    override suspend fun getById(id: String): Recipe? = catalog.firstOrNull { it.id == id }
 }
 
 internal class FakeSavedRecipeRepository(initialIds: List<String> = emptyList()) : SavedRecipeRepository {
