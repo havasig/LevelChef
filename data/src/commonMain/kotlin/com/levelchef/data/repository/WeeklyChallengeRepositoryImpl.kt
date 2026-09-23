@@ -22,14 +22,15 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-/** One catalog entry: how a challenge's progress is read off that week's sessions, capped at [target]. */
+/** One catalog entry: how a challenge's progress is read off that week's sessions (dates read in the
+ * given device time zone), capped at [target]. */
 private class ChallengeDefinition(
     val id: String,
     val title: String,
     val description: String,
     val xpReward: Int,
     val target: Int,
-    val progress: (List<CookingSession>) -> Int,
+    val progress: (List<CookingSession>, TimeZone) -> Int,
 )
 
 /**
@@ -41,57 +42,59 @@ private val CATALOG = listOf(
     ChallengeDefinition(
         "three-meals", "Three Home-Cooked Meals",
         "Log 3 cooking sessions before the week is out.", xpReward = 150, target = 3,
-    ) { it.size },
+    ) { sessions, _ -> sessions.size },
     ChallengeDefinition(
         "five-star-plate", "Plate of the Week",
         "Rate one meal a full 5 stars.", xpReward = 120, target = 1,
-    ) { sessions -> if (sessions.any { it.rating == 5 }) 1 else 0 },
+    ) { sessions, _ -> if (sessions.any { it.rating == 5 }) 1 else 0 },
     ChallengeDefinition(
         "protein-push", "Protein Push",
         "Cook a meal with at least 25g of protein.", xpReward = 100, target = 1,
-    ) { sessions -> if (sessions.any { (it.proteinGrams ?: 0) >= 25 }) 1 else 0 },
+    ) { sessions, _ -> if (sessions.any { (it.proteinGrams ?: 0) >= 25 }) 1 else 0 },
     ChallengeDefinition(
         "xp-sprint", "XP Sprint",
         "Earn 400 XP from cooking this week.", xpReward = 200, target = 400,
-    ) { it.sumOf(CookingSession::xpEarned) },
+    ) { sessions, _ -> sessions.sumOf(CookingSession::xpEarned) },
     ChallengeDefinition(
         "quick-fire", "Quick-Fire Round",
         "Cook a meal in 20 minutes or less.", xpReward = 90, target = 1,
-    ) { sessions -> if (sessions.any { it.durationMinutes in 1..MAX_QUICK_FIRE_MINUTES }) 1 else 0 },
+    ) { sessions, _ -> if (sessions.any { it.durationMinutes in 1..MAX_QUICK_FIRE_MINUTES }) 1 else 0 },
     ChallengeDefinition(
         "light-bite", "Light & Lean",
         "Log a meal under 400 kcal.", xpReward = 90, target = 1,
-    ) { sessions -> if (sessions.any { (it.kcal ?: Int.MAX_VALUE) < MAX_LIGHT_BITE_KCAL }) 1 else 0 },
+    ) { sessions, _ -> if (sessions.any { (it.kcal ?: Int.MAX_VALUE) < MAX_LIGHT_BITE_KCAL }) 1 else 0 },
     ChallengeDefinition(
         "rate-three", "Critic's Corner",
         "Rate 3 different meals this week.", xpReward = 140, target = 3,
-    ) { sessions -> sessions.count { it.rating != null } },
+    ) { sessions, _ -> sessions.count { it.rating != null } },
     ChallengeDefinition(
         "kitchen-journal", "Kitchen Journal",
         "Write an improvement note on a meal you cooked.", xpReward = 80, target = 1,
-    ) { sessions -> if (sessions.any { !it.improvementNote.isNullOrBlank() }) 1 else 0 },
+    ) { sessions, _ -> if (sessions.any { !it.improvementNote.isNullOrBlank() }) 1 else 0 },
     ChallengeDefinition(
         "four-day-streak", "Cook Four Days",
         "Cook on 4 different days this week.", xpReward = 180, target = 4,
-    ) { sessions -> sessions.map { it.cookedAt.toLocalDateTime(TimeZone.UTC).date }.distinct().size },
+    ) { sessions, zone -> sessions.map { it.cookedAt.toLocalDateTime(zone).date }.distinct().size },
 )
 
 private const val MAX_QUICK_FIRE_MINUTES = 20
 private const val MAX_LIGHT_BITE_KCAL = 400
 
-/** SQLDelight-backed [WeeklyChallengeRepository]. Rotates through [CATALOG] one per calendar week,
- * bucketed by UTC epoch-day / 7 (deterministic, no ISO-week arithmetic needed), and derives
- * progress live from that week's cooking sessions. Blocking SQLite calls run on [dispatcher] —
+/** SQLDelight-backed [WeeklyChallengeRepository]. Rotates through [CATALOG] one per calendar week
+ * (Monday to Sunday in the device's [timeZone]; see [weekKeyFor]), and derives progress live from
+ * that week's cooking sessions. Blocking SQLite calls run on [dispatcher] —
  * `Dispatchers.IO` on Android (see `databaseModule`). */
 class WeeklyChallengeRepositoryImpl(
     private val database: LevelChefDatabase,
     private val cookingSessionRepository: CookingSessionRepository,
     private val clock: Clock = Clock.System,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
 ) : WeeklyChallengeRepository {
 
     override fun observeCurrent(): Flow<WeeklyChallenge> {
-        val weekKey = weekKeyFor(clock.now())
+        val zone = timeZone()
+        val weekKey = weekKeyFor(clock.now(), zone)
         val definition = CATALOG[weekKey.mod(CATALOG.size)]
 
         return combine(
@@ -100,13 +103,13 @@ class WeeklyChallengeRepositoryImpl(
                 .mapToOneOrNull(Dispatchers.Default),
             cookingSessionRepository.observeAll(),
         ) { row, sessions ->
-            val thisWeekSessions = sessions.filter { weekKeyFor(it.cookedAt) == weekKey }
+            val thisWeekSessions = sessions.filter { weekKeyFor(it.cookedAt, zone) == weekKey }
             WeeklyChallenge(
                 id = definition.id,
                 title = definition.title,
                 description = definition.description,
                 xpReward = definition.xpReward,
-                progressCurrent = definition.progress(thisWeekSessions).coerceAtMost(definition.target),
+                progressCurrent = definition.progress(thisWeekSessions, zone).coerceAtMost(definition.target),
                 progressTarget = definition.target,
                 completedAt = row?.completedAt?.let(Instant::parse),
             )
@@ -118,12 +121,14 @@ class WeeklyChallengeRepositoryImpl(
     }
 
     override suspend fun complete(id: String) {
-        val weekKey = weekKeyFor(clock.now())
+        val zone = timeZone()
+        val weekKey = weekKeyFor(clock.now(), zone)
         val definition = CATALOG[weekKey.mod(CATALOG.size)]
         if (definition.id != id) return
 
-        val thisWeekSessions = cookingSessionRepository.observeAll().first().filter { weekKeyFor(it.cookedAt) == weekKey }
-        if (definition.progress(thisWeekSessions) < definition.target) return
+        val thisWeekSessions = cookingSessionRepository.observeAll().first()
+            .filter { weekKeyFor(it.cookedAt, zone) == weekKey }
+        if (definition.progress(thisWeekSessions, zone) < definition.target) return
 
         withContext(dispatcher) {
             database.weeklyChallengeQueries.markCompleted(
@@ -143,6 +148,12 @@ class WeeklyChallengeRepositoryImpl(
     }
 
     private companion object {
-        fun weekKeyFor(instant: Instant): Int = (instant.toLocalDateTime(TimeZone.UTC).date.toEpochDays() / 7).toInt()
+        /** 1970-01-01 (epoch day 0) was a Thursday; shifting by 3 days makes each bucket start on Monday. */
+        const val EPOCH_DAY_TO_MONDAY_SHIFT = 3
+        const val DAYS_PER_WEEK = 7
+
+        /** Index of the Monday-to-Sunday week containing [instant] in [zone]. */
+        fun weekKeyFor(instant: Instant, zone: TimeZone): Int =
+            ((instant.toLocalDateTime(zone).date.toEpochDays() + EPOCH_DAY_TO_MONDAY_SHIFT) / DAYS_PER_WEEK).toInt()
     }
 }

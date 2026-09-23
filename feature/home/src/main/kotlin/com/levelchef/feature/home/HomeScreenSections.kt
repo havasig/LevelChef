@@ -22,7 +22,6 @@ import com.levelchef.core.designsystem.LevelChefCard
 import com.levelchef.core.designsystem.LevelChefLastCookedCard
 import com.levelchef.core.designsystem.LevelChefRecipeCard
 import com.levelchef.core.designsystem.LevelChefWeeklyChallengeCard
-import com.levelchef.core.designsystem.RecipeCardTag
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 
@@ -32,7 +31,10 @@ import com.levelchef.core.ui.theme.LevelChefTheme
 internal fun LevelProgressSection(state: HomeUiState) {
     val colors = LevelChefTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        LevelChefBadge(state.levelLabel, style = BadgeStyle.LIGHT)
+        LevelChefBadge(
+            stringResource(R.string.home_level_badge, state.level.label(), state.level.ordinal + 1),
+            style = BadgeStyle.LIGHT,
+        )
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             val progress = (state.currentXp.toFloat() / state.xpForNextLevel).coerceIn(0f, 1f)
             Box(
@@ -87,7 +89,7 @@ internal fun StatCard(value: String, label: String, modifier: Modifier = Modifie
 @Composable
 internal fun WeeklyChallengeSection(state: HomeUiState, onDoneClick: () -> Unit) {
     LevelChefWeeklyChallengeCard(
-        title = state.challengeTitle,
+        title = weeklyChallengeTitle(state.challengeId, fallback = state.challengeTitle),
         xp = state.challengeXp,
         inProgress = true,
         completed = state.challengeCompleted,
@@ -113,13 +115,17 @@ internal fun RecipeRecommendationCard(rec: RecipeRecommendation, onClick: () -> 
         title = rec.name,
         xp = rec.xp,
         minutes = rec.minutes,
-        difficulty = rec.difficulty,
+        difficulty = rec.difficulty.label(),
         onClick = onClick,
-        tag = RecipeCardTag(label = rec.tagLabel, emoji = rec.tagEmoji, color = rec.tagColor),
+        tag = rec.tag,
     )
 }
 
 @Composable
 internal fun LastCookedCard(lastCooked: LastCooked) {
-    LevelChefLastCookedCard(title = lastCooked.recipeName, time = lastCooked.whenText, stars = lastCooked.stars)
+    LevelChefLastCookedCard(
+        title = lastCooked.recipeName,
+        time = daysAgoLabel(lastCooked.daysAgo),
+        stars = lastCooked.stars,
+    )
 }

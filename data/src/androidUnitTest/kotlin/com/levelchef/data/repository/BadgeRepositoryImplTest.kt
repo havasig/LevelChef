@@ -10,6 +10,9 @@ import com.levelchef.core.model.Ingredient
 import com.levelchef.core.model.IngredientCategory
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.asTimeZone
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -112,5 +115,40 @@ class BadgeRepositoryImplTest {
             assertNull(awaitItem().single { it.id == "first-bite" }.earnedAt)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun seeded_starter_pantry_does_not_count_toward_pantry_badges() = runTest {
+        ingredientRepository.seedDefaults()
+        ingredientRepository.save(Ingredient("my-own", "Tofu", IngredientCategory.OTHER, "🧈"))
+
+        lateinit var pantryStarter: Badge
+        repository.observeAll().test {
+            pantryStarter = awaitItem().single { it.id == "pantry-starter" }
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        assertEquals(1, pantryStarter.progressCurrent)
+    }
+
+    @Test
+    fun night_owl_uses_the_device_time_zone_not_utc() = runTest {
+        // 21:30 UTC is 23:30 at UTC+2 — after 10pm locally, but not in UTC.
+        val lateLocally = session("late").copy(cookedAt = Instant.parse("2026-01-01T21:30:00Z"))
+        cookingSessionRepository.recordSession(lateLocally)
+
+        suspend fun nightOwlProgressIn(zone: TimeZone): Int {
+            var progress = -1
+            BadgeRepositoryImpl(cookingSessionRepository, ingredientRepository, database, timeZone = { zone })
+                .observeAll()
+                .test {
+                    progress = awaitItem().single { it.id == "night-owl" }.progressCurrent
+                    cancelAndIgnoreRemainingEvents()
+                }
+            return progress
+        }
+
+        assertEquals(0, nightOwlProgressIn(TimeZone.UTC))
+        assertEquals(1, nightOwlProgressIn(UtcOffset(hours = 2).asTimeZone()))
     }
 }

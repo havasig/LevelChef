@@ -13,16 +13,3 @@ internal fun Badge.toBadgeUiModel() = BadgeUiModel(
     progressTarget = progressTarget,
     earned = isEarned,
 )
-
-private const val MINUTES_PER_HOUR = 60
-
-/** "0h" below an hour, else whole hours plus any leftover minutes, e.g. "14h 30m". */
-internal fun formatKitchenTime(totalMinutes: Int): String {
-    val hours = totalMinutes / MINUTES_PER_HOUR
-    val minutes = totalMinutes % MINUTES_PER_HOUR
-    return when {
-        hours <= 0 -> "${minutes}m"
-        minutes == 0 -> "${hours}h"
-        else -> "${hours}h ${minutes}m"
-    }
-}

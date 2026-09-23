@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender, the pre-release schema reset to v1, the full delete-account wipe, the one-time pantry seed and Trophies refreshing on return._
+_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender, debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, and the Hungarian translations for levels, badges, challenges and shared labels._
 
 ---
 
@@ -77,7 +77,7 @@ id, are generated from your survey answers by the Gemini API when the build has 
 set in `local.properties`. With a key configured, the exact recipes, their count and their content
 will vary between builds/testers and change whenever you retake the survey (SM-11) — that's
 expected, not a bug. **Most test builds won't have a key set** and will instead see the fixed
-bundled fallback set of 3 recipes ("Chicken curry with coconut milk", "Steak quinoa bowl", "Jucy
+bundled fallback set of 3 recipes ("Chicken curry with coconut milk", "Steak quinoa bowl", "Juicy
 pasta") that the scenarios below were written against; note in the results log which case you ran.
 
 ### Logs & crashes
@@ -116,15 +116,17 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 1. Look at the Home screen.
    - **Top bar** shows the app title and a **gear icon** on the right.
    - **Visible:** a level badge, an XP progress bar with an "X / Y XP" caption, two stat cards (**"🍳 N"** cooking sessions and **"🌿 N ingredients tried"**), a weekly‑challenge card, a "Cook today" button, and a **"Recommended for you"** list of recipe cards (count/content vary — see [Recipe recommendations](#recipe-recommendations) above).
-   - On a fresh install there is **no "Last cooked" card** yet.
+   - On a fresh install there is **no "Last cooked" card** yet, and **"ingredients tried" is 0** — the
+     seeded starter pantry doesn't count; only ingredients you add yourself do.
 2. Tap the **"🌿 ingredients tried"** stat card.
    - **Navigates to the Ingredients (pantry) list.** Go back.
 3. Tap the **gear** icon.
    - **Navigates to Settings.** Go back.
 4. Look at the weekly‑challenge card.
    - **Shows the current week's real challenge** (title + "+N XP" badge) — one of a rotating catalog
-     of 9, picked deterministically per calendar week, so the exact title/target varies by when you
-     test. The status line reads **"In progress"** until its condition is met.
+     of 9, picked deterministically per calendar week (**Monday–Sunday in the device's time zone**),
+     so the exact title/target varies by when you test. The status line reads **"In progress"**
+     until its condition is met.
    - The **"Done"** button is **disabled** until the challenge's condition is actually met (e.g. log
      enough cooking sessions, per the challenge's own description) — tapping it before then is
      expected to do nothing, since it's disabled.
@@ -241,6 +243,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **The new item appears in the correct category group**, with an emoji derived from the category.
 7. Try to save the form with a **blank name**.
    - **Save is blocked / a validation error is shown.**
+7a. With the Hungarian keyboard (or any keyboard that offers `,`), type protein **"2,5"**.
+   - **The field shows "2.5"** and the saved detail shows 2.5 g — not 25.
 8. Swipe the app away, relaunch, reopen the list.
    - **Your add / edit / delete all persisted;** the default items are **not** re‑added.
 9. Delete **every** ingredient, swipe the app away, relaunch, reopen the list.
@@ -274,6 +278,12 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 4. Open the **Recipes** tab.
    - **Spot‑check:** **"Mentett receptjeim"** (title), **"Receptek keresése…"** (search placeholder),
      **"Összes" / "Elkészítve" / "Új"** (tabs), **"Legutóbb elkészítve"** (last‑cooked label).
+4a. Back on **Home**, spot‑check the level pill (e.g. **"Konyhai újonc · 1. szint"**), the weekly
+    challenge card (**"HETI KIHÍVÁS"**, a Hungarian challenge title, **"Folyamatban"**), recipe
+    cards (**"⏱ 25 perc · Könnyű"**) and the last‑cooked time (**"ma"** / **"N napja"**).
+4b. Open the **Trophies** tab.
+   - **Spot‑check:** the chef-level name, badge names/descriptions (e.g. **"Első falat"** — *"Rögzítsd
+     a legelső főzésedet."*) and kitchen time (**"1 ó 30 p"**).
 5. On Android 13+, open the OS **Settings → Apps → LevelChef → Language**.
    - **LevelChef is listed with a per‑app language override.**
 6. Switch back to **English** in‑app, swipe the app away, relaunch.
@@ -295,12 +305,14 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 ### SM-12 · Settings — developer: clear onboarding storage
 
-**Priority:** P1 · **Preconditions:** onboarding completed.
+**Priority:** P1 · **Preconditions:** onboarding completed; **debug build**.
 
 1. Settings → developer section → **"Clear onboarding storage"**.
 2. Swipe the app away and relaunch.
    - **The onboarding survey is shown again** (the gate re‑triggers because no survey response is stored).
    - **Home stats, pantry, and saved recipes are unaffected.**
+3. On a **release build**, open Settings.
+   - **There is no Developer section.**
 
 ### SM-13 · Navigation chrome & back stack
 
@@ -364,9 +376,11 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 1. Bottom nav → **Trophies** tab.
    - **Shows the Trophy Room** (see **SM-19**) — no screen is a placeholder any more.
-2. Tap the **Home** bottom‑nav item **5 times quickly**.
+2. On a **debug build**, tap the **Home** bottom‑nav item **5 times quickly**.
    - **The hidden Design System showcase opens.** Back returns to Home.
    - A slow tap, or tapping a different tab first, **resets the counter** (a normal tap on Home just goes Home).
+3. On a **release build**, tap Home 5 times quickly.
+   - **Nothing opens** — Home just stays on Home.
 
 ### SM-17 · Meal Review ("Log experience") screen controls
 
@@ -417,6 +431,9 @@ one of them (SM-06) first.
 3. Switch back to **Trophies**.
    - **XP, kitchen time and the session count already include the new cook** — no app restart needed.
    - Any badge the cook completed (e.g. *First Bite*) **shows as earned**.
+4. Log a cook **after 10pm device time** (or before 7am).
+   - ***Night Owl*** (or ***Early Bird***) **is earned** — the hour is read in the device's time
+     zone, not UTC.
 
 ### SM-20 · Settings — delete account wipes everything
 

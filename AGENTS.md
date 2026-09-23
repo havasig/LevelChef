@@ -40,7 +40,10 @@ core:database  ◀── data only
 - **`domain`** — KMP. Repository *interfaces* + use cases. Depends only on `core:model`. `api(project(":core:model"))`.
 - **`data`** — KMP. Repository *implementations* (SQLDelight / Ktor) + Koin wiring (`dataModule`, `databaseModule`).
   SQLDelight's `execute`/`executeAsOne` calls block, so every DB-backed repository wraps them in
-  `withContext(dispatcher)`; `databaseModule` passes `Dispatchers.IO`.
+  `withContext(dispatcher)`; `databaseModule` passes `Dispatchers.IO`. Anything bucketed by hour,
+  day or week (badges, streaks, weekly challenges) reads dates in the **device time zone** via an
+  injected `timeZone` provider (tests pass a fixed zone); challenge weeks run Monday to Sunday.
+  The starter pantry (`DEFAULT_INGREDIENTS`) doesn't count as ingredients tried or toward badges.
   `RecipeRepositoryImpl` builds a prompt from the stored `SurveyResponse` (see `SurveyRepository`),
   calls the Gemini API (structured JSON output), and caches the result in `generatedRecipe`; a
   repeat call with an unchanged survey is served from the cache instead of calling Gemini again. A
@@ -48,7 +51,7 @@ core:database  ◀── data only
   back to a small bundled recipe set — recommendations are never empty. `SavedRecipeRepositoryImpl`
   backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
-- **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `PlaceholderScreen`, …). Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
+- **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `LevelChefRecipeCard`, …). Their built-in text (screen-reader labels, status chips, default button labels) comes from `core:designsystem`'s own `strings.xml` + `values-hu`. Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen, **all fully built** from their Figma
   nodes. **No feature module depends on another.**
   `feature:home` (Figma node `296:1929`); `feature:onboarding` (the mandatory first-launch survey —
@@ -120,7 +123,12 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
   constants or `Color(0x…)`.
 - **Language** — in-app language switching goes through `AppCompatDelegate.setApplicationLocales()`
   (AppCompat persists it via the `AppLocalesMetadataHolderService` + `autoStoreLocales` manifest
-  entry); it also drives the OS per-app-language screen (`generateLocaleConfig = true`).
+  entry); it also drives the OS per-app-language screen (`generateLocaleConfig = true`). **Every
+  user-facing string is a resource with a `values-hu` twin.** `domain`/`data` can't read Android
+  resources, so UI state carries the domain value (an enum like `ChefLevel`/`Difficulty`, a
+  catalog id, a number of days/minutes) and the screen resolves it with `stringResource` in a
+  `@Composable` label helper (e.g. `HomeLabels.kt`, `TrophyRoomLabels.kt`). English names in the
+  `data` badge/challenge catalogs are only fallbacks for unknown ids.
 - **Logging & errors** — **Kermit** (`co.touchlab.kermit.Logger`) is the logger, on every module's
   classpath via the convention plugins. `LevelChefApplication.onCreate()` sets the `"LevelChef"` tag,
   installs `platformLogWriter()` + `CrashLogWriter` (the WARN+ crash-reporting seam — no SDK wired
@@ -168,3 +176,9 @@ If a new screen is added to the Figma file, give its stub composable a
 ## Not yet done (see README "Next steps")
 
 1. iOS target (KMP modules are ready; no iOS app shell yet).
+2. Settings feedback has no backend: `SettingsViewModel.submitFeedback` shows "Feedback sent" and
+   discards the text. Wire a real channel (email draft or API) or hide the option before release.
+3. Recipes are English-only: the Gemini prompt doesn't pass the app language, and the bundled
+   fallback recipes are English. Send the user's language in the prompt (and cache per language).
+4. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
+   `./gradlew recordRoborazziDebug` and review the diff.

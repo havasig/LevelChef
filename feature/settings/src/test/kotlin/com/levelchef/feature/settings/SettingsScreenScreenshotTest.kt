@@ -49,7 +49,12 @@ class SettingsScreenScreenshotTest {
     @Test
     fun settings_screen() = captureLightAndDark("settings_screen") {
         SettingsScreen(
-            state = SettingsUiState(themeMode = ThemeMode.DARK, language = AppLanguage.HUNGARIAN, appVersion = "0.1.0"),
+            state = SettingsUiState(
+                themeMode = ThemeMode.DARK,
+                language = AppLanguage.HUNGARIAN,
+                appVersion = "0.1.0",
+                showDeveloperSection = true,
+            ),
         )
     }
 }

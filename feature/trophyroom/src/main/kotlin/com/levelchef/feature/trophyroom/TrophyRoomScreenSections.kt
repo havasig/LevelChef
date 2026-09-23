@@ -37,7 +37,7 @@ internal fun ProfileCard(state: TrophyRoomUiState) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 LevelChefAvatar(initials = state.levelEmoji)
                 Column {
-                    Text(state.levelName, color = colors.textPrimary, style = LevelChefTextStyles.bodyLargeBold)
+                    Text(state.level.label(), color = colors.textPrimary, style = LevelChefTextStyles.bodyLargeBold)
                     Text(
                         stringResource(R.string.trophy_room_level_of, state.levelIndex, state.levelCount),
                         color = colors.textSecondary,
@@ -97,7 +97,7 @@ internal fun TrophyStatCardsRow(state: TrophyRoomUiState) {
         )
         TrophyStatCard(
             label = stringResource(R.string.trophy_room_kitchen_time_label),
-            value = state.kitchenTimeLabel,
+            value = kitchenTimeLabel(state.kitchenTimeMinutes),
             caption = stringResource(R.string.trophy_room_kitchen_time_caption),
             modifier = Modifier.weight(1f),
         )
@@ -133,7 +133,7 @@ internal fun StreakBadgeCard(badge: BadgeUiModel) {
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(badge.emoji, style = LevelChefTextStyles.bodyLargeBold)
-                Text(badge.name, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
+                Text(badge.localizedName(), color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
             }
             when {
                 badge.earned -> LevelChefTag(stringResource(R.string.trophy_room_earned), color = TagColor.GREEN)
@@ -141,7 +141,7 @@ internal fun StreakBadgeCard(badge: BadgeUiModel) {
                 else -> LevelChefBadge(stringResource(R.string.trophy_room_not_started), style = BadgeStyle.LIGHT)
             }
         }
-        Text(badge.description, color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
+        Text(badge.localizedDescription(), color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -166,7 +166,7 @@ internal fun BadgeCard(badge: BadgeUiModel) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(badge.emoji, style = LevelChefTextStyles.bodyLargeBold)
                 Text(
-                    badge.name,
+                    badge.localizedName(),
                     color = if (badge.earned) colors.textPrimary else colors.textSecondary,
                     style = LevelChefTextStyles.bodyRegularBold,
                 )
@@ -177,7 +177,7 @@ internal fun BadgeCard(badge: BadgeUiModel) {
                 LevelChefBadge(stringResource(R.string.trophy_room_locked), style = BadgeStyle.LIGHT)
             }
         }
-        Text(badge.description, color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
+        Text(badge.localizedDescription(), color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
     }
 }
 

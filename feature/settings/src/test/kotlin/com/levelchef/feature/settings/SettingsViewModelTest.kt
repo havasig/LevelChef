@@ -303,7 +303,7 @@ class SettingsViewModelTest {
                 ),
             ),
         )
-        val savedRecipeRepository = FakeSavedRecipeRepository(listOf("jucy-pasta"))
+        val savedRecipeRepository = FakeSavedRecipeRepository(listOf("juicy-pasta"))
         val badgeRepository = FakeBadgeRepository()
         val weeklyChallengeRepository = FakeWeeklyChallengeRepository(awardedXp = 150)
         val vm = viewModel(

@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -37,7 +38,7 @@ fun LevelChefTopAppBarHome(
         if (onSettingsClick != null) {
             LevelChefIconButton(
                 icon = Icons.Filled.Settings,
-                contentDescription = "Settings",
+                contentDescription = stringResource(R.string.designsystem_settings),
                 style = IconButtonStyle.PLAIN,
                 onClick = onSettingsClick,
             )

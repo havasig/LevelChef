@@ -5,6 +5,9 @@ import com.levelchef.core.model.Ingredient
 import com.levelchef.core.model.IngredientCategory
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.asTimeZone
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -59,6 +62,17 @@ class UserProfileRepositoryImplTest {
     }
 
     @Test
+    fun new_ingredients_count_ignores_the_seeded_starter_pantry() = runTest {
+        val repository = UserProfileRepositoryImpl(
+            FakeCookingSessionRepository(),
+            FakeIngredientRepository(DEFAULT_INGREDIENTS + ingredient("my-own")),
+            FakeWeeklyChallengeRepository(),
+        )
+
+        assertEquals(1, repository.getProfile().newIngredientsCount)
+    }
+
+    @Test
     fun kitchen_time_reflects_total_duration_minutes() = runTest {
         val repository = UserProfileRepositoryImpl(
             FakeCookingSessionRepository(durationMinutes = 340),
@@ -82,9 +96,24 @@ class UserProfileRepositoryImplTest {
             ),
             FakeIngredientRepository(),
             FakeWeeklyChallengeRepository(),
+            timeZone = { TimeZone.UTC },
         )
 
         assertEquals(3, repository.getProfile().currentStreakDays)
+    }
+
+    @Test
+    fun streak_days_follow_the_device_time_zone() = runTest {
+        // Jan 1 12:00 and Jan 2 23:30 UTC are consecutive days in UTC, but at UTC+2 the second
+        // session falls on Jan 3, which breaks the streak.
+        val sessions = FakeCookingSessionRepository(
+            all = listOf(session("2026-01-02T23:30:00Z"), session("2026-01-01T12:00:00Z")),
+        )
+        fun profileIn(zone: TimeZone) =
+            UserProfileRepositoryImpl(sessions, FakeIngredientRepository(), FakeWeeklyChallengeRepository(), { zone })
+
+        assertEquals(2, profileIn(TimeZone.UTC).getProfile().currentStreakDays)
+        assertEquals(1, profileIn(UtcOffset(hours = 2).asTimeZone()).getProfile().currentStreakDays)
     }
 
     @Test

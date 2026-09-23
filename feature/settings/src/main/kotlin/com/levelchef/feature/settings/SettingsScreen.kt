@@ -51,7 +51,7 @@ fun SettingsScreen(
                 AppPreferencesSection(state, actions)
                 SupportSection(state, actions)
                 DangerZoneSection(actions.onDeleteAccount)
-                DeveloperSection(actions.onClearOnboardingStorage)
+                if (state.showDeveloperSection) DeveloperSection(actions.onClearOnboardingStorage)
             }
         }
 

@@ -19,12 +19,13 @@ private const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/detai
 @Composable
 fun SettingsRoute(
     onBackClick: () -> Unit,
+    showDeveloperOptions: Boolean,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val vmState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val appVersion = remember { context.appVersionName() }
-    val state = vmState.copy(appVersion = appVersion)
+    val state = vmState.copy(appVersion = appVersion, showDeveloperSection = showDeveloperOptions)
 
     SettingsScreen(
         state = state,

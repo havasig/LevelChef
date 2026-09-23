@@ -8,12 +8,14 @@ import com.levelchef.core.model.CookingSession
 import com.levelchef.core.model.WeeklyChallenge
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
 /** Exercises [WeeklyChallengeRepositoryImpl] against the real SQLDelight schema through an
@@ -21,7 +23,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 class WeeklyChallengeRepositoryImplTest {
 
-    private val fixedNow = Instant.parse("2026-01-05T12:00:00Z") // a Monday
+    private val fixedNow = Instant.parse("2025-12-29T12:00:00Z") // a Monday
     private val clock = object : Clock {
         override fun now(): Instant = fixedNow
     }
@@ -37,7 +39,12 @@ class WeeklyChallengeRepositoryImplTest {
         LevelChefDatabase.Schema.create(driver)
         database = LevelChefDatabase(driver)
         cookingSessionRepository = CookingSessionRepositoryImpl(database)
-        repository = WeeklyChallengeRepositoryImpl(database, cookingSessionRepository, clock)
+        repository = WeeklyChallengeRepositoryImpl(
+            database,
+            cookingSessionRepository,
+            clock,
+            timeZone = { TimeZone.UTC },
+        )
     }
 
     @AfterTest
@@ -83,7 +90,7 @@ class WeeklyChallengeRepositoryImplTest {
 
     @Test
     fun completing_the_active_challenge_awards_its_xp_once_its_target_is_reached() = runTest {
-        // Deterministic for fixedNow (2026-01-05): resolves to catalog entry "rate-three"
+        // Deterministic for fixedNow (2025-12-29, UTC): resolves to catalog entry "rate-three"
         // ("Critic's Corner" - rate 3 different meals this week, target 3).
         val challenge = currentChallenge()
         assertEquals("rate-three", challenge.id)
@@ -105,5 +112,58 @@ class WeeklyChallengeRepositoryImplTest {
 
         assertEquals(0, repository.totalAwardedXp())
         assertTrue(!currentChallenge().isCompleted)
+    }
+
+    @Test
+    fun weeks_run_monday_to_sunday_so_last_sunday_does_not_count() = runTest {
+        // fixedNow's week is Mon 2025-12-29 .. Sun 2026-01-04; "rate-three" needs 3 rated meals.
+        val challenge = currentChallenge()
+        cookingSessionRepository.recordSession(session("sun", Instant.parse("2025-12-28T20:00:00Z"), rating = 5))
+        cookingSessionRepository.recordSession(session("mon", Instant.parse("2025-12-29T08:00:00Z"), rating = 5))
+        cookingSessionRepository.recordSession(session("next-sun", Instant.parse("2026-01-04T20:00:00Z"), rating = 5))
+
+        assertEquals(2, currentChallenge().progressCurrent)
+        assertEquals("rate-three", challenge.id)
+    }
+
+    @Test
+    fun every_catalog_challenge_rotates_in_and_counts_a_matching_session() = runTest {
+        // One session that satisfies every catalog rule at least partially: rated 5, a note, 15 min,
+        // 300 kcal, 30 g protein, 10 XP.
+        val allRounder = session("template", fixedNow, rating = 5).copy(
+            durationMinutes = 15,
+            kcal = 300,
+            proteinGrams = 30,
+            improvementNote = "More lemon",
+        )
+        val seenIds = mutableSetOf<String>()
+
+        repeat(CATALOG_SIZE) { week ->
+            val monday = fixedNow + (week * DAYS_PER_WEEK).days
+            val weekRepository = WeeklyChallengeRepositoryImpl(
+                database,
+                cookingSessionRepository,
+                clock = object : Clock {
+                    override fun now(): Instant = monday
+                },
+                timeZone = { TimeZone.UTC },
+            )
+            cookingSessionRepository.recordSession(allRounder.copy(id = "s$week", cookedAt = monday))
+
+            lateinit var challenge: WeeklyChallenge
+            weekRepository.observeCurrent().test {
+                challenge = awaitItem()
+                cancelAndIgnoreRemainingEvents()
+            }
+            seenIds += challenge.id
+            assertTrue(challenge.progressCurrent >= 1, "${challenge.id} should count this week's session")
+        }
+
+        assertEquals(CATALOG_SIZE, seenIds.size)
+    }
+
+    private companion object {
+        const val CATALOG_SIZE = 9
+        const val DAYS_PER_WEEK = 7
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -26,8 +27,8 @@ fun LevelChefModal(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     icon: String = "!",
-    cancelLabel: String = "Cancel",
-    confirmLabel: String = "Confirm",
+    cancelLabel: String = stringResource(R.string.designsystem_cancel),
+    confirmLabel: String = stringResource(R.string.designsystem_confirm),
 ) {
     Dialog(onDismissRequest = onDismiss) {
         ModalContent(title, message, onDismiss, onConfirm, modifier, icon, cancelLabel, confirmLabel)
@@ -44,8 +45,8 @@ private fun ModalContent(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     icon: String = "!",
-    cancelLabel: String = "Cancel",
-    confirmLabel: String = "Confirm",
+    cancelLabel: String = stringResource(R.string.designsystem_cancel),
+    confirmLabel: String = stringResource(R.string.designsystem_confirm),
 ) {
     val colors = LevelChefTheme.colors
     LevelChefCard(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {

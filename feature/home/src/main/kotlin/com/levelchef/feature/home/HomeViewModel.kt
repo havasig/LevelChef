@@ -40,7 +40,7 @@ class HomeViewModel(
             val challenge = weeklyChallengeRepository.observeCurrent().first()
 
             _uiState.value = HomeUiState(
-                levelLabel = level.displayName,
+                level = level,
                 currentXp = profile.totalXp,
                 xpForNextLevel = (ChefLevel.next(level) ?: level).xpThreshold,
                 cookingSessions = profile.cookingSessionsCount,

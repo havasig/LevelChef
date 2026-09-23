@@ -25,8 +25,15 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-/** What every badge's progress is derived from. */
-private data class BadgeSnapshot(val sessions: List<CookingSession>, val ingredients: List<Ingredient>)
+/** What every badge's progress is derived from. [ingredients] excludes the seeded starter pantry;
+ * [timeZone] is the device's, so "after 10pm" means the user's evening, not UTC's. */
+private data class BadgeSnapshot(
+    val sessions: List<CookingSession>,
+    val ingredients: List<Ingredient>,
+    val timeZone: TimeZone,
+) {
+    fun localHourOf(session: CookingSession): Int = session.cookedAt.toLocalDateTime(timeZone).hour
+}
 
 /** One catalog entry: how a badge's progress is read off a [BadgeSnapshot], capped at [target]. */
 private class BadgeDefinition(
@@ -38,8 +45,6 @@ private class BadgeDefinition(
     val target: Int,
     val progress: (BadgeSnapshot) -> Int,
 )
-
-private fun Instant.hourUtc(): Int = toLocalDateTime(TimeZone.UTC).hour
 
 /**
  * Static catalog of 12 badges spanning [BadgeCategory.QUANTITY] (cooking/XP milestones),
@@ -84,11 +89,11 @@ private val CATALOG = listOf(
     BadgeDefinition(
         "night-owl", "Night Owl", "🦉", BadgeCategory.ACHIEVEMENT,
         "Cook a meal after 10pm.", target = 1,
-    ) { snapshot -> if (snapshot.sessions.any { it.cookedAt.hourUtc() >= 22 }) 1 else 0 },
+    ) { snapshot -> if (snapshot.sessions.any { snapshot.localHourOf(it) >= 22 }) 1 else 0 },
     BadgeDefinition(
         "early-bird", "Early Bird", "🌅", BadgeCategory.ACHIEVEMENT,
         "Cook a meal before 7am.", target = 1,
-    ) { snapshot -> if (snapshot.sessions.any { it.cookedAt.hourUtc() < 7 }) 1 else 0 },
+    ) { snapshot -> if (snapshot.sessions.any { snapshot.localHourOf(it) < 7 }) 1 else 0 },
     BadgeDefinition(
         "perfect-plate", "Perfect Plate", "⭐", BadgeCategory.ACHIEVEMENT,
         "Log a 5-star meal.", target = 1,
@@ -108,6 +113,7 @@ class BadgeRepositoryImpl(
     private val ingredientRepository: IngredientRepository,
     private val database: LevelChefDatabase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
 ) : BadgeRepository {
 
     override fun observeAll(): Flow<List<Badge>> =
@@ -116,7 +122,7 @@ class BadgeRepositoryImpl(
             ingredientRepository.observeAll(),
             database.badgeQueries.selectAll().asFlow().mapToList(Dispatchers.Default),
         ) { sessions, ingredients, earnedRows ->
-            val snapshot = BadgeSnapshot(sessions, ingredients)
+            val snapshot = BadgeSnapshot(sessions, ingredients.userAdded(), timeZone())
             val earnedAt = earnedRows.associate { it.badgeId to Instant.parse(it.earnedAt) }
             CATALOG.map { it.toBadge(snapshot, earnedAt[it.id]) }
         }
@@ -124,7 +130,8 @@ class BadgeRepositoryImpl(
     override suspend fun refreshEarned() {
         val snapshot = BadgeSnapshot(
             sessions = cookingSessionRepository.observeAll().first(),
-            ingredients = ingredientRepository.observeAll().first(),
+            ingredients = ingredientRepository.observeAll().first().userAdded(),
+            timeZone = timeZone(),
         )
         val now = Clock.System.now().toString()
         withContext(dispatcher) {

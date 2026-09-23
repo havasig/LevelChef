@@ -138,7 +138,7 @@ internal val DEFAULT_INGREDIENTS: List<Ingredient> = listOf(
     default("broccoli", "Broccoli", IngredientCategory.VEGETABLE, "🥦", MeasurementUnit.GRAM, 34, 2.8, 7.0, 0.4),
     default("avocado", "Avocado", IngredientCategory.VEGETABLE, "🥑", MeasurementUnit.PIECE, 160, 2.0, 9.0, 15.0),
     default("spinach", "Spinach", IngredientCategory.VEGETABLE, "🥬", MeasurementUnit.GRAM, 23, 2.9, 3.6, 0.4),
-    default("bell-pepper", "Bell pepper", IngredientCategory.VEGETABLE, "🌶️", MeasurementUnit.PIECE, 31, 1.0, 6.0, 0.3),
+    default("bell-pepper", "Bell pepper", IngredientCategory.VEGETABLE, "🫑", MeasurementUnit.PIECE, 31, 1.0, 6.0, 0.3),
     default("zucchini", "Zucchini", IngredientCategory.VEGETABLE, "🥒", MeasurementUnit.PIECE, 17, 1.2, 3.1, 0.3),
     default("eggplant", "Eggplant", IngredientCategory.VEGETABLE, "🍆", MeasurementUnit.PIECE, 25, 1.0, 6.0, 0.2),
     default("lemon", "Lemon", IngredientCategory.FRUIT, "🍋", MeasurementUnit.PIECE, 29, 1.1, 9.0, 0.3),
@@ -146,3 +146,9 @@ internal val DEFAULT_INGREDIENTS: List<Ingredient> = listOf(
     default("banana", "Banana", IngredientCategory.FRUIT, "🍌", MeasurementUnit.PIECE, 89, 1.1, 23.0, 0.3),
     default("strawberry", "Strawberry", IngredientCategory.FRUIT, "🍓", MeasurementUnit.GRAM, 32, 0.7, 7.7, 0.3),
 )
+
+/** Ids of [DEFAULT_INGREDIENTS]: the starter pantry, which isn't something the user tried. */
+internal val DEFAULT_INGREDIENT_IDS: Set<String> = DEFAULT_INGREDIENTS.mapTo(mutableSetOf()) { it.id }
+
+/** The pantry minus the seeded starter items — what "ingredients tried" and the pantry badges count. */
+internal fun List<Ingredient>.userAdded(): List<Ingredient> = filterNot { it.id in DEFAULT_INGREDIENT_IDS }

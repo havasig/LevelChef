@@ -19,6 +19,7 @@ class UserProfileRepositoryImpl(
     private val cookingSessionRepository: CookingSessionRepository,
     private val ingredientRepository: IngredientRepository,
     private val weeklyChallengeRepository: WeeklyChallengeRepository,
+    private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
 ) : UserProfileRepository {
 
     override suspend fun getProfile(): UserProfile {
@@ -26,19 +27,19 @@ class UserProfileRepositoryImpl(
         return UserProfile(
             totalXp = cookingSessionRepository.totalXp() + weeklyChallengeRepository.totalAwardedXp(),
             cookingSessionsCount = cookingSessionRepository.sessionCount(),
-            newIngredientsCount = ingredientRepository.count(),
+            newIngredientsCount = ingredientRepository.observeAll().first().userAdded().size,
             kitchenTimeMinutes = cookingSessionRepository.totalDurationMinutes(),
-            currentStreakDays = streakDays(sessions),
+            currentStreakDays = streakDays(sessions, timeZone()),
             avgRatingPercent = avgRatingPercent(sessions),
         )
     }
 }
 
-/** Consecutive calendar days (UTC) of cooking sessions, counted back from the most recently
- * cooked day — not necessarily "today", so this doesn't reset just because the profile is read
- * on a day nothing has been cooked yet. */
-private fun streakDays(sessions: List<CookingSession>): Int {
-    val dates = sessions.map { it.cookedAt.toLocalDateTime(TimeZone.UTC).date }.distinct().sortedDescending()
+/** Consecutive calendar days (in [timeZone], the device's) of cooking sessions, counted back from
+ * the most recently cooked day — not necessarily "today", so this doesn't reset just because the
+ * profile is read on a day nothing has been cooked yet. */
+private fun streakDays(sessions: List<CookingSession>, timeZone: TimeZone): Int {
+    val dates = sessions.map { it.cookedAt.toLocalDateTime(timeZone).date }.distinct().sortedDescending()
     if (dates.isEmpty()) return 0
     var streak = 1
     for (i in 1 until dates.size) {

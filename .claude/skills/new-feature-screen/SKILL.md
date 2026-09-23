@@ -1,14 +1,14 @@
 ---
 name: new-feature-screen
-description: Build a new LevelChef feature screen from a Figma node into a full Compose implementation, following the project's module and screen conventions. Use whenever asked to implement, build, flesh out, or "code up" a feature screen from Figma, or to replace a PlaceholderScreen.
+description: Build a new LevelChef feature screen from a Figma node into a full Compose implementation, following the project's module and screen conventions. Use whenever asked to implement, build, flesh out, or "code up" a feature screen from Figma, or to replace a stub screen.
 ---
 
 # Build a LevelChef feature screen from Figma
 
 Every current `feature:*` module (`home`, `onboarding`, `settings`, `ingredients`, `recipedetail`,
 `mealreview`, `trophyroom`, `cookinglog`) is fully built — use them as reference implementations.
-This skill covers turning a *new* stub (a fresh `feature:*` module with a `PlaceholderScreen` and
-a `/** Figma node NNN:NNN */` KDoc) into a real screen, for whenever the Figma file gains one.
+This skill covers turning a *new* stub (a fresh `feature:*` module whose screen is a bare
+placeholder composable with a `/** Figma node NNN:NNN */` KDoc) into a real screen, for whenever the Figma file gains one.
 
 Read `AGENTS.md` first for the module rules and conventions this skill assumes.
 

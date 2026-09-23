@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -35,7 +36,7 @@ fun LevelChefTopAppBarSearch(placeholder: String, onBackClick: () -> Unit, modif
     ) {
         LevelChefIconButton(
             icon = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back",
+            contentDescription = stringResource(R.string.designsystem_back),
             style = IconButtonStyle.PLAIN,
             onClick = onBackClick,
         )
