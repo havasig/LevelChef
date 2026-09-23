@@ -19,7 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.levelchef.core.designsystem.LevelChefMacroGrid
 import com.levelchef.core.designsystem.LevelChefPreview
+import com.levelchef.core.designsystem.LevelChefServingsStepper
 import com.levelchef.core.designsystem.LevelChefSnackbar
 import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.model.Recipe
@@ -85,10 +87,23 @@ private fun LoadedRecipe(recipe: Recipe, state: RecipeDetailUiState, actions: Re
         ) {
             HeroTile(recipe.emoji, recipe.xpReward)
             TitleAndTags(recipe)
-            MacrosGrid(recipe)
-            ServingsCard(state.servings, actions.onServingsChange)
+            LevelChefMacroGrid(cells = recipeMacroCells(recipe))
+            LevelChefServingsStepper(
+                label = stringResource(R.string.recipe_detail_servings_label),
+                value = state.servings,
+                unitLabel = stringResource(R.string.recipe_detail_servings_count),
+                onChange = actions.onServingsChange,
+                decreaseContentDescription = stringResource(R.string.recipe_detail_servings_decrease),
+                increaseContentDescription = stringResource(R.string.recipe_detail_servings_increase),
+            )
             IngredientsSection(recipe, state.servings, state.checkedIngredients, actions.onIngredientToggle)
-            StepsSection(recipe.steps, actions.onStartTimer)
+            StepsSection(
+                steps = recipe.steps,
+                runningTimerStepIndex = state.runningTimerStepIndex,
+                timerSecondsRemaining = state.timerSecondsRemaining,
+                onStartTimer = actions.onStartTimer,
+                onCancelTimer = actions.onCancelTimer,
+            )
             recipe.videoUrl?.let { url -> RelatedVideoRow(onClick = { actions.onOpenVideo(url) }) }
             ActionButtons(recipe.xpReward, state.isSaved, actions.onMadeIt, actions.onToggleSaved)
         }

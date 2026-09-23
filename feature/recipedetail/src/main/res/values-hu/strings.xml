@@ -31,6 +31,7 @@
 
     <string name="recipe_detail_steps_title">Lépések</string>
     <string name="recipe_detail_start_timer">%1$d perces időzítő indítása</string>
+    <string name="recipe_detail_cancel_timer">Időzítő leállítása</string>
 
     <string name="recipe_detail_related_video">Kapcsolódó videó</string>
     <string name="recipe_detail_open_video">Kapcsolódó videó megnyitása</string>
@@ -41,5 +42,5 @@
 
     <string name="recipe_detail_snackbar_saved">Recept elmentve</string>
     <string name="recipe_detail_snackbar_unsaved">Eltávolítva a mentettek közül</string>
-    <string name="recipe_detail_snackbar_timer">A lépés-időzítők hamarosan érkeznek</string>
+    <string name="recipe_detail_snackbar_timer_done">Az időzítő lejárt!</string>
 </resources>

@@ -31,6 +31,7 @@
 
     <string name="recipe_detail_steps_title">Steps</string>
     <string name="recipe_detail_start_timer">Start %1$d min timer</string>
+    <string name="recipe_detail_cancel_timer">Cancel timer</string>
 
     <string name="recipe_detail_related_video">Related video</string>
     <string name="recipe_detail_open_video">Open related video</string>
@@ -41,5 +42,5 @@
 
     <string name="recipe_detail_snackbar_saved">Recipe saved</string>
     <string name="recipe_detail_snackbar_unsaved">Removed from saved</string>
-    <string name="recipe_detail_snackbar_timer">Step timers are coming soon</string>
+    <string name="recipe_detail_snackbar_timer_done">Timer done!</string>
 </resources>

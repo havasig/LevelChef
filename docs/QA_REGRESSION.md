@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-22 · covers through the app-wide switch to the Inter typeface._
+_Last updated: 2026-09-23 · covers through the recipe-detail step timer becoming a real countdown._
 
 ---
 
@@ -197,12 +197,20 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 **Priority:** P1 · **Preconditions:** a recipe with a timed step open (e.g. the curry, step 4).
 
 1. Find a step showing a **"Start N min timer"** chip. Tap it.
-   - **A message appears: "Step timers are coming soon".**
-   - **No countdown starts** — the chip is a visual placeholder for now.
-2. Tap the **"Related video"** row.
+   - **The chip switches to a live "MM:SS" countdown** ticking down once per second, with a close
+     icon in place of the play icon.
+   - Tap the running chip again.
+   - **It cancels: the countdown stops and the step reverts to the idle "Start N min timer" chip.**
+2. Start a timer, then tap a **different** step's timer chip before the first finishes.
+   - **The first step's chip reverts to idle and the newly-tapped step's chip starts counting down
+     instead** — only one timer runs at a time.
+3. Start a short timer and leave it running until it reaches 0:00.
+   - **A "Timer done!" message appears in the snackbar**, and the chip reverts to idle.
+4. Tap the **"Related video"** row.
    - **The device leaves the app and opens the link** in a browser / YouTube.
-3. Return to the app.
-   - **The recipe detail screen is still there, unchanged.**
+5. Return to the app.
+   - **The recipe detail screen is still there, unchanged** — any timer that was running when you
+     left is still ticking (it lives in the screen's ViewModel, not tied to being visible).
 
 ### SM-08 · Ingredients / pantry — browse, add, edit, delete
 
