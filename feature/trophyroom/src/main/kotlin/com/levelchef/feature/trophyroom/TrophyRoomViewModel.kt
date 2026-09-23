@@ -43,7 +43,7 @@ class TrophyRoomViewModel(
 
             _uiState.value = TrophyRoomUiState(
                 levelEmoji = level.emoji,
-                levelName = level.displayName,
+                level = level,
                 levelIndex = ChefLevel.entries.indexOf(level) + 1,
                 levelCount = ChefLevel.entries.size,
                 isMaxLevel = ChefLevel.next(level) == null,
@@ -53,7 +53,7 @@ class TrophyRoomViewModel(
                 avgRatingPercent = profile.avgRatingPercent,
                 weeklyChallengeCompleted = challenge.isCompleted,
                 weeklyChallengeProgressText = "${challenge.progressCurrent}/${challenge.progressTarget}",
-                kitchenTimeLabel = formatKitchenTime(profile.kitchenTimeMinutes),
+                kitchenTimeMinutes = profile.kitchenTimeMinutes,
                 cookingSessions = profile.cookingSessionsCount,
                 ingredientsTried = profile.newIngredientsCount,
                 streakBadges = streakBadges.map { it.toBadgeUiModel() },

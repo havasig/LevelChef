@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="placeholder_coming_next">%1$s — hamarosan</string>
+    <string name="designsystem_back">Vissza</string>
+    <string name="designsystem_settings">Beállítások</string>
+    <string name="designsystem_remove_tag">%1$s eltávolítása</string>
+    <string name="designsystem_decrease">Csökkentés</string>
+    <string name="designsystem_increase">Növelés</string>
+
+    <string name="designsystem_weekly_challenge">HETI KIHÍVÁS</string>
+    <string name="designsystem_challenge_completed">Teljesítve</string>
+    <string name="designsystem_challenge_in_progress">Folyamatban</string>
+    <string name="designsystem_challenge_not_started">Nincs elkezdve</string>
+
+    <string name="designsystem_recipe_meta">⏱ %1$d perc · %2$s</string>
+    <string name="designsystem_last_cooked">Legutóbb főzve</string>
+
+    <string name="designsystem_cancel">Mégse</string>
+    <string name="designsystem_confirm">Megerősítés</string>
+    <string name="designsystem_search">Keresés…</string>
+    <string name="designsystem_on">Be</string>
+    <string name="designsystem_off">Ki</string>
 </resources>

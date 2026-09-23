@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -31,7 +32,7 @@ fun LevelChefWeeklyChallengeCard(
     xp: Int,
     inProgress: Boolean,
     modifier: Modifier = Modifier,
-    category: String = "WEEKLY CHALLENGE",
+    category: String = stringResource(R.string.designsystem_weekly_challenge),
     completed: Boolean = false,
     action: (@Composable () -> Unit)? = null,
 ) {
@@ -57,9 +58,9 @@ fun LevelChefWeeklyChallengeCard(
                     .background(SuccessGreen, RoundedCornerShape(50)))
                 Text(
                     when {
-                        completed -> "Completed"
-                        inProgress -> "In progress"
-                        else -> "Not started"
+                        completed -> stringResource(R.string.designsystem_challenge_completed)
+                        inProgress -> stringResource(R.string.designsystem_challenge_in_progress)
+                        else -> stringResource(R.string.designsystem_challenge_not_started)
                     },
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodySmallBold,

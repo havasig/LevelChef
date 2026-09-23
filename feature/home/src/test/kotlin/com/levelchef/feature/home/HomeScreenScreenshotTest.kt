@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onRoot
 import com.dropbox.differ.SimpleImageComparator
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.levelchef.core.model.ChefLevel
 import com.levelchef.core.ui.theme.LevelChefTheme
 import org.junit.Rule
 import org.junit.Test
@@ -60,7 +61,7 @@ class HomeScreenScreenshotTest {
     fun home_screen_new_cook() = captureLightAndDark("home_screen_new_cook") {
         HomeScreen(
             state = HomeUiState(
-                levelLabel = "Kitchen Novice · Level 1",
+                level = ChefLevel.KITCHEN_NOVICE,
                 currentXp = 20,
                 xpForNextLevel = 300,
                 cookingSessions = 1,

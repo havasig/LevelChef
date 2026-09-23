@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
@@ -30,7 +31,7 @@ fun LevelChefLastCookedCard(
     time: String,
     stars: Int,
     modifier: Modifier = Modifier,
-    label: String = "Last Cooked",
+    label: String = stringResource(R.string.designsystem_last_cooked),
     onClick: () -> Unit = {},
 ) {
     val colors = LevelChefTheme.colors

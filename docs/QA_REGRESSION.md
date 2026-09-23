@@ -278,6 +278,12 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 4. Open the **Recipes** tab.
    - **Spot‑check:** **"Mentett receptjeim"** (title), **"Receptek keresése…"** (search placeholder),
      **"Összes" / "Elkészítve" / "Új"** (tabs), **"Legutóbb elkészítve"** (last‑cooked label).
+4a. Back on **Home**, spot‑check the level pill (e.g. **"Konyhai újonc · 1. szint"**), the weekly
+    challenge card (**"HETI KIHÍVÁS"**, a Hungarian challenge title, **"Folyamatban"**), recipe
+    cards (**"⏱ 25 perc · Könnyű"**) and the last‑cooked time (**"ma"** / **"N napja"**).
+4b. Open the **Trophies** tab.
+   - **Spot‑check:** the chef-level name, badge names/descriptions (e.g. **"Első falat"** — *"Rögzítsd
+     a legelső főzésedet."*) and kitchen time (**"1 ó 30 p"**).
 5. On Android 13+, open the OS **Settings → Apps → LevelChef → Language**.
    - **LevelChef is listed with a per‑app language override.**
 6. Switch back to **English** in‑app, swipe the app away, relaunch.

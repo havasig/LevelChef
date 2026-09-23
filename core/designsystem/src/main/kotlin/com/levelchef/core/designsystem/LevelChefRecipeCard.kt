@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -64,7 +65,7 @@ fun LevelChefRecipeCard(
                     Text("+$xp XP", color = colors.accentPrimary, style = LevelChefTextStyles.bodySmall)
                 }
                 Text(
-                    "⏱ $minutes min · $difficulty",
+                    stringResource(R.string.designsystem_recipe_meta, minutes, difficulty),
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodySmall,
                 )

@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onRoot
 import com.dropbox.differ.SimpleImageComparator
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.levelchef.core.model.ChefLevel
 import com.levelchef.core.ui.theme.LevelChefTheme
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +62,7 @@ class TrophyRoomScreenScreenshotTest {
         TrophyRoomScreen(
             state = TrophyRoomUiState(
                 levelEmoji = "👑",
-                levelName = "Legendary Tastemaker",
+                level = ChefLevel.LEGENDARY_TASTEMAKER,
                 levelIndex = 12,
                 levelCount = 12,
                 isMaxLevel = true,
@@ -70,7 +71,7 @@ class TrophyRoomScreenScreenshotTest {
                 streakDays = 21,
                 avgRatingPercent = 95,
                 weeklyChallengeCompleted = true,
-                kitchenTimeLabel = "48h",
+                kitchenTimeMinutes = 48 * 60,
                 cookingSessions = 120,
                 ingredientsTried = 40,
                 streakBadges = sampleStreakBadges.map { it.copy(progressCurrent = it.progressTarget, earned = true) },

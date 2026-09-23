@@ -1,6 +1,7 @@
 package com.levelchef.feature.home
 
 import app.cash.turbine.test
+import com.levelchef.core.model.ChefLevel
 import com.levelchef.core.model.CookingSession
 import com.levelchef.core.model.Difficulty
 import com.levelchef.core.model.Recipe
@@ -56,13 +57,14 @@ class HomeViewModelTest {
             testScheduler.advanceUntilIdle()
             val loaded = expectMostRecentItem()
 
-            assertEquals("Wok Warrior", loaded.levelLabel)
+            assertEquals(ChefLevel.WOK_WARRIOR, loaded.level)
             assertEquals(800, loaded.currentXp)
             assertEquals(12, loaded.cookingSessions)
             assertEquals(5, loaded.ingredientsTried)
             assertEquals("Miso soup", loaded.recommendations.single().name)
-            assertEquals("Easy", loaded.recommendations.single().difficulty)
-            assertEquals("3 days ago", loaded.lastCooked?.whenText)
+            assertEquals(Difficulty.EASY, loaded.recommendations.single().difficulty)
+            assertEquals(null, loaded.recommendations.single().tag)
+            assertEquals(3, loaded.lastCooked?.daysAgo)
             assertEquals(4, loaded.lastCooked?.stars)
         }
     }
@@ -76,18 +78,18 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun relative_day_text_reads_today_for_a_session_cooked_now() = runTest(dispatcher) {
+    fun days_ago_is_zero_for_a_session_cooked_now() = runTest(dispatcher) {
         viewModel(lastCooked = session(cookedAt = Clock.System.now())).uiState.test {
             testScheduler.advanceUntilIdle()
-            assertEquals("today", expectMostRecentItem().lastCooked?.whenText)
+            assertEquals(0, expectMostRecentItem().lastCooked?.daysAgo)
         }
     }
 
     @Test
-    fun relative_day_text_reads_one_day_ago() = runTest(dispatcher) {
+    fun days_ago_is_one_for_a_session_cooked_yesterday() = runTest(dispatcher) {
         viewModel(lastCooked = session(cookedAt = Clock.System.now() - 1.days)).uiState.test {
             testScheduler.advanceUntilIdle()
-            assertEquals("1 day ago", expectMostRecentItem().lastCooked?.whenText)
+            assertEquals(1, expectMostRecentItem().lastCooked?.daysAgo)
         }
     }
 

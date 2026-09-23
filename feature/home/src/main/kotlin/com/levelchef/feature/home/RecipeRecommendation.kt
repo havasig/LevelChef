@@ -1,6 +1,7 @@
 package com.levelchef.feature.home
 
-import com.levelchef.core.designsystem.TagColor
+import com.levelchef.core.designsystem.RecipeCardTag
+import com.levelchef.core.model.Difficulty
 
 data class RecipeRecommendation(
     val id: String,
@@ -8,8 +9,6 @@ data class RecipeRecommendation(
     val name: String,
     val xp: Int,
     val minutes: Int,
-    val difficulty: String,
-    val tagEmoji: String,
-    val tagLabel: String,
-    val tagColor: TagColor,
+    val difficulty: Difficulty,
+    val tag: RecipeCardTag? = null,
 )

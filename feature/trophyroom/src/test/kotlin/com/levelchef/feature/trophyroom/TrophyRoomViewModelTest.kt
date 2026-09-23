@@ -3,6 +3,7 @@ package com.levelchef.feature.trophyroom
 import app.cash.turbine.test
 import com.levelchef.core.model.Badge
 import com.levelchef.core.model.BadgeCategory
+import com.levelchef.core.model.ChefLevel
 import com.levelchef.core.model.UserProfile
 import com.levelchef.core.model.WeeklyChallenge
 import com.levelchef.domain.repository.BadgeRepository
@@ -77,13 +78,13 @@ class TrophyRoomViewModelTest {
             testScheduler.advanceUntilIdle()
             val loaded = expectMostRecentItem()
 
-            assertEquals("Wok Warrior", loaded.levelName)
+            assertEquals(ChefLevel.WOK_WARRIOR, loaded.level)
             assertEquals(800, loaded.currentXp)
             assertEquals(12, loaded.cookingSessions)
             assertEquals(5, loaded.ingredientsTried)
             assertEquals(4, loaded.streakDays)
             assertEquals(80, loaded.avgRatingPercent)
-            assertEquals("1h 30m", loaded.kitchenTimeLabel)
+            assertEquals(90, loaded.kitchenTimeMinutes)
             assertEquals("2/3", loaded.weeklyChallengeProgressText)
             assertEquals(false, loaded.weeklyChallengeCompleted)
         }

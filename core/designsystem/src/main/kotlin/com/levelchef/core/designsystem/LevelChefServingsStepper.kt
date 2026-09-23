@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -33,8 +34,8 @@ fun LevelChefServingsStepper(
     unitLabel: String,
     onChange: (delta: Int) -> Unit,
     modifier: Modifier = Modifier,
-    decreaseContentDescription: String = "Decrease",
-    increaseContentDescription: String = "Increase",
+    decreaseContentDescription: String = stringResource(R.string.designsystem_decrease),
+    increaseContentDescription: String = stringResource(R.string.designsystem_increase),
 ) {
     val colors = LevelChefTheme.colors
     Row(
