@@ -15,6 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
 /** Exercises [WeeklyChallengeRepositoryImpl] against the real SQLDelight schema through an
@@ -123,5 +124,46 @@ class WeeklyChallengeRepositoryImplTest {
 
         assertEquals(2, currentChallenge().progressCurrent)
         assertEquals("rate-three", challenge.id)
+    }
+
+    @Test
+    fun every_catalog_challenge_rotates_in_and_counts_a_matching_session() = runTest {
+        // One session that satisfies every catalog rule at least partially: rated 5, a note, 15 min,
+        // 300 kcal, 30 g protein, 10 XP.
+        val allRounder = session("template", fixedNow, rating = 5).copy(
+            durationMinutes = 15,
+            kcal = 300,
+            proteinGrams = 30,
+            improvementNote = "More lemon",
+        )
+        val seenIds = mutableSetOf<String>()
+
+        repeat(CATALOG_SIZE) { week ->
+            val monday = fixedNow + (week * DAYS_PER_WEEK).days
+            val weekRepository = WeeklyChallengeRepositoryImpl(
+                database,
+                cookingSessionRepository,
+                clock = object : Clock {
+                    override fun now(): Instant = monday
+                },
+                timeZone = { TimeZone.UTC },
+            )
+            cookingSessionRepository.recordSession(allRounder.copy(id = "s$week", cookedAt = monday))
+
+            lateinit var challenge: WeeklyChallenge
+            weekRepository.observeCurrent().test {
+                challenge = awaitItem()
+                cancelAndIgnoreRemainingEvents()
+            }
+            seenIds += challenge.id
+            assertTrue(challenge.progressCurrent >= 1, "${challenge.id} should count this week's session")
+        }
+
+        assertEquals(CATALOG_SIZE, seenIds.size)
+    }
+
+    private companion object {
+        const val CATALOG_SIZE = 9
+        const val DAYS_PER_WEEK = 7
     }
 }
