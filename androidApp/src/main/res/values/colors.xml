@@ -1,4 +1,8 @@
 <resources>
     <!-- Mirrors core.ui.theme.BackgroundPrimaryLight — keep in sync. -->
     <color name="window_background">#FFFFFFFF</color>
+
+    <!-- App icon adaptive background, from the Figma "Adaptive background" layer
+         (App Icon / Android / Light, node 663:4262). -->
+    <color name="ic_launcher_background">#F0EBFF</color>
 </resources>
