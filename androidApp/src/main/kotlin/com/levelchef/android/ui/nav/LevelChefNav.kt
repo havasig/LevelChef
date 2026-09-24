@@ -49,8 +49,11 @@ private const val RECIPE_ID_ARG = "recipeId"
 private const val RECIPE_DETAIL_ROUTE = "recipeDetail/{$RECIPE_ID_ARG}"
 private fun recipeDetailPath(id: String) = "recipeDetail/$id"
 
-private const val MEAL_REVIEW_ROUTE = "mealReview/{$RECIPE_ID_ARG}"
-private fun mealReviewPath(id: String) = "mealReview/$id"
+// `servings` is the recipe-detail stepper value, so "Log experience" lists the amounts actually cooked.
+private const val SERVINGS_ARG = "servings"
+private const val NO_SERVINGS = -1
+private const val MEAL_REVIEW_ROUTE = "mealReview/{$RECIPE_ID_ARG}?$SERVINGS_ARG={$SERVINGS_ARG}"
+private fun mealReviewPath(id: String, servings: Int) = "mealReview/$id?$SERVINGS_ARG=$servings"
 
 private const val INGREDIENTS_ROUTE = "ingredients"
 private const val INGREDIENT_ID_ARG = "ingredientId"
@@ -177,15 +180,22 @@ private fun LevelChefAppContent() {
                     recipeId = recipeId,
                     onBackClick = { navController.popBackStack() },
                     onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
-                    onMadeIt = { navController.navigate(mealReviewPath(recipeId)) },
+                    onMadeIt = { servings -> navController.navigate(mealReviewPath(recipeId, servings)) },
                 )
             }
             composable(
                 MEAL_REVIEW_ROUTE,
-                arguments = listOf(navArgument(RECIPE_ID_ARG) { type = NavType.StringType }),
+                arguments = listOf(
+                    navArgument(RECIPE_ID_ARG) { type = NavType.StringType },
+                    navArgument(SERVINGS_ARG) {
+                        type = NavType.IntType
+                        defaultValue = NO_SERVINGS
+                    },
+                ),
             ) { entry ->
                 MealReviewRoute(
                     recipeId = entry.arguments?.getString(RECIPE_ID_ARG).orEmpty(),
+                    servings = entry.arguments?.getInt(SERVINGS_ARG)?.takeIf { it != NO_SERVINGS },
                     onBackClick = { navController.popBackStack() },
                     onSaved = { navController.popBackStack(LevelChefDestination.Home.route, false) },
                 )

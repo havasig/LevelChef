@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-23 · covers through the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, and the mailto-based Settings feedback flow._
+_Last updated: 2026-09-24 · covers through the emulator-QA fixes (search no-match message, Hungarian starter pantry, meal-review cook-time prefill and scaled ingredients, equal-height Home stat cards, "Last cooked" following the app language), plus the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, and the mailto-based Settings feedback flow._
 
 ---
 
@@ -193,6 +193,9 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 1. Note the recipe's XP reward (the "+XP" badge). Tap **"I made it"**.
    - **Navigates to the "Log experience" (Meal Review) screen** — back arrow + title, **no bottom navigation bar**; nothing is logged yet.
    - **The recipe name and "+XP" badge match**, and the macro fields (Calories/Protein/Carbs/Fat) are **pre‑filled from the recipe's own values**; **Save is disabled** (dimmed).
+   - **The cook‑time stepper is pre‑filled with the recipe's time** (e.g. "25 min"), not 0.
+   - **The "INGREDIENTS" list uses the serving count chosen on Recipe Detail** — bump servings
+     2 → 3 before tapping "I made it" and the amounts are scaled the same way (e.g. 300 g → 450 g).
 2. Tap a star to rate the meal (see **SM-17** for the screen's own controls in detail), then tap **Save**.
    - **Navigates back to Home** (not to the recipe) — both the recipe detail and Meal Review screens are popped off the back stack.
 3. On Home:
@@ -280,10 +283,18 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
      **"Összes" / "Elkészítve" / "Új"** (tabs), **"Legutóbb elkészítve"** (last‑cooked label).
 4a. Back on **Home**, spot‑check the level pill (e.g. **"Konyhai újonc · 1. szint"**), the weekly
     challenge card (**"HETI KIHÍVÁS"**, a Hungarian challenge title, **"Folyamatban"**), recipe
-    cards (**"⏱ 25 perc · Könnyű"**) and the last‑cooked time (**"ma"** / **"N napja"**).
+    cards (**"⏱ 25 perc · Könnyű"**) and the last‑cooked time (**"ma"** / **"N napja"**). A recipe cooked while the app was in English
+    shows its **Hungarian** name on the "Last cooked" card (it follows the app language, not the language it was logged in).
 4b. Open the **Trophies** tab.
    - **Spot‑check:** the chef-level name, badge names/descriptions (e.g. **"Első falat"** — *"Rögzítsd
      a legelső főzésedet."*) and kitchen time (**"1 ó 30 p"**).
+4b2. Open the **Ingredients** list (Home → "🌿" card).
+   - **The seeded starter items are in Hungarian** — e.g. **"Csirkemell"**, **"Brokkoli"**, **"Citrom"**.
+     Rename one (e.g. to "Grillcsirke"), switch back to English: **the renamed one keeps "Grillcsirke"**,
+     the untouched ones read English again (**"Chicken breast"**). Editing only a starter item's
+     macros in Hungarian must not pin its Hungarian name in English.
+   - On **Home**, the two stat cards stay **the same height** even though
+     **"Kipróbált alapanyagok"** wraps onto two lines.
 4c. Back on **Home**, check the recipe **content** itself (not just the surrounding chrome):
    - **With `GEMINI_API_KEY` configured:** the recommended recipes' names, tags, ingredients and
      steps are in Hungarian (Gemini follows the app-language instruction in the prompt).
@@ -420,6 +431,8 @@ one of them (SM-06) first.
      others show as a plain card** ("+XP", "⏱ N min · Difficulty").
 2. Type part of a saved recipe's name into the search bar.
    - **The list narrows to matching recipes only**, live as you type.
+   - Type something that matches nothing (e.g. "zzz"): **the message reads "No saved recipes match
+     “zzz”."** — not "You haven't saved any recipes yet."
 3. Clear the search, then switch to the **Cooked** tab, then **New**.
    - **Cooked** shows only the recipe(s) you've cooked; **New** shows only the ones you haven't.
    - **All** shows the full list again.

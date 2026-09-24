@@ -13,7 +13,7 @@ fun RecipeDetailRoute(
     recipeId: String,
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onMadeIt: () -> Unit,
+    onMadeIt: (servings: Int) -> Unit,
     viewModel: RecipeDetailViewModel = koinViewModel { parametersOf(recipeId) },
 ) {
     val state by viewModel.uiState.collectAsState()

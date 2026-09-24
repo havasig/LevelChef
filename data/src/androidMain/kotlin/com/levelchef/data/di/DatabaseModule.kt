@@ -34,7 +34,9 @@ val databaseModule = module {
     single { HttpClient(Android) { install(ContentNegotiation) { json() } } }
     single<CookingSessionRepository> { CookingSessionRepositoryImpl(get(), dispatcher = Dispatchers.IO) }
     single<SurveyRepository> { SurveyResponseRepositoryImpl(get(), dispatcher = Dispatchers.IO) }
-    single<IngredientRepository> { IngredientRepositoryImpl(get(), dispatcher = Dispatchers.IO) }
+    single<IngredientRepository> {
+        IngredientRepositoryImpl(get(), dispatcher = Dispatchers.IO, languageTag = { currentAppLanguageTag() })
+    }
     single<BadgeRepository> { BadgeRepositoryImpl(get(), get(), get(), dispatcher = Dispatchers.IO) }
     single<WeeklyChallengeRepository> { WeeklyChallengeRepositoryImpl(get(), get(), dispatcher = Dispatchers.IO) }
     single<SavedRecipeRepository> { SavedRecipeRepositoryImpl(get(), dispatcher = Dispatchers.IO) }
@@ -56,7 +58,7 @@ val databaseModule = module {
  * `AndroidAppSettingsController.language()`, which resolves the same
  * [AppCompatDelegate.getApplicationLocales] into its `AppLanguage` enum — `data` can't depend on
  * `feature:settings`, so this inlines the same tag parsing). `null` means "System" (no override),
- * which [RecipeRepositoryImpl] treats as English. */
+ * which [RecipeRepositoryImpl] and [IngredientRepositoryImpl] treat as English. */
 private fun currentAppLanguageTag(): String? =
     AppCompatDelegate.getApplicationLocales()
         .toLanguageTags()

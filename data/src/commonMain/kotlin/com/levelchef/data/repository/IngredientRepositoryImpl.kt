@@ -17,10 +17,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 /** SQLDelight-backed [IngredientRepository]. Enum columns store the enum `name`; macros are null-all-four.
- * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`). */
+ * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`).
+ * Seeded starter items are shown in the current app [languageTag] (see [localized]) until the user renames them. */
 class IngredientRepositoryImpl(
     private val database: LevelChefDatabase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val languageTag: () -> String? = { null },
 ) : IngredientRepository {
 
     private val queries: IngredientQueries get() = database.ingredientQueries
@@ -29,14 +31,14 @@ class IngredientRepositoryImpl(
         queries.selectAll()
             .asFlow()
             .mapToList(Dispatchers.Default)
-            .map { rows -> rows.map { it.toDomain() } }
+            .map { rows -> rows.map { it.toDomain().localized(languageTag()) } }
 
     override suspend fun getById(id: String): Ingredient? = withContext(dispatcher) {
-        queries.selectById(id).executeAsOneOrNull()?.toDomain()
+        queries.selectById(id).executeAsOneOrNull()?.toDomain()?.localized(languageTag())
     }
 
     override suspend fun save(ingredient: Ingredient) {
-        withContext(dispatcher) { queries.upsert(ingredient) }
+        withContext(dispatcher) { queries.upsert(ingredient.delocalized()) }
     }
 
     override suspend fun delete(id: String) {
@@ -152,3 +154,44 @@ internal val DEFAULT_INGREDIENT_IDS: Set<String> = DEFAULT_INGREDIENTS.mapTo(mut
 
 /** The pantry minus the seeded starter items — what "ingredients tried" and the pantry badges count. */
 internal fun List<Ingredient>.userAdded(): List<Ingredient> = filterNot { it.id in DEFAULT_INGREDIENT_IDS }
+
+/** Hungarian names for [DEFAULT_INGREDIENTS], keyed by id. English is the seeded name itself. */
+private val DEFAULT_INGREDIENT_NAMES_HU: Map<String, String> = mapOf(
+    "chicken-breast" to "Csirkemell",
+    "beef-brisket" to "Marhaszegy",
+    "turkey-breast" to "Pulykamell",
+    "salmon-fillet" to "Lazacfilé",
+    "greek-yogurt" to "Görög joghurt",
+    "cottage-cheese" to "Cottage cheese",
+    "parmesan" to "Parmezán",
+    "mozzarella" to "Mozzarella",
+    "broccoli" to "Brokkoli",
+    "avocado" to "Avokádó",
+    "spinach" to "Spenót",
+    "bell-pepper" to "Kaliforniai paprika",
+    "zucchini" to "Cukkini",
+    "eggplant" to "Padlizsán",
+    "lemon" to "Citrom",
+    "apple" to "Alma",
+    "banana" to "Banán",
+    "strawberry" to "Eper",
+)
+
+private val DEFAULT_INGREDIENT_NAMES_EN: Map<String, String> = DEFAULT_INGREDIENTS.associate { it.id to it.name }
+
+/**
+ * A starter item whose stored name is still the seeded English one is shown in the app language
+ * ([languageTag] `"hu"` → Hungarian, anything else → as stored). A renamed starter item keeps the
+ * user's name.
+ */
+internal fun Ingredient.localized(languageTag: String?): Ingredient {
+    if (languageTag != "hu" || name != DEFAULT_INGREDIENT_NAMES_EN[id]) return this
+    return DEFAULT_INGREDIENT_NAMES_HU[id]?.let { copy(name = it) } ?: this
+}
+
+/** Reverses [localized] on save, so editing an untouched starter item in Hungarian (e.g. only its
+ * macros) doesn't pin its Hungarian name when the app is switched back to English. */
+internal fun Ingredient.delocalized(): Ingredient {
+    if (name != DEFAULT_INGREDIENT_NAMES_HU[id]) return this
+    return DEFAULT_INGREDIENT_NAMES_EN[id]?.let { copy(name = it) } ?: this
+}

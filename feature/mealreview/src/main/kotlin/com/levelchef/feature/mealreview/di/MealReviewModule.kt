@@ -7,5 +7,5 @@ import org.koin.dsl.module
 
 val mealReviewModule = module {
     factory { RecordCookingSessionUseCase(get()) }
-    viewModel { params -> MealReviewViewModel(params.get(), get(), get()) }
+    viewModel { params -> MealReviewViewModel(params.get(), get(), get(), servings = params.getOrNull()) }
 }

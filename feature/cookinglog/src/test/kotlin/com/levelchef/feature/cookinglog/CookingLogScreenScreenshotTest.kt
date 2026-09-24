@@ -55,4 +55,9 @@ class CookingLogScreenScreenshotTest {
     fun cooking_log_screen_empty() = captureLightAndDark("cooking_log_screen_empty") {
         CookingLogScreen(state = sampleCookingLogState.copy(allItems = emptyList()))
     }
+
+    @Test
+    fun cooking_log_screen_no_search_match() = captureLightAndDark("cooking_log_screen_no_search_match") {
+        CookingLogScreen(state = sampleCookingLogState.copy(query = "zzz"))
+    }
 }

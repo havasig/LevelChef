@@ -13,7 +13,8 @@ fun MealReviewRoute(
     recipeId: String,
     onBackClick: () -> Unit,
     onSaved: () -> Unit,
-    viewModel: MealReviewViewModel = koinViewModel { parametersOf(recipeId) },
+    servings: Int? = null,
+    viewModel: MealReviewViewModel = koinViewModel { parametersOf(recipeId, servings) },
 ) {
     val state by viewModel.uiState.collectAsState()
 
