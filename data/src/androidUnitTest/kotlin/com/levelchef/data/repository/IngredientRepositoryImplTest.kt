@@ -8,6 +8,7 @@ import com.levelchef.core.model.Ingredient
 import com.levelchef.core.model.IngredientCategory
 import com.levelchef.core.model.IngredientMacros
 import com.levelchef.core.model.MeasurementUnit
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -137,5 +138,45 @@ class IngredientRepositoryImplTest {
         repository.seedDefaults()
 
         assertEquals(DEFAULT_INGREDIENTS.size, repository.count())
+    }
+
+    @Test
+    fun seeded_starter_items_read_in_hungarian_when_the_app_language_is_hungarian() = runTest {
+        val hungarian = IngredientRepositoryImpl(LevelChefDatabase(driver), languageTag = { "hu" })
+        hungarian.seedDefaults()
+        assertEquals("Csirkemell", hungarian.getById("chicken-breast")?.name)
+        assertTrue(hungarian.observeAll().first().any { it.id == "broccoli" && it.name == "Brokkoli" })
+    }
+
+    @Test
+    fun seeded_starter_items_keep_their_english_name_in_english() = runTest {
+        val english = IngredientRepositoryImpl(LevelChefDatabase(driver), languageTag = { "en" })
+        english.seedDefaults()
+        assertEquals("Chicken breast", english.getById("chicken-breast")?.name)
+    }
+
+    @Test
+    fun a_renamed_starter_item_keeps_the_user_name_in_hungarian() = runTest {
+        val hungarian = IngredientRepositoryImpl(LevelChefDatabase(driver), languageTag = { "hu" })
+        hungarian.seedDefaults()
+        val starter = hungarian.getById("chicken-breast")!!
+        hungarian.save(starter.copy(name = "Grilled chicken"))
+        assertEquals("Grilled chicken", hungarian.getById("chicken-breast")?.name)
+    }
+
+    @Test
+    fun saving_an_untouched_starter_item_in_hungarian_stores_the_english_seed_name() = runTest {
+        val hungarian = IngredientRepositoryImpl(LevelChefDatabase(driver), languageTag = { "hu" })
+        hungarian.seedDefaults()
+        hungarian.save(hungarian.getById("chicken-breast")!!.copy(emoji = "🐔"))
+        assertEquals("Chicken breast", repository.getById("chicken-breast")?.name)
+        assertEquals("Csirkemell", hungarian.getById("chicken-breast")?.name)
+    }
+
+    @Test
+    fun user_added_ingredients_are_never_translated() = runTest {
+        val hungarian = IngredientRepositoryImpl(LevelChefDatabase(driver), languageTag = { "hu" })
+        hungarian.save(chicken)
+        assertEquals("Chicken breast", hungarian.getById("chicken")?.name)
     }
 }

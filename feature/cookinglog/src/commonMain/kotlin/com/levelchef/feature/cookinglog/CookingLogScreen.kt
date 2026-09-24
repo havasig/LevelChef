@@ -72,7 +72,7 @@ fun CookingLogScreen(
             )
         }
         if (filteredItems.isEmpty() && !state.loading) {
-            EmptyState(state.selectedTab, modifier = Modifier.weight(1f))
+            EmptyState(state.selectedTab, state.query, modifier = Modifier.weight(1f))
         } else {
             LazyColumn(
                 modifier = Modifier.weight(1f),

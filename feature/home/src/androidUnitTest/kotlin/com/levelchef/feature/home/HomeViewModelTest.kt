@@ -70,6 +70,28 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun last_cooked_shows_the_recipe_current_name_so_a_language_switch_renames_it() = runTest(dispatcher) {
+        val viewModel = viewModel(
+            lastCooked = session(cookedAt = Clock.System.now()),
+            recommendations = listOf(
+                Recipe("r1", "Crispy tofu stir-fry", "🥢", xpReward = 30, timeMinutes = 10, difficulty = Difficulty.EASY),
+            ),
+        )
+        viewModel.uiState.test {
+            testScheduler.advanceUntilIdle()
+            assertEquals("Crispy tofu stir-fry", expectMostRecentItem().lastCooked?.recipeName)
+        }
+    }
+
+    @Test
+    fun last_cooked_falls_back_to_the_logged_name_when_the_recipe_is_gone() = runTest(dispatcher) {
+        viewModel(lastCooked = session(cookedAt = Clock.System.now())).uiState.test {
+            testScheduler.advanceUntilIdle()
+            assertEquals("Tofu stir-fry", expectMostRecentItem().lastCooked?.recipeName)
+        }
+    }
+
+    @Test
     fun last_cooked_is_null_when_there_is_no_session() = runTest(dispatcher) {
         viewModel(lastCooked = null).uiState.test {
             testScheduler.advanceUntilIdle()

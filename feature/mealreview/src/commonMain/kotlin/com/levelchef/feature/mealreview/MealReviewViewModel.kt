@@ -11,11 +11,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 class MealReviewViewModel(
     private val recipeId: String,
     private val recipeRepository: RecipeRepository,
     private val recordCookingSession: RecordCookingSessionUseCase,
+    /** The serving count cooked on the recipe-detail stepper; `null` means the recipe's own servings. */
+    private val servings: Int? = null,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MealReviewUiState())
@@ -31,12 +34,15 @@ class MealReviewViewModel(
                 it.copy(
                     loading = false,
                     recipeName = loaded?.name.orEmpty(),
+                    durationMinutes = loaded?.timeMinutes ?: 0,
                     xpReward = loaded?.xpReward ?: 0,
                     caloriesKcal = loaded?.caloriesKcal ?: 0,
                     proteinGrams = loaded?.proteinGrams ?: 0,
                     carbsGrams = loaded?.carbsGrams ?: 0,
                     fatGrams = loaded?.fatGrams ?: 0,
-                    ingredientLines = loaded?.ingredients.orEmpty().map { ingredient -> ingredient.toDisplayLine() },
+                    ingredientLines = loaded?.let { found ->
+                        found.ingredients.map { ingredient -> ingredient.toDisplayLine(servings ?: found.servings, found.servings) }
+                    }.orEmpty(),
                 )
             }
         }
@@ -89,10 +95,19 @@ class MealReviewViewModel(
     }
 }
 
-private fun RecipeIngredient.toDisplayLine(): String {
-    val amount = quantity?.let { raw ->
-        val formatted = if (raw == raw.toLong().toDouble()) raw.toLong().toString() else raw.toString()
-        unit?.let { "$formatted $it" } ?: formatted
+/**
+ * One ingredient line, scaled from the recipe's [baseServings] to the [servings] actually cooked —
+ * mirrors `feature:recipedetail`'s mapper (features can't depend on each other) so both screens agree.
+ */
+private fun RecipeIngredient.toDisplayLine(servings: Int, baseServings: Int): String {
+    val rawQuantity = quantity ?: return name
+    val scaled = rawQuantity * servings / baseServings.coerceAtLeast(1)
+    val amount = if (scaled % 1.0 == 0.0) {
+        scaled.roundToLong().toString()
+    } else {
+        ((scaled * HUNDREDTHS).roundToLong() / HUNDREDTHS).toString()
     }
-    return if (amount != null) "$amount $name" else name
+    return listOfNotNull(amount, unit, name).joinToString(" ")
 }
+
+private const val HUNDREDTHS = 100.0

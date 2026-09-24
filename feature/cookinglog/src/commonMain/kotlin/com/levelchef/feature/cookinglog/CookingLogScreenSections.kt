@@ -31,6 +31,7 @@ import com.levelchef.feature.cookinglog.generated.resources.cooking_log_difficul
 import com.levelchef.feature.cookinglog.generated.resources.cooking_log_empty_all
 import com.levelchef.feature.cookinglog.generated.resources.cooking_log_empty_cooked
 import com.levelchef.feature.cookinglog.generated.resources.cooking_log_empty_new
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_empty_search
 import com.levelchef.feature.cookinglog.generated.resources.cooking_log_last_cooked_label
 import org.jetbrains.compose.resources.stringResource
 
@@ -83,18 +84,25 @@ internal fun SavedRecipeRow(item: SavedRecipeItem, onClick: () -> Unit, onDelete
 }
 
 @Composable
-internal fun EmptyState(tab: CookingLogTab, modifier: Modifier = Modifier) {
-    val textRes = when (tab) {
-        CookingLogTab.ALL -> Res.string.cooking_log_empty_all
-        CookingLogTab.COOKED -> Res.string.cooking_log_empty_cooked
-        CookingLogTab.NEW -> Res.string.cooking_log_empty_new
+internal fun EmptyState(tab: CookingLogTab, query: String, modifier: Modifier = Modifier) {
+    // A search with no hits is not the same as an empty tab — say so instead of "nothing saved yet".
+    val text = if (query.isNotBlank()) {
+        stringResource(Res.string.cooking_log_empty_search, query.trim())
+    } else {
+        stringResource(
+            when (tab) {
+                CookingLogTab.ALL -> Res.string.cooking_log_empty_all
+                CookingLogTab.COOKED -> Res.string.cooking_log_empty_cooked
+                CookingLogTab.NEW -> Res.string.cooking_log_empty_new
+            },
+        )
     }
     Box(
         modifier = modifier.fillMaxSize().padding(24.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            stringResource(textRes),
+            text,
             color = LevelChefTheme.colors.textSecondary,
             style = LevelChefTextStyles.bodyRegular,
         )

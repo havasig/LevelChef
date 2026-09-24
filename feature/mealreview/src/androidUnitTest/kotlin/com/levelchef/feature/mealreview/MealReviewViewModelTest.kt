@@ -51,10 +51,12 @@ class MealReviewViewModelTest {
     private fun viewModel(
         recipes: List<Recipe> = listOf(recipe),
         sessions: RecordingCookingSessionRepository = RecordingCookingSessionRepository(),
+        servings: Int? = null,
     ) = MealReviewViewModel(
         recipeId = "lemon-chicken",
         recipeRepository = FakeRecipeRepository(recipes),
         recordCookingSession = RecordCookingSessionUseCase(sessions) { "s" },
+        servings = servings,
     )
 
     @Test
@@ -133,7 +135,7 @@ class MealReviewViewModelTest {
         assertEquals("lemon-chicken", session.recipeId)
         assertEquals(4, session.rating)
         assertEquals("Needed more lemon", session.improvementNote)
-        assertEquals(5, session.durationMinutes)
+        assertEquals(30, session.durationMinutes) // prefilled 25 + 5
         assertEquals(320, session.kcal)
         assertTrue(vm.uiState.value.saved)
     }
@@ -148,5 +150,27 @@ class MealReviewViewModelTest {
 
         assertTrue(sessions.recorded.isEmpty())
         assertFalse(vm.uiState.value.saved)
+    }
+
+    @Test
+    fun prefills_the_cook_time_with_the_recipe_time() = runTest(dispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertEquals(25, vm.uiState.value.durationMinutes)
+    }
+
+    @Test
+    fun scales_ingredient_lines_to_the_servings_cooked() = runTest(dispatcher) {
+        val vm = viewModel(servings = 3)
+        advanceUntilIdle()
+        // The recipe is written for 2 servings (the model default).
+        assertEquals(listOf("750 g chicken breast", "3 lemons"), vm.uiState.value.ingredientLines)
+    }
+
+    @Test
+    fun scales_ingredient_lines_down_for_fewer_servings() = runTest(dispatcher) {
+        val vm = viewModel(servings = 1)
+        advanceUntilIdle()
+        assertEquals(listOf("250 g chicken breast", "1 lemons"), vm.uiState.value.ingredientLines)
     }
 }

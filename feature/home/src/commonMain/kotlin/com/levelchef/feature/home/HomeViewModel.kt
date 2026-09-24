@@ -38,6 +38,8 @@ class HomeViewModel(
             val lastCookedSession = cookingSessionRepository.mostRecent()
             val recommendations = recipeRepository.getRecommendations()
             val challenge = weeklyChallengeRepository.observeCurrent().first()
+            // The session keeps the name as logged; re-resolve it so a language switch renames it too.
+            val lastCookedName = lastCookedSession?.let { recipeRepository.getById(it.recipeId)?.name }
 
             _uiState.value = HomeUiState(
                 level = level,
@@ -51,7 +53,7 @@ class HomeViewModel(
                 challengeCompleted = challenge.isCompleted,
                 challengeEligible = challenge.progressCurrent >= challenge.progressTarget,
                 recommendations = recommendations.map { it.toRecommendation() },
-                lastCooked = lastCookedSession?.toLastCooked(),
+                lastCooked = lastCookedSession?.toLastCooked(nameOverride = lastCookedName),
             )
         }
     }
