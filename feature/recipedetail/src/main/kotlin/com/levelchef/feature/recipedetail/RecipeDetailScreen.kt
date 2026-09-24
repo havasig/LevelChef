@@ -105,7 +105,7 @@ private fun LoadedRecipe(recipe: Recipe, state: RecipeDetailUiState, actions: Re
                 onCancelTimer = actions.onCancelTimer,
             )
             recipe.videoUrl?.let { url -> RelatedVideoRow(onClick = { actions.onOpenVideo(url) }) }
-            ActionButtons(recipe.xpReward, state.isSaved, actions.onMadeIt, actions.onToggleSaved)
+            ActionButtons(recipe.xpReward, state.isSaved, { actions.onMadeIt(state.servings) }, actions.onToggleSaved)
         }
 
         state.transientMessage?.let { message ->

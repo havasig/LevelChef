@@ -5,8 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -61,16 +64,17 @@ internal fun LevelProgressSection(state: HomeUiState) {
 
 @Composable
 internal fun StatCardsRow(state: HomeUiState, onIngredientsClick: () -> Unit = {}) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    // IntrinsicSize.Min + fillMaxHeight keeps both cards the same height when one label wraps (e.g. Hungarian).
+    Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         StatCard(
             "🍳 ${state.cookingSessions}",
             stringResource(R.string.home_cooking_sessions_label),
-            Modifier.weight(1f),
+            Modifier.weight(1f).fillMaxHeight(),
         )
         StatCard(
             "🌿 ${state.ingredientsTried}",
             stringResource(R.string.home_ingredients_tried_label),
-            Modifier.weight(1f),
+            Modifier.weight(1f).fillMaxHeight(),
             onClick = onIngredientsClick,
         )
     }
