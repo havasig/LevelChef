@@ -54,3 +54,23 @@ RELEASE_KEY_PASSWORD=<key password>
 
 With all four set, `./gradlew :androidApp:bundleRelease` / `assembleRelease` produce a
 properly-signed artifact.
+
+### Publishing a GitHub release
+
+`.github/workflows/release.yml` builds the signed APK and attaches `LevelChef-vX.Y.Z.apk` (plus a
+`.sha256` checksum) to the GitHub release. It needs four repository secrets
+(**Settings → Secrets and variables → Actions**):
+
+| Secret | Value |
+|---|---|
+| `RELEASE_KEYSTORE_BASE64` | the `.jks` file, base64-encoded (`base64 -w0 release.jks`) |
+| `RELEASE_STORE_PASSWORD` | store password |
+| `RELEASE_KEY_ALIAS` | key alias |
+| `RELEASE_KEY_PASSWORD` | key password |
+
+Flow: release-drafter keeps a draft release up to date on every merge to `main` → bump
+`versionName`/`versionCode` in `androidApp/build.gradle.kts` so it matches the draft's tag
+(`v<versionName>`) → **publish** the draft; the workflow runs for that tag and attaches the APK. To
+(re)attach an APK to an existing release (including a still-unpublished draft), run the workflow
+manually with that tag. It fails rather than ship a debug-signed APK, and it does not supply
+`GEMINI_API_KEY`, so published builds use the bundled recipe set.
