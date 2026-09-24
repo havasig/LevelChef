@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Flaming wok mark, traced from the LevelChef Figma file (App Icon / Android / Light, node
+     663:4263). Positioned at its exact original offset (162, 187) within the 1024x1024 icon
+     canvas so it lands inside the adaptive-icon safe zone without any redesign. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+    <group android:translateX="162" android:translateY="187">
+        <!-- Wok foot -->
+        <path
+            android:fillColor="#24134F"
+            android:pathData="M286,552 A61,14 0 1 0 408,552 A61,14 0 1 0 286,552 Z" />
+        <!-- Handle accent -->
+        <group
+            android:pivotX="610"
+            android:pivotY="355"
+            android:rotation="-14">
+            <path
+                android:fillColor="#745CFF"
+                android:pathData="M618,355 H676 A8,8 0 0 1 684,363 V363 A8,8 0 0 1 676,371 H618 A8,8 0 0 1 610,363 V363 A8,8 0 0 1 618,355 Z" />
+        </group>
+        <!-- Wok handle -->
+        <group
+            android:pivotX="530"
+            android:pivotY="382"
+            android:rotation="-14">
+            <path
+                android:fillColor="#24134F"
+                android:pathData="M554,382 H690 A24,24 0 0 1 714,406 V406 A24,24 0 0 1 690,430 H554 A24,24 0 0 1 530,406 V406 A24,24 0 0 1 554,382 Z" />
+        </group>
+        <!-- Wok rim -->
+        <path
+            android:strokeColor="#24134F"
+            android:strokeWidth="24"
+            android:strokeLineCap="round"
+            android:pathData="M82,322 C211.196,442 464.804,442 594,322" />
+        <!-- Wok bowl -->
+        <path
+            android:fillColor="#24134F"
+            android:pathData="M82,322 C117.888,478.941 215.981,552 338,552 C460.019,552 558.112,478.941 594,322 C464.804,376.118 211.196,376.118 82,322 Z" />
+        <!-- Flame core -->
+        <group
+            android:pivotX="336.233"
+            android:pivotY="263.012"
+            android:rotation="12">
+            <path
+                android:fillColor="#FFC857"
+                android:pathData="M290.233,263.012 A46,71 0 1 0 382.233,263.012 A46,71 0 1 0 290.233,263.012 Z" />
+        </group>
+        <!-- Flame -->
+        <path
+            android:fillColor="#FF6F61"
+            android:pathData="M397.587,100.394 C383.305,81.9648 367.234,65.7472 349.732,52.1031 C348.303,51.0519 346.667,50.4965 345,50.4965 C343.333,50.4965 341.697,51.0519 340.268,52.1031 C322.766,65.7472 306.695,81.9648 292.413,100.394 C260.693,141.175 243.938,186.161 243.938,230.5 C243.938,263.321 254.585,294.797 273.538,318.004 C292.491,341.212 318.197,354.25 345,354.25 C371.803,354.25 397.509,341.212 416.462,318.004 C435.415,294.797 446.062,263.321 446.062,230.5 C446.062,186.161 429.307,141.175 397.587,100.394 ZM308.25,286.75 C308.25,247.839 334.124,220.262 345,210.391 C355.887,220.234 381.75,247.839 381.75,286.75 C381.75,298.685 377.878,310.131 370.986,318.57 C364.094,327.009 354.747,331.75 345,331.75 C335.253,331.75 325.906,327.009 319.014,318.57 C312.122,310.131 308.25,298.685 308.25,286.75 Z" />
+        <!-- Spice streak -->
+        <group
+            android:pivotX="508"
+            android:pivotY="18"
+            android:rotation="-24">
+            <path
+                android:fillColor="#FFC857"
+                android:pathData="M517,18 H517 A9,9 0 0 1 526,27 V71 A9,9 0 0 1 517,80 H517 A9,9 0 0 1 508,71 V27 A9,9 0 0 1 517,18 Z" />
+        </group>
+        <!-- Spice grain -->
+        <path
+            android:fillColor="#F59E5B"
+            android:pathData="M486,167 A11,11 0 1 0 508,167 A11,11 0 1 0 486,167 Z" />
+        <!-- Spice grain -->
+        <path
+            android:fillColor="#FF6F61"
+            android:pathData="M532,103 A15,15 0 1 0 562,103 A15,15 0 1 0 532,103 Z" />
+        <!-- Spice grain (rotation omitted: a circle is rotationally symmetric) -->
+        <path
+            android:fillColor="#FFC857"
+            android:pathData="M454.483,54.4615 A21,21 0 1 0 496.483,54.4615 A21,21 0 1 0 454.483,54.4615 Z" />
+    </group>
+</vector>
