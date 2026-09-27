@@ -178,10 +178,17 @@ If a new screen is added to the Figma file, give its stub composable a
 
 ## Not yet done (see README "Next steps")
 
-1. iOS target (KMP modules are ready; no iOS app shell yet).
-2. Screenshot baselines were last recorded before the Inter font (#44); re-record them with
-   `./gradlew recordRoborazziDebug` and review the diff.
-3. **DB migration policy flips at the first release.** The `core:database` section above
+1. **iOS target, via Compose Multiplatform — in progress.** The build-logic/version-catalog
+   foundation has landed (`levelchef.kmp.library` now declares `iosX64`/`iosArm64`/
+   `iosSimulatorArm64` alongside `androidTarget`; a new `levelchef.kmp.feature` convention plugin
+   applies `org.jetbrains.compose` 1.7.3 — the last CMP line compatible with our pinned Kotlin
+   2.0.21 before CMP 1.8.0's K2-only cutover requires Kotlin 2.1.0+). Still to come: an iOS target
+   for `core:database`/`data` (native SQLDelight driver, Darwin Ktor engine), migrating
+   `core:ui`/`core:designsystem`/`feature:*` off `levelchef.android.*` onto `levelchef.kmp.feature`
+   (this also moves every module's `strings.xml` into Compose Multiplatform resources —
+   `core:designsystem` reads Android string resources directly too, not just `feature:*`), the
+   `feature:settings` theme/language platform bridge, and the actual `iosApp` Xcode shell.
+2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is
    actually released — the very next PR that changes the SQLDelight schema after that point must
