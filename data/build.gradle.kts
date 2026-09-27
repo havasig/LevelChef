@@ -25,6 +25,10 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.androidx.appcompat)
         }
+        iosMain.dependencies {
+            implementation(libs.sqldelight.native.driver)
+            implementation(libs.ktor.client.darwin)
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)

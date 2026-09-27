@@ -182,12 +182,16 @@ If a new screen is added to the Figma file, give its stub composable a
    foundation has landed (`levelchef.kmp.library` now declares `iosX64`/`iosArm64`/
    `iosSimulatorArm64` alongside `androidTarget`; a new `levelchef.kmp.feature` convention plugin
    applies `org.jetbrains.compose` 1.7.3 — the last CMP line compatible with our pinned Kotlin
-   2.0.21 before CMP 1.8.0's K2-only cutover requires Kotlin 2.1.0+). Still to come: an iOS target
-   for `core:database`/`data` (native SQLDelight driver, Darwin Ktor engine), migrating
-   `core:ui`/`core:designsystem`/`feature:*` off `levelchef.android.*` onto `levelchef.kmp.feature`
-   (this also moves every module's `strings.xml` into Compose Multiplatform resources —
-   `core:designsystem` reads Android string resources directly too, not just `feature:*`), the
-   `feature:settings` theme/language platform bridge, and the actual `iosApp` Xcode shell.
+   2.0.21 before CMP 1.8.0's K2-only cutover requires Kotlin 2.1.0+), and so has a real iOS target
+   for the logic layer: `core:model`/`core:database`/`domain` needed no changes at all (no
+   `expect`/`actual` coupling anywhere yet), and `data` now has an `iosMain` `databaseModule`
+   mirroring `androidMain`'s (SQLDelight's `NativeSqliteDriver`, Ktor's `Darwin` engine, the
+   `RecipeRepository` language tag read from `NSLocale` instead of `AppCompatDelegate`). Still to
+   come: migrating `core:ui`/`core:designsystem`/`feature:*` off `levelchef.android.*` onto
+   `levelchef.kmp.feature` (this also moves every module's `strings.xml` into Compose Multiplatform
+   resources — `core:designsystem` reads Android string resources directly too, not just
+   `feature:*`), the `feature:settings` theme/language platform bridge (an in-app override — the
+   `data` seam above only reads the system-wide locale so far), and the actual `iosApp` Xcode shell.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is
