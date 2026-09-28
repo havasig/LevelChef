@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.ButtonType
 import com.levelchef.core.designsystem.LevelChefButton
@@ -21,6 +20,11 @@ import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefTopAppBarHome
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.home.generated.resources.Res
+import com.levelchef.feature.home.generated.resources.home_cook_today_cta
+import com.levelchef.feature.home.generated.resources.home_recommended_for_you
+import com.levelchef.feature.home.generated.resources.home_top_bar_title
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun HomeScreen(
@@ -37,7 +41,7 @@ fun HomeScreen(
             .background(LevelChefTheme.colors.background),
     ) {
         LevelChefTopAppBarHome(
-            title = stringResource(R.string.home_top_bar_title),
+            title = stringResource(Res.string.home_top_bar_title),
             onSettingsClick = onSettingsClick,
             modifier = Modifier.statusBarsPadding(),
         )
@@ -55,7 +59,7 @@ fun HomeScreen(
             item { LevelChefDivider() }
             item {
                 LevelChefButton(
-                    label = stringResource(R.string.home_cook_today_cta),
+                    label = stringResource(Res.string.home_cook_today_cta),
                     type = ButtonType.PRIMARY,
                     onClick = { state.recommendations.randomOrNull()?.let(onCookToday) },
                     modifier = Modifier.fillMaxWidth(),
@@ -64,7 +68,7 @@ fun HomeScreen(
             item { LevelChefDivider() }
             item {
                 Text(
-                    stringResource(R.string.home_recommended_for_you),
+                    stringResource(Res.string.home_recommended_for_you),
                     color = LevelChefTheme.colors.textPrimary,
                     style = LevelChefTextStyles.bodyRegularBold,
                 )
