@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.LevelChefMacroGrid
 import com.levelchef.core.designsystem.LevelChefPreview
@@ -27,7 +26,16 @@ import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.model.Recipe
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.recipedetail.generated.resources.Res
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_not_found
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_servings_count
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_servings_decrease
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_servings_increase
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_servings_label
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_settings
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_title
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 private const val SNACKBAR_VISIBLE_MS = 2500L
 
@@ -48,10 +56,10 @@ fun RecipeDetailScreen(
             .navigationBarsPadding(),
     ) {
         LevelChefTopAppBarInner(
-            title = state.recipe?.name ?: stringResource(R.string.recipe_detail_title),
+            title = state.recipe?.name ?: stringResource(Res.string.recipe_detail_title),
             onBackClick = actions.onBackClick,
             trailingIcon = Icons.Filled.Settings,
-            trailingContentDescription = stringResource(R.string.recipe_detail_settings),
+            trailingContentDescription = stringResource(Res.string.recipe_detail_settings),
             onTrailingClick = actions.onSettingsClick,
             modifier = Modifier.statusBarsPadding(),
         )
@@ -67,7 +75,7 @@ private fun MissingRecipe(showMessage: Boolean) {
     Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
         if (showMessage) {
             Text(
-                stringResource(R.string.recipe_detail_not_found),
+                stringResource(Res.string.recipe_detail_not_found),
                 color = LevelChefTheme.colors.textSecondary,
                 style = LevelChefTextStyles.bodyRegular,
             )
@@ -89,12 +97,12 @@ private fun LoadedRecipe(recipe: Recipe, state: RecipeDetailUiState, actions: Re
             TitleAndTags(recipe)
             LevelChefMacroGrid(cells = recipeMacroCells(recipe))
             LevelChefServingsStepper(
-                label = stringResource(R.string.recipe_detail_servings_label),
+                label = stringResource(Res.string.recipe_detail_servings_label),
                 value = state.servings,
-                unitLabel = stringResource(R.string.recipe_detail_servings_count),
+                unitLabel = stringResource(Res.string.recipe_detail_servings_count),
                 onChange = actions.onServingsChange,
-                decreaseContentDescription = stringResource(R.string.recipe_detail_servings_decrease),
-                increaseContentDescription = stringResource(R.string.recipe_detail_servings_increase),
+                decreaseContentDescription = stringResource(Res.string.recipe_detail_servings_decrease),
+                increaseContentDescription = stringResource(Res.string.recipe_detail_servings_increase),
             )
             IngredientsSection(recipe, state.servings, state.checkedIngredients, actions.onIngredientToggle)
             StepsSection(
