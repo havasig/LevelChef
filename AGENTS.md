@@ -110,7 +110,7 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **English only** — all code, comments, commit messages, and docs. Translate any Hungarian design text.
 - **Version catalog** — every dependency goes through `gradle/libs.versions.toml` (`libs.…`). No hardcoded coordinates in module build files.
 - **Convention plugins** — module build files apply one of: `levelchef.android.feature`, `levelchef.android.library`, `levelchef.android.application`, `levelchef.kmp.library` (in `build-logic/`). Put shared config there, not in each module.
-- **Source sets** — KMP modules (`core:model`, `core:database`, `domain`, `data`, and — since the Compose Multiplatform migration reached them — `core:ui`/`core:designsystem`) use `src/commonMain/kotlin` (+ `src/androidMain`/`src/iosMain` for the few things that are genuinely platform-specific). `feature:*` modules are still plain Android libraries using `src/main/kotlin`, pending their own migration (see the "Not yet done" iOS item).
+- **Source sets** — KMP modules (`core:model`, `core:database`, `domain`, `data`, `core:ui`/`core:designsystem`, and — as the Stage D pilot — `feature:cookinglog`) use `src/commonMain/kotlin` (+ `src/androidMain`/`src/iosMain`/`src/androidUnitTest` for the few things that are genuinely platform-specific, such as Robolectric/Roborazzi screenshot tests). The rest of `feature:*` are still plain Android libraries using `src/main/kotlin`, pending the same migration (see the "Not yet done" iOS item).
 - **Package root** — `com.levelchef.<module path>` (e.g. `com.levelchef.feature.home`, `com.levelchef.core.designsystem`).
 - **Compose screen pattern** (see `feature:home`): stateless `XScreen(state, on…)` + stateful `XRoute(viewModel = koinViewModel())` that collects `uiState`. UI state is a single `XUiState` data class with sensible defaults. Section composables live in `XScreenSections.kt`.
 - **Screen chrome** — each feature screen renders its **own** top app bar (`LevelChefTopAppBar{Home,Inner,Search}`) as the first child of its root layout, with `Modifier.statusBarsPadding()`. The bottom navigation bar is *not* per-screen: it lives in `androidApp`'s app-level `Scaffold` (`LevelChefNav.kt`) and shows only on the top-level destinations (Home, Recipes, Trophies). A drill-down screen (back arrow, no bottom bar) also adds `Modifier.navigationBarsPadding()`.
@@ -198,10 +198,20 @@ If a new screen is added to the Figma file, give its stub composable a
    (real `@Preview` on Android, a no-op marker on iOS — Compose Multiplatform has no iOS preview
    tooling equivalent yet). The Inter variable font's per-weight axis (`FontVariation`) isn't fully
    supported on iOS yet upstream (JetBrains/compose-multiplatform#3127) — verify visually once an iOS
-   build exists. Still to come: migrating `feature:*` off `levelchef.android.feature` onto
-   `levelchef.kmp.feature` (same `strings.xml`→`composeResources` treatment, per module), the
-   `feature:settings` theme/language platform bridge (an in-app override — the `data` seam above
-   only reads the system-wide locale so far), and the actual `iosApp` Xcode shell.
+   build exists. **`feature:*` migration to `levelchef.kmp.feature` — in progress (Stage D).**
+   `feature:cookinglog` is the completed pilot: `src/main/kotlin` → `src/commonMain/kotlin`,
+   `src/main/res/values{,-hu}/strings.xml` → `src/commonMain/composeResources/values{,-hu}/strings.xml`
+   (`R.string.x` → `Res.string.x`, with both `Res` and each specific resource name imported from
+   `<module>.generated.resources` — Compose Multiplatform generates resource accessors as top-level
+   extension properties, not real members of `Res`), and its Robolectric/Roborazzi screenshot test
+   moved `src/test/kotlin` → `src/androidUnitTest/kotlin` (Android-only test deps go in a
+   `getByName("androidUnitTest").dependencies { ... }` block, mirroring `data/build.gradle.kts`) —
+   including the screenshot baselines (`src/test/screenshots` → `src/androidUnitTest/screenshots`,
+   updated in both the `roborazzi { outputDir.set(...) }` build-file setting and the literal path
+   string each `captureRoboImage(...)` call passes. Still to come: repeating this same recipe for
+   the remaining `feature:*` modules, the `feature:settings` theme/language platform bridge (an
+   in-app override — the `data` seam above only reads the system-wide locale so far), and the
+   actual `iosApp` Xcode shell.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is

@@ -12,13 +12,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefSearchBar
 import com.levelchef.core.designsystem.LevelChefTabBar
 import com.levelchef.core.designsystem.LevelChefTopAppBarHome
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.cookinglog.generated.resources.Res
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_search_placeholder
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_tab_all
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_tab_cooked
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_tab_new
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_title
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Figma node 489:1362 — "My saved recipes". This is the real content for the **Recipes** bottom-nav
@@ -41,7 +47,7 @@ fun CookingLogScreen(
             .background(colors.background),
     ) {
         LevelChefTopAppBarHome(
-            title = stringResource(R.string.cooking_log_title),
+            title = stringResource(Res.string.cooking_log_title),
             modifier = Modifier.statusBarsPadding(),
         )
         Column(
@@ -53,13 +59,13 @@ fun CookingLogScreen(
             LevelChefSearchBar(
                 query = state.query,
                 onQueryChange = actions.onQueryChange,
-                placeholder = stringResource(R.string.cooking_log_search_placeholder),
+                placeholder = stringResource(Res.string.cooking_log_search_placeholder),
             )
             LevelChefTabBar(
                 tabs = listOf(
-                    stringResource(R.string.cooking_log_tab_all),
-                    stringResource(R.string.cooking_log_tab_cooked),
-                    stringResource(R.string.cooking_log_tab_new),
+                    stringResource(Res.string.cooking_log_tab_all),
+                    stringResource(Res.string.cooking_log_tab_cooked),
+                    stringResource(Res.string.cooking_log_tab_new),
                 ),
                 selectedIndex = state.selectedTab.ordinal,
                 onTabSelected = { index -> actions.onTabSelected(CookingLogTab.entries[index]) },
