@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -42,6 +41,28 @@ import com.levelchef.core.ui.theme.MacroCarbsOrange
 import com.levelchef.core.ui.theme.MacroFatGreen
 import com.levelchef.core.ui.theme.MacroProteinPurple
 import com.levelchef.feature.mealreview.MealReviewUiState.Companion.MAX_RATING
+import com.levelchef.feature.mealreview.generated.resources.Res
+import com.levelchef.feature.mealreview.generated.resources.meal_review_duration_decrease
+import com.levelchef.feature.mealreview.generated.resources.meal_review_duration_increase
+import com.levelchef.feature.mealreview.generated.resources.meal_review_duration_unit
+import com.levelchef.feature.mealreview.generated.resources.meal_review_ingredients_label
+import com.levelchef.feature.mealreview.generated.resources.meal_review_macro_calories
+import com.levelchef.feature.mealreview.generated.resources.meal_review_macro_carbs
+import com.levelchef.feature.mealreview.generated.resources.meal_review_macro_decrease
+import com.levelchef.feature.mealreview.generated.resources.meal_review_macro_fat
+import com.levelchef.feature.mealreview.generated.resources.meal_review_macro_increase
+import com.levelchef.feature.mealreview.generated.resources.meal_review_macro_protein
+import com.levelchef.feature.mealreview.generated.resources.meal_review_macros_label
+import com.levelchef.feature.mealreview.generated.resources.meal_review_note_label
+import com.levelchef.feature.mealreview.generated.resources.meal_review_note_placeholder
+import com.levelchef.feature.mealreview.generated.resources.meal_review_rating_label
+import com.levelchef.feature.mealreview.generated.resources.meal_review_rating_star
+import com.levelchef.feature.mealreview.generated.resources.meal_review_rating_value
+import com.levelchef.feature.mealreview.generated.resources.meal_review_save
+import com.levelchef.feature.mealreview.generated.resources.meal_review_unit_grams
+import com.levelchef.feature.mealreview.generated.resources.meal_review_unit_kcal
+import com.levelchef.feature.mealreview.generated.resources.meal_review_xp_badge
+import org.jetbrains.compose.resources.stringResource
 
 /** Section composables for [MealReviewScreen], kept internal to this feature. */
 
@@ -63,21 +84,21 @@ internal fun RecipeHeaderCard(recipeName: String, xpReward: Int) {
             style = LevelChefTextStyles.bodyRegularBold,
             modifier = Modifier.weight(1f),
         )
-        LevelChefBadge(stringResource(R.string.meal_review_xp_badge, xpReward), style = BadgeStyle.DARK)
+        LevelChefBadge(stringResource(Res.string.meal_review_xp_badge, xpReward), style = BadgeStyle.DARK)
     }
 }
 
 @Composable
 internal fun RatingSection(rating: Int, onRatingChange: (Int) -> Unit) {
     SectionCard {
-        SectionLabel(stringResource(R.string.meal_review_rating_label))
+        SectionLabel(stringResource(Res.string.meal_review_rating_label))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
             val colors = LevelChefTheme.colors
             repeat(MAX_RATING) { index ->
                 val starValue = index + 1
                 Icon(
                     Icons.Filled.Star,
-                    contentDescription = stringResource(R.string.meal_review_rating_star, starValue),
+                    contentDescription = stringResource(Res.string.meal_review_rating_star, starValue),
                     tint = if (starValue <= rating) colors.accentPrimary else colors.border,
                     modifier = Modifier
                         .size(20.dp)
@@ -85,7 +106,7 @@ internal fun RatingSection(rating: Int, onRatingChange: (Int) -> Unit) {
                 )
             }
             Text(
-                stringResource(R.string.meal_review_rating_value, rating),
+                stringResource(Res.string.meal_review_rating_value, rating),
                 color = colors.textSecondary,
                 style = LevelChefTextStyles.bodySmallBold,
             )
@@ -97,7 +118,7 @@ internal fun RatingSection(rating: Int, onRatingChange: (Int) -> Unit) {
 internal fun NoteSection(note: String, onNoteChange: (String) -> Unit) {
     val colors = LevelChefTheme.colors
     SectionCard {
-        SectionLabel(stringResource(R.string.meal_review_note_label))
+        SectionLabel(stringResource(Res.string.meal_review_note_label))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -108,7 +129,7 @@ internal fun NoteSection(note: String, onNoteChange: (String) -> Unit) {
         ) {
             if (note.isEmpty()) {
                 Text(
-                    stringResource(R.string.meal_review_note_placeholder),
+                    stringResource(Res.string.meal_review_note_placeholder),
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodyRegular,
                 )
@@ -138,20 +159,20 @@ internal fun DurationRow(durationMinutes: Int, onDurationChange: (Int) -> Unit) 
     ) {
         NeutralStepperButton(
             symbol = "−",
-            contentDescription = stringResource(R.string.meal_review_duration_decrease),
+            contentDescription = stringResource(Res.string.meal_review_duration_decrease),
             onClick = { onDurationChange(-MealReviewUiState.DURATION_STEP_MINUTES) },
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("⏱", style = LevelChefTextStyles.bodyRegular)
             Text(
-                stringResource(R.string.meal_review_duration_unit, durationMinutes),
+                stringResource(Res.string.meal_review_duration_unit, durationMinutes),
                 color = colors.textSecondary,
                 style = LevelChefTextStyles.bodyRegular,
             )
         }
         NeutralStepperButton(
             symbol = "+",
-            contentDescription = stringResource(R.string.meal_review_duration_increase),
+            contentDescription = stringResource(Res.string.meal_review_duration_increase),
             onClick = { onDurationChange(MealReviewUiState.DURATION_STEP_MINUTES) },
         )
     }
@@ -168,13 +189,13 @@ internal fun MacroValuesSection(
     onCarbsChange: (Int) -> Unit,
     onFatChange: (Int) -> Unit,
 ) {
-    val kcalUnit = stringResource(R.string.meal_review_unit_kcal)
-    val gramsUnit = stringResource(R.string.meal_review_unit_grams)
+    val kcalUnit = stringResource(Res.string.meal_review_unit_kcal)
+    val gramsUnit = stringResource(Res.string.meal_review_unit_grams)
     SectionCard {
-        SectionLabel(stringResource(R.string.meal_review_macros_label))
+        SectionLabel(stringResource(Res.string.meal_review_macros_label))
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             MacroStepperRow(
-                label = stringResource(R.string.meal_review_macro_calories),
+                label = stringResource(Res.string.meal_review_macro_calories),
                 color = MacroCaloriesRed,
                 value = caloriesKcal,
                 unit = kcalUnit,
@@ -182,7 +203,7 @@ internal fun MacroValuesSection(
                 onIncrease = { onCaloriesChange(MealReviewUiState.CALORIES_STEP) },
             )
             MacroStepperRow(
-                label = stringResource(R.string.meal_review_macro_protein),
+                label = stringResource(Res.string.meal_review_macro_protein),
                 color = MacroProteinPurple,
                 value = proteinGrams,
                 unit = gramsUnit,
@@ -190,7 +211,7 @@ internal fun MacroValuesSection(
                 onIncrease = { onProteinChange(MealReviewUiState.GRAMS_STEP) },
             )
             MacroStepperRow(
-                label = stringResource(R.string.meal_review_macro_carbs),
+                label = stringResource(Res.string.meal_review_macro_carbs),
                 color = MacroCarbsOrange,
                 value = carbsGrams,
                 unit = gramsUnit,
@@ -198,7 +219,7 @@ internal fun MacroValuesSection(
                 onIncrease = { onCarbsChange(MealReviewUiState.GRAMS_STEP) },
             )
             MacroStepperRow(
-                label = stringResource(R.string.meal_review_macro_fat),
+                label = stringResource(Res.string.meal_review_macro_fat),
                 color = MacroFatGreen,
                 value = fatGrams,
                 unit = gramsUnit,
@@ -241,7 +262,7 @@ private fun MacroStepperRow(
         ) {
             SurfaceStepperButton(
                 symbol = "−",
-                contentDescription = stringResource(R.string.meal_review_macro_decrease, label),
+                contentDescription = stringResource(Res.string.meal_review_macro_decrease, label),
                 onClick = onDecrease,
             )
             Row(
@@ -254,7 +275,7 @@ private fun MacroStepperRow(
             }
             SurfaceStepperButton(
                 symbol = "+",
-                contentDescription = stringResource(R.string.meal_review_macro_increase, label),
+                contentDescription = stringResource(Res.string.meal_review_macro_increase, label),
                 onClick = onIncrease,
             )
         }
@@ -265,7 +286,7 @@ private fun MacroStepperRow(
 internal fun IngredientsChecklist(ingredientLines: List<String>) {
     val colors = LevelChefTheme.colors
     SectionCard {
-        SectionLabel(stringResource(R.string.meal_review_ingredients_label))
+        SectionLabel(stringResource(Res.string.meal_review_ingredients_label))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             ingredientLines.forEach { line ->
                 Row(
@@ -341,7 +362,7 @@ private fun SurfaceStepperButton(symbol: String, contentDescription: String, onC
 @Composable
 internal fun SaveButton(enabled: Boolean, onClick: () -> Unit) {
     LevelChefButton(
-        label = stringResource(R.string.meal_review_save),
+        label = stringResource(Res.string.meal_review_save),
         type = ButtonType.PRIMARY,
         onClick = onClick,
         enabled = enabled,

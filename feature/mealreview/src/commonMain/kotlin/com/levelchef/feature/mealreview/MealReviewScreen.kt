@@ -11,11 +11,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.mealreview.generated.resources.Res
+import com.levelchef.feature.mealreview.generated.resources.meal_review_title
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Figma node 385:586 — "Log experience": rate a just-cooked recipe, add a note, adjust cook time
@@ -35,7 +37,7 @@ fun MealReviewScreen(
             .navigationBarsPadding(),
     ) {
         LevelChefTopAppBarInner(
-            title = stringResource(R.string.meal_review_title),
+            title = stringResource(Res.string.meal_review_title),
             onBackClick = actions.onBackClick,
             modifier = Modifier.statusBarsPadding(),
         )
