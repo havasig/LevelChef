@@ -74,7 +74,11 @@ jobs:
   ios-build:
     # The build job above runs on ubuntu-latest, where Kotlin/Native silently skips every iOS
     # compile/link task (see levelchef.kmp.library's comment) — so it never actually catches an
-    # iOS-breaking change. This job runs on macOS specifically to link the real framework.
+    # iOS-breaking change. This job runs on macOS and builds the real Xcode project end to end
+    # (its Run Script phase invokes ./gradlew :shared:embedAndSignAppleFrameworkForXcode) rather
+    # than just linking the Gradle framework — a linker-flag bug in the app target itself (see the
+    # -lsqlite3 fix) only surfaces once the actual iosApp target links, which a Gradle-only check
+    # never exercises.
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -92,5 +96,11 @@ jobs:
           validate-wrappers: true
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Link iOS simulator framework
-        run: ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64 --stacktrace
+      - name: Build iosApp for the simulator
+        working-directory: iosApp
+        run: |
+          xcodebuild -project iosApp.xcodeproj -scheme iosApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
