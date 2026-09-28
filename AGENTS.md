@@ -238,19 +238,29 @@ If a new screen is added to the Figma file, give its stub composable a
    `AppSettingsController` (interface) and `ThemeMode`/`AppLanguage` (enums) went straight to
    `commonMain`; `AndroidAppSettingsController` (the existing `SharedPreferences`/
    `AppCompatDelegate` implementation) moved into `androidMain` unchanged; a new
-   `IosAppSettingsController` in `iosMain` is an intentionally **minimal stub** — in-memory state
-   only, no `NSUserDefaults` persistence yet — enough to satisfy the interface and compile the iOS
-   targets, matching how iOS elsewhere in this repo "configures but isn't shipped" until `iosApp`
-   exists. `di/SettingsModule.kt` splits the same way `data`'s `databaseModule` does: a
+   `IosAppSettingsController` in `iosMain` now persists for real — the theme under its own
+   `NSUserDefaults` key, and the language via the `AppleLanguages` `NSUserDefaults` key (Apple's
+   documented in-app language override mechanism, see QA1828). `language()` reads that key back
+   directly rather than `NSLocale.preferredLanguages`, since the OS only folds an `AppleLanguages`
+   change into `preferredLanguages` on the next launch — reading our own key keeps the in-process
+   reflection immediate, the same way `AppCompatDelegate`'s locale is readable right after
+   `setApplicationLocales` on Android. `applyPersistedThemeMode()` stays a no-op on iOS: unlike
+   `AppCompatDelegate.setDefaultNightMode`, there's no app-wide call to make without a live
+   `UIWindow` — that's `iosApp`'s job once it exists (e.g. a SwiftUI root view reading `themeMode()`
+   into `.preferredColorScheme`). `data`'s iosMain `databaseModule` still reads
+   `NSLocale.preferredLanguages` directly rather than this override (it can't depend on
+   `feature:settings`, mirroring the same Android-side constraint), so a language switch here only
+   affects recipe generation after the app is relaunched — same caveat the Android seam's own doc
+   comment already calls out. `di/SettingsModule.kt` splits the same way `data`'s `databaseModule` does: a
    `commonMain` `settingsCommonModule` (the platform-independent use-case/`ViewModel` bindings)
    that each platform's own top-level `settingsModule` (`androidMain`, `iosMain`) `includes()`,
    adding its own `AppSettingsController` binding. `SettingsRoute.kt`'s three `Context`-touching
    helpers (app version, "rate the app" store link, feedback email) became `@Composable expect`
    functions returning plain callbacks/values — `LocalContext.current` capture happens inside the
    `androidMain` `actual`, where it's still legal to call, mirroring `@LevelChefPreview`'s existing
-   `expect`/`actual` shape; the iOS `actual`s are no-op stubs for the same "not shipped yet" reason.
-   Still to come: fleshing out `IosAppSettingsController` with real `NSUserDefaults`/`NSLocale`
-   persistence, and the actual `iosApp` Xcode shell.
+   `expect`/`actual` shape; the iOS `actual`s (app version, store link, feedback email) stay no-op
+   stubs — there's no store listing or email composer to open without an actual `iosApp` yet.
+   Still to come: the actual `iosApp` Xcode shell.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is
