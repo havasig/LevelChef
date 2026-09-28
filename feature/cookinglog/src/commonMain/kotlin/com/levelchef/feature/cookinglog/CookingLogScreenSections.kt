@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.IconButtonStyle
 import com.levelchef.core.designsystem.LevelChefIconButton
@@ -21,6 +20,19 @@ import com.levelchef.core.designsystem.LevelChefRecipeCard
 import com.levelchef.core.model.Difficulty
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.cookinglog.generated.resources.Res
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_cooked_days_ago
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_cooked_today
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_cooked_yesterday
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_delete
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_difficulty_easy
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_difficulty_hard
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_difficulty_medium
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_empty_all
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_empty_cooked
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_empty_new
+import com.levelchef.feature.cookinglog.generated.resources.cooking_log_last_cooked_label
+import org.jetbrains.compose.resources.stringResource
 
 /** Section composables for [CookingLogScreen], kept internal to this feature. */
 
@@ -56,14 +68,14 @@ internal fun SavedRecipeRow(item: SavedRecipeItem, onClick: () -> Unit, onDelete
                     title = item.name,
                     time = item.cookedAgo.label(),
                     stars = item.rating,
-                    label = stringResource(R.string.cooking_log_last_cooked_label),
+                    label = stringResource(Res.string.cooking_log_last_cooked_label),
                     onClick = onClick,
                 )
             }
         }
         LevelChefIconButton(
             icon = Icons.Filled.Delete,
-            contentDescription = stringResource(R.string.cooking_log_delete, item.name),
+            contentDescription = stringResource(Res.string.cooking_log_delete, item.name),
             style = IconButtonStyle.PLAIN,
             onClick = onDelete,
         )
@@ -73,9 +85,9 @@ internal fun SavedRecipeRow(item: SavedRecipeItem, onClick: () -> Unit, onDelete
 @Composable
 internal fun EmptyState(tab: CookingLogTab, modifier: Modifier = Modifier) {
     val textRes = when (tab) {
-        CookingLogTab.ALL -> R.string.cooking_log_empty_all
-        CookingLogTab.COOKED -> R.string.cooking_log_empty_cooked
-        CookingLogTab.NEW -> R.string.cooking_log_empty_new
+        CookingLogTab.ALL -> Res.string.cooking_log_empty_all
+        CookingLogTab.COOKED -> Res.string.cooking_log_empty_cooked
+        CookingLogTab.NEW -> Res.string.cooking_log_empty_new
     }
     Box(
         modifier = modifier.fillMaxSize().padding(24.dp),
@@ -92,15 +104,15 @@ internal fun EmptyState(tab: CookingLogTab, modifier: Modifier = Modifier) {
 @Composable
 private fun Difficulty.label(): String = stringResource(
     when (this) {
-        Difficulty.EASY -> R.string.cooking_log_difficulty_easy
-        Difficulty.MEDIUM -> R.string.cooking_log_difficulty_medium
-        Difficulty.HARD -> R.string.cooking_log_difficulty_hard
+        Difficulty.EASY -> Res.string.cooking_log_difficulty_easy
+        Difficulty.MEDIUM -> Res.string.cooking_log_difficulty_medium
+        Difficulty.HARD -> Res.string.cooking_log_difficulty_hard
     },
 )
 
 @Composable
 private fun CookedAgo.label(): String = when (this) {
-    CookedAgo.Today -> stringResource(R.string.cooking_log_cooked_today)
-    CookedAgo.Yesterday -> stringResource(R.string.cooking_log_cooked_yesterday)
-    is CookedAgo.DaysAgo -> stringResource(R.string.cooking_log_cooked_days_ago, days)
+    CookedAgo.Today -> stringResource(Res.string.cooking_log_cooked_today)
+    CookedAgo.Yesterday -> stringResource(Res.string.cooking_log_cooked_yesterday)
+    is CookedAgo.DaysAgo -> stringResource(Res.string.cooking_log_cooked_days_ago, days)
 }
