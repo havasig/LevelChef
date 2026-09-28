@@ -1,15 +1,19 @@
 package com.levelchef.feature.mealreview
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.dropbox.differ.SimpleImageComparator
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.levelchef.core.ui.theme.LevelChefTheme
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,9 +40,19 @@ class MealReviewScreenScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
+    @OptIn(ExperimentalResourceApi::class)
     private fun captureLightAndDark(name: String, content: @Composable () -> Unit) {
         var dark by mutableStateOf(false)
-        compose.setContent { LevelChefTheme(darkTheme = dark) { content() } }
+        compose.setContent {
+            // Compose Multiplatform resources need an Android Context that Robolectric never
+            // initializes automatically (its ContentProvider is skipped) -- without this, any
+            // composeResources read (LevelChefTheme's font, core:designsystem's strings) throws
+            // IllegalStateException: Android context is not initialized.
+            CompositionLocalProvider(LocalInspectionMode provides true) {
+                PreviewContextConfigurationEffect()
+            }
+            LevelChefTheme(darkTheme = dark) { content() }
+        }
 
         compose.onRoot().captureRoboImage("src/test/screenshots/${name}_light.png", screenshotOptions)
         dark = true
