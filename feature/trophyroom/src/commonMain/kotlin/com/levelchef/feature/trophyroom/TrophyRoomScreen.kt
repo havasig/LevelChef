@@ -11,11 +11,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefTopAppBarHome
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.trophyroom.generated.resources.Res
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_badges_header
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_streaks_header
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_title
+import org.jetbrains.compose.resources.stringResource
 
 /** Figma node 504:1026 — chef-level header, weekly-challenge/kitchen-time stats, streaks and badges. */
 @Composable
@@ -26,7 +30,7 @@ fun TrophyRoomScreen(state: TrophyRoomUiState = TrophyRoomUiState()) {
             .background(LevelChefTheme.colors.background),
     ) {
         LevelChefTopAppBarHome(
-            title = stringResource(R.string.trophy_room_title),
+            title = stringResource(Res.string.trophy_room_title),
             modifier = Modifier.statusBarsPadding(),
         )
         LazyColumn(
@@ -38,9 +42,9 @@ fun TrophyRoomScreen(state: TrophyRoomUiState = TrophyRoomUiState()) {
         ) {
             item { ProfileCard(state) }
             item { TrophyStatCardsRow(state) }
-            item { SectionHeader(stringResource(R.string.trophy_room_streaks_header)) }
+            item { SectionHeader(stringResource(Res.string.trophy_room_streaks_header)) }
             items(state.streakBadges) { StreakBadgeCard(it) }
-            item { SectionHeader(stringResource(R.string.trophy_room_badges_header)) }
+            item { SectionHeader(stringResource(Res.string.trophy_room_badges_header)) }
             items(state.badges) { BadgeCard(it) }
         }
     }
