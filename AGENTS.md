@@ -110,7 +110,7 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **English only** — all code, comments, commit messages, and docs. Translate any Hungarian design text.
 - **Version catalog** — every dependency goes through `gradle/libs.versions.toml` (`libs.…`). No hardcoded coordinates in module build files.
 - **Convention plugins** — module build files apply one of: `levelchef.android.feature`, `levelchef.android.library`, `levelchef.android.application`, `levelchef.kmp.library` (in `build-logic/`). Put shared config there, not in each module.
-- **Source sets** — KMP modules (`core:model`, `core:database`, `domain`, `data`, `core:ui`/`core:designsystem`, and — as Stage D migrates them — `feature:cookinglog`/`feature:mealreview`/`feature:home`/`feature:recipedetail`/`feature:ingredients`/`feature:trophyroom`) use `src/commonMain/kotlin` (+ `src/androidMain`/`src/iosMain`/`src/androidUnitTest` for the few things that are genuinely platform-specific, such as Robolectric/Roborazzi screenshot tests). The rest of `feature:*` are still plain Android libraries using `src/main/kotlin`, pending the same migration (see the "Not yet done" iOS item).
+- **Source sets** — every module (`core:model`, `core:database`, `domain`, `data`, `core:ui`/`core:designsystem`, and every `feature:*`) is now KMP, using `src/commonMain/kotlin` (+ `src/androidMain`/`src/iosMain`/`src/androidUnitTest` for the few things that are genuinely platform-specific, such as Robolectric/Roborazzi screenshot tests, or — `feature:settings` only — real platform APIs like `AppCompatDelegate`/`SharedPreferences` with no multiplatform equivalent). `feature:*` modules that need a platform binding for something like this follow `data`'s `databaseModule` pattern: the same top-level `val`/binding name declared once per source set (`androidMain`, `iosMain`), not an `expect`/`actual` class — Gradle links whichever source set matches the compile target, so a pure-Android consumer like `androidApp` needs no changes to keep resolving the Android one.
 - **Package root** — `com.levelchef.<module path>` (e.g. `com.levelchef.feature.home`, `com.levelchef.core.designsystem`).
 - **Compose screen pattern** (see `feature:home`): stateless `XScreen(state, on…)` + stateful `XRoute(viewModel = koinViewModel())` that collects `uiState`. UI state is a single `XUiState` data class with sensible defaults. Section composables live in `XScreenSections.kt`.
 - **Screen chrome** — each feature screen renders its **own** top app bar (`LevelChefTopAppBar{Home,Inner,Search}`) as the first child of its root layout, with `Modifier.statusBarsPadding()`. The bottom navigation bar is *not* per-screen: it lives in `androidApp`'s app-level `Scaffold` (`LevelChefNav.kt`) and shows only on the top-level destinations (Home, Recipes, Trophies). A drill-down screen (back arrow, no bottom bar) also adds `Modifier.navigationBarsPadding()`.
@@ -198,9 +198,8 @@ If a new screen is added to the Figma file, give its stub composable a
    (real `@Preview` on Android, a no-op marker on iOS — Compose Multiplatform has no iOS preview
    tooling equivalent yet). The Inter variable font's per-weight axis (`FontVariation`) isn't fully
    supported on iOS yet upstream (JetBrains/compose-multiplatform#3127) — verify visually once an iOS
-   build exists. **`feature:*` migration to `levelchef.kmp.feature` — in progress (Stage D).**
-   `feature:cookinglog`, `feature:mealreview`, `feature:home`, `feature:recipedetail`,
-   `feature:ingredients` and `feature:trophyroom` are migrated: `src/main/kotlin` →
+   build exists. **`feature:*` migration to `levelchef.kmp.feature` — done (Stage D).**
+   All seven `feature:*` modules are migrated: `src/main/kotlin` →
    `src/commonMain/kotlin`, `src/main/res/values{,-hu}/strings.xml` →
    `src/commonMain/composeResources/values{,-hu}/strings.xml` (`R.string.x` → `Res.string.x`, with
    both `Res` and each specific resource name imported from `<module>.generated.resources` —
@@ -233,13 +232,25 @@ If a new screen is added to the Figma file, give its stub composable a
    `feature:recipedetail` also surfaced an unrelated multiplatform issue worth knowing about for the
    rest: `"%d:%02d".format(...)` (the JVM-only `kotlin.text` formatting extension) doesn't compile
    once a file becomes `commonMain` — watch for any `.format(...)` call in a screen being migrated
-   and replace it with a manual string-building equivalent (e.g. `padStart`). `feature:settings` is
-   deliberately last and not a drop-in repeat of this recipe: it genuinely depends on
-   Android-only APIs (`AppCompatDelegate`, `SharedPreferences` via `AndroidAppSettingsController`),
-   so migrating it means an actual `expect`/`actual` platform bridge, not just a mechanical
-   source-set move. Still to come: the `feature:settings` theme/language platform bridge (an
-   in-app override — the `data` seam above only reads the system-wide locale so far), and the
-   actual `iosApp` Xcode shell.
+   and replace it with a manual string-building equivalent (e.g. `padStart`).
+   **`feature:settings`, migrated last, wasn't a drop-in repeat of this recipe** — it genuinely
+   depends on Android-only APIs, so it needed real platform code, not just a mechanical move:
+   `AppSettingsController` (interface) and `ThemeMode`/`AppLanguage` (enums) went straight to
+   `commonMain`; `AndroidAppSettingsController` (the existing `SharedPreferences`/
+   `AppCompatDelegate` implementation) moved into `androidMain` unchanged; a new
+   `IosAppSettingsController` in `iosMain` is an intentionally **minimal stub** — in-memory state
+   only, no `NSUserDefaults` persistence yet — enough to satisfy the interface and compile the iOS
+   targets, matching how iOS elsewhere in this repo "configures but isn't shipped" until `iosApp`
+   exists. `di/SettingsModule.kt` splits the same way `data`'s `databaseModule` does: a
+   `commonMain` `settingsCommonModule` (the platform-independent use-case/`ViewModel` bindings)
+   that each platform's own top-level `settingsModule` (`androidMain`, `iosMain`) `includes()`,
+   adding its own `AppSettingsController` binding. `SettingsRoute.kt`'s three `Context`-touching
+   helpers (app version, "rate the app" store link, feedback email) became `@Composable expect`
+   functions returning plain callbacks/values — `LocalContext.current` capture happens inside the
+   `androidMain` `actual`, where it's still legal to call, mirroring `@LevelChefPreview`'s existing
+   `expect`/`actual` shape; the iOS `actual`s are no-op stubs for the same "not shipped yet" reason.
+   Still to come: fleshing out `IosAppSettingsController` with real `NSUserDefaults`/`NSLocale`
+   persistence, and the actual `iosApp` Xcode shell.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is

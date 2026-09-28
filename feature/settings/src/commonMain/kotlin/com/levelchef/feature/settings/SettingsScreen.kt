@@ -14,12 +14,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefSnackbar
 import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.settings.generated.resources.Res
+import com.levelchef.feature.settings.generated.resources.settings_account_deletion_success
+import com.levelchef.feature.settings.generated.resources.settings_feedback_email_unavailable
+import com.levelchef.feature.settings.generated.resources.settings_title
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SettingsScreen(
@@ -35,7 +39,7 @@ fun SettingsScreen(
                 .navigationBarsPadding(),
         ) {
             LevelChefTopAppBarInner(
-                title = stringResource(R.string.settings_title),
+                title = stringResource(Res.string.settings_title),
                 onBackClick = onBackClick,
                 modifier = Modifier.statusBarsPadding(),
             )
@@ -67,8 +71,8 @@ fun SettingsScreen(
 @Composable
 private fun SettingsSnackbarMessage.text(): String = stringResource(
     when (this) {
-        SettingsSnackbarMessage.FEEDBACK_EMAIL_UNAVAILABLE -> R.string.settings_feedback_email_unavailable
-        SettingsSnackbarMessage.ACCOUNT_DELETION_SUCCESS -> R.string.settings_account_deletion_success
+        SettingsSnackbarMessage.FEEDBACK_EMAIL_UNAVAILABLE -> Res.string.settings_feedback_email_unavailable
+        SettingsSnackbarMessage.ACCOUNT_DELETION_SUCCESS -> Res.string.settings_account_deletion_success
     },
 )
 
