@@ -12,6 +12,7 @@ import com.dropbox.differ.SimpleImageComparator
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.levelchef.core.ui.theme.LevelChefTheme
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
 import org.junit.Rule
 import org.junit.Test
@@ -39,6 +40,7 @@ class CookingLogScreenScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
+    @OptIn(ExperimentalResourceApi::class)
     private fun captureLightAndDark(name: String, content: @Composable () -> Unit) {
         var dark by mutableStateOf(false)
         compose.setContent {

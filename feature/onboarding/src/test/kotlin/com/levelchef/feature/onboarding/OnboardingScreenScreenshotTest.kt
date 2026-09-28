@@ -15,6 +15,7 @@ import com.levelchef.core.model.CookingExperience
 import com.levelchef.core.model.Cuisine
 import com.levelchef.core.model.HouseholdSize
 import com.levelchef.core.ui.theme.LevelChefTheme
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
 import org.junit.Rule
 import org.junit.Test
@@ -43,6 +44,7 @@ class OnboardingScreenScreenshotTest {
     @get:Rule
     val compose = createComposeRule()
 
+    @OptIn(ExperimentalResourceApi::class)
     private fun captureLightAndDark(name: String, content: @Composable () -> Unit) {
         var dark by mutableStateOf(false)
         compose.setContent {

@@ -13,6 +13,7 @@ import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.levelchef.core.model.ChefLevel
 import com.levelchef.core.ui.theme.LevelChefTheme
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
 import org.junit.Rule
 import org.junit.Test
@@ -47,6 +48,7 @@ class TrophyRoomScreenScreenshotTest {
 
     /** Renders [content] once, then captures it in light and again in dark (a single `setContent`,
      * flipping a theme flag — `ComposeContentTestRule.setContent` may only be called once). */
+    @OptIn(ExperimentalResourceApi::class)
     private fun captureLightAndDark(name: String, content: @Composable () -> Unit) {
         var dark by mutableStateOf(false)
         compose.setContent {
