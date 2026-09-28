@@ -21,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.LevelChefIngredientCard
@@ -29,6 +28,16 @@ import com.levelchef.core.model.Ingredient
 import com.levelchef.core.model.IngredientMacros
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.ingredients.generated.resources.Res
+import com.levelchef.feature.ingredients.generated.resources.ingredient_macro_calories
+import com.levelchef.feature.ingredients.generated.resources.ingredient_macro_calories_value
+import com.levelchef.feature.ingredients.generated.resources.ingredient_macro_carbs
+import com.levelchef.feature.ingredients.generated.resources.ingredient_macro_fat
+import com.levelchef.feature.ingredients.generated.resources.ingredient_macro_grams_value
+import com.levelchef.feature.ingredients.generated.resources.ingredient_macro_protein
+import com.levelchef.feature.ingredients.generated.resources.ingredients_show_all
+import com.levelchef.feature.ingredients.generated.resources.ingredients_show_less
+import org.jetbrains.compose.resources.stringResource
 
 private const val COLLAPSED_COUNT = 4
 
@@ -59,7 +68,7 @@ internal fun IngredientCategoryBlock(
         }
         if (section.ingredients.size > COLLAPSED_COUNT) {
             Text(
-                stringResource(if (expanded) R.string.ingredients_show_less else R.string.ingredients_show_all),
+                stringResource(if (expanded) Res.string.ingredients_show_less else Res.string.ingredients_show_all),
                 color = colors.accentPrimary,
                 style = LevelChefTextStyles.captionRegular,
                 textAlign = TextAlign.Center,
@@ -80,28 +89,28 @@ internal fun MacroGrid(macros: IngredientMacros, modifier: Modifier = Modifier) 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             MacroTile(
-                stringResource(R.string.ingredient_macro_calories),
-                stringResource(R.string.ingredient_macro_calories_value, macros.calories),
+                stringResource(Res.string.ingredient_macro_calories),
+                stringResource(Res.string.ingredient_macro_calories_value, macros.calories),
                 colors.tagYellowText,
                 Modifier.weight(1f),
             )
             MacroTile(
-                stringResource(R.string.ingredient_macro_protein),
-                stringResource(R.string.ingredient_macro_grams_value, macros.proteinGrams.trimZeros()),
+                stringResource(Res.string.ingredient_macro_protein),
+                stringResource(Res.string.ingredient_macro_grams_value, macros.proteinGrams.trimZeros()),
                 colors.accentPrimary,
                 Modifier.weight(1f),
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             MacroTile(
-                stringResource(R.string.ingredient_macro_carbs),
-                stringResource(R.string.ingredient_macro_grams_value, macros.carbsGrams.trimZeros()),
+                stringResource(Res.string.ingredient_macro_carbs),
+                stringResource(Res.string.ingredient_macro_grams_value, macros.carbsGrams.trimZeros()),
                 colors.tagGreenText,
                 Modifier.weight(1f),
             )
             MacroTile(
-                stringResource(R.string.ingredient_macro_fat),
-                stringResource(R.string.ingredient_macro_grams_value, macros.fatGrams.trimZeros()),
+                stringResource(Res.string.ingredient_macro_fat),
+                stringResource(Res.string.ingredient_macro_grams_value, macros.fatGrams.trimZeros()),
                 colors.tagRedText,
                 Modifier.weight(1f),
             )

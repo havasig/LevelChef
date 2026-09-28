@@ -17,13 +17,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.designsystem.LevelChefTopAppBarInner
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.ingredients.generated.resources.Res
+import com.levelchef.feature.ingredients.generated.resources.ingredients_add
+import com.levelchef.feature.ingredients.generated.resources.ingredients_empty
+import com.levelchef.feature.ingredients.generated.resources.ingredients_list_title
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun IngredientsListScreen(
@@ -39,10 +43,10 @@ fun IngredientsListScreen(
             .navigationBarsPadding(),
     ) {
         LevelChefTopAppBarInner(
-            title = stringResource(R.string.ingredients_list_title),
+            title = stringResource(Res.string.ingredients_list_title),
             onBackClick = onBackClick,
             trailingIcon = Icons.Filled.Add,
-            trailingContentDescription = stringResource(R.string.ingredients_add),
+            trailingContentDescription = stringResource(Res.string.ingredients_add),
             onTrailingClick = onAddClick,
             modifier = Modifier.statusBarsPadding(),
         )
@@ -73,7 +77,7 @@ private fun EmptyState() {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            stringResource(R.string.ingredients_empty),
+            stringResource(Res.string.ingredients_empty),
             color = LevelChefTheme.colors.textSecondary,
             style = LevelChefTextStyles.bodyRegular,
             textAlign = TextAlign.Center,
