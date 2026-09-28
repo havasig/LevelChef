@@ -1,33 +1,65 @@
 package com.levelchef.feature.settings
 
+import platform.Foundation.NSLocale
+import platform.Foundation.NSUserDefaults
+import platform.Foundation.preferredLanguages
+
 /**
- * Minimal iOS implementation of [AppSettingsController]. No `iosApp` exists yet (see `AGENTS.md`'s
- * "Not yet done" iOS item), so this is intentionally not persisted — in-memory state only, enough
- * to satisfy the interface and let `feature:settings` compile for the iOS targets. Swap this for a
- * real `NSUserDefaults`-backed (theme) / `NSLocale`-based (language) implementation once `iosApp`
- * exists, mirroring `data`'s existing iosMain `databaseModule` pattern for platform code.
+ * iOS implementation of [AppSettingsController].
+ *
+ * - **Theme** — persisted under [KEY_THEME_MODE] in `NSUserDefaults`. [applyPersistedThemeMode] is
+ *   a no-op: unlike `AppCompatDelegate.setDefaultNightMode`, iOS has no app-wide "recreate every
+ *   window with this interface style" call to make without a live `UIWindow` — that's `iosApp`'s
+ *   job once it exists (e.g. a SwiftUI root view reading [themeMode] into `.preferredColorScheme`).
+ * - **Language** — persisted the way Apple documents for in-app language overrides: writing the
+ *   `AppleLanguages` `NSUserDefaults` key (see
+ *   https://developer.apple.com/library/archive/qa/qa1828/_index.html). [language] reads that key
+ *   back directly rather than [NSLocale.preferredLanguages] because the OS only folds an
+ *   `AppleLanguages` change into `NSLocale.preferredLanguages` on the next launch — reading our own
+ *   key keeps this in-process reflection immediate, matching how `AppCompatDelegate`'s locale is
+ *   readable right after `setApplicationLocales` on Android. `data`'s iosMain `databaseModule`
+ *   still reads `NSLocale.preferredLanguages` directly (it can't depend on `feature:settings`,
+ *   mirroring the same constraint on Android), so a language switch here only take full effect
+ *   for recipe generation after the app is relaunched — same as the Android seam's own doc comment.
  */
 class IosAppSettingsController : AppSettingsController {
 
-    private var theme = ThemeMode.SYSTEM
-    private var lang = AppLanguage.SYSTEM
+    private val defaults = NSUserDefaults.standardUserDefaults
 
-    override fun themeMode(): ThemeMode = theme
+    override fun themeMode(): ThemeMode =
+        defaults.stringForKey(KEY_THEME_MODE)
+            ?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
+            ?: ThemeMode.SYSTEM
 
     override fun setThemeMode(mode: ThemeMode) {
-        theme = mode
+        defaults.setObject(mode.name, forKey = KEY_THEME_MODE)
     }
 
     override fun applyPersistedThemeMode() = Unit
 
-    override fun language(): AppLanguage = lang
+    override fun language(): AppLanguage {
+        val overrideTag = defaults.arrayForKey(KEY_APPLE_LANGUAGES)?.firstOrNull() as? String
+        val primaryTag = (overrideTag ?: NSLocale.preferredLanguages.firstOrNull() as? String)
+            ?.substringBefore('-')
+        return AppLanguage.entries.firstOrNull { it.tag == primaryTag } ?: AppLanguage.SYSTEM
+    }
 
     override fun setLanguage(language: AppLanguage) {
-        lang = language
+        val tag = language.tag
+        if (tag == null) {
+            defaults.removeObjectForKey(KEY_APPLE_LANGUAGES)
+        } else {
+            defaults.setObject(listOf(tag), forKey = KEY_APPLE_LANGUAGES)
+        }
     }
 
     override fun resetToDefaults() {
-        theme = ThemeMode.SYSTEM
-        lang = AppLanguage.SYSTEM
+        setThemeMode(ThemeMode.SYSTEM)
+        setLanguage(AppLanguage.SYSTEM)
+    }
+
+    private companion object {
+        const val KEY_THEME_MODE = "theme_mode"
+        const val KEY_APPLE_LANGUAGES = "AppleLanguages"
     }
 }
