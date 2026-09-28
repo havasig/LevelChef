@@ -13,6 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.generated.resources.Res
+import com.levelchef.core.designsystem.generated.resources.designsystem_challenge_completed
+import com.levelchef.core.designsystem.generated.resources.designsystem_challenge_in_progress
+import com.levelchef.core.designsystem.generated.resources.designsystem_challenge_not_started
+import com.levelchef.core.designsystem.generated.resources.designsystem_weekly_challenge
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.core.ui.theme.SuccessGreen

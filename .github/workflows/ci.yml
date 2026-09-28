@@ -35,24 +35,6 @@ jobs:
           # Persist the Gradle configuration cache across runs (it is stored encrypted).
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: DEBUG dump generated compose resources (temporary)
-        run: |
-          ./gradlew :core:designsystem:generateResourceAccessorsForCommonMain \
-            :core:designsystem:generateExpectResourceCollectorsForCommonMain \
-            :core:designsystem:generateActualResourceCollectorsForAndroidMain \
-            :core:ui:generateResourceAccessorsForCommonMain \
-            --stacktrace
-          echo "===== generated files under core/designsystem ====="
-          find core/designsystem/build/generated -type f -name "*.kt" | sort
-          echo "===== generated files under core/ui ====="
-          find core/ui/build/generated -type f -name "*.kt" | sort
-          echo "===== Res.kt (designsystem, commonMain) ====="
-          find core/designsystem/build/generated -path "*commonMain*" -name "Res.kt" -exec echo "--- {} ---" \; -exec cat {} \;
-          echo "===== StringResourceAccessors (designsystem, commonMain) ====="
-          find core/designsystem/build/generated -path "*commonMain*" -iname "*string*" -exec echo "--- {} ---" \; -exec cat {} \;
-          echo "===== Android actual collectors (designsystem) ====="
-          find core/designsystem/build/generated -path "*ndroidMain*" -name "*.kt" -exec echo "--- {} ---" \; -exec cat {} \;
-
       - name: Build, lint, detekt, architecture tests & coverage reports
         run: ./gradlew build detekt :konsist:test koverXmlReport koverHtmlReport --stacktrace
 

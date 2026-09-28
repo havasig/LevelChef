@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.generated.resources.Res
+import com.levelchef.core.designsystem.generated.resources.designsystem_back
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 import org.jetbrains.compose.resources.stringResource

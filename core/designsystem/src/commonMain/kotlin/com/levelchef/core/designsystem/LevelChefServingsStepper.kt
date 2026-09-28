@@ -20,6 +20,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.generated.resources.Res
+import com.levelchef.core.designsystem.generated.resources.designsystem_decrease
+import com.levelchef.core.designsystem.generated.resources.designsystem_increase
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.core.ui.theme.OnAccent
