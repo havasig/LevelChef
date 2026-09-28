@@ -53,8 +53,8 @@ core:database  ◀── data only
   survey yet, or any Gemini/cache failure falls back to a small bundled recipe set — English or
   Hungarian, matching the app language — recommendations are never empty. `SavedRecipeRepositoryImpl`
   backs the recipe-detail "Save" bookmark.
-- **`core:ui`** — Compose theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
-- **`core:designsystem`** — reusable Compose components (`LevelChefBadge`, `LevelChefTag`, `LevelChefRecipeCard`, …). Their built-in text (screen-reader labels, status chips, default button labels) comes from `core:designsystem`'s own `strings.xml` + `values-hu`. Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
+- **`core:ui`** — Compose Multiplatform theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
+- **`core:designsystem`** — reusable Compose Multiplatform components (`LevelChefBadge`, `LevelChefTag`, `LevelChefRecipeCard`, …). Their built-in text (screen-reader labels, status chips, default button labels) comes from `core:designsystem`'s own `commonMain/composeResources/values{,-hu}/strings.xml`. Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
 - **`feature:*`** — one Android-library module per screen, **all fully built** from their Figma
   nodes. **No feature module depends on another.**
   `feature:home` (Figma node `296:1929`); `feature:onboarding` (the mandatory first-launch survey —
@@ -110,7 +110,7 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **English only** — all code, comments, commit messages, and docs. Translate any Hungarian design text.
 - **Version catalog** — every dependency goes through `gradle/libs.versions.toml` (`libs.…`). No hardcoded coordinates in module build files.
 - **Convention plugins** — module build files apply one of: `levelchef.android.feature`, `levelchef.android.library`, `levelchef.android.application`, `levelchef.kmp.library` (in `build-logic/`). Put shared config there, not in each module.
-- **Source sets** — KMP modules (`core:model`, `core:database`, `domain`, `data`) use `src/commonMain/kotlin`; feature/`core:ui`/`core:designsystem` are Android libraries using `src/main/kotlin`.
+- **Source sets** — KMP modules (`core:model`, `core:database`, `domain`, `data`, and — since the Compose Multiplatform migration reached them — `core:ui`/`core:designsystem`) use `src/commonMain/kotlin` (+ `src/androidMain`/`src/iosMain` for the few things that are genuinely platform-specific). `feature:*` modules are still plain Android libraries using `src/main/kotlin`, pending their own migration (see the "Not yet done" iOS item).
 - **Package root** — `com.levelchef.<module path>` (e.g. `com.levelchef.feature.home`, `com.levelchef.core.designsystem`).
 - **Compose screen pattern** (see `feature:home`): stateless `XScreen(state, on…)` + stateful `XRoute(viewModel = koinViewModel())` that collects `uiState`. UI state is a single `XUiState` data class with sensible defaults. Section composables live in `XScreenSections.kt`.
 - **Screen chrome** — each feature screen renders its **own** top app bar (`LevelChefTopAppBar{Home,Inner,Search}`) as the first child of its root layout, with `Modifier.statusBarsPadding()`. The bottom navigation bar is *not* per-screen: it lives in `androidApp`'s app-level `Scaffold` (`LevelChefNav.kt`) and shows only on the top-level destinations (Home, Recipes, Trophies). A drill-down screen (back arrow, no bottom bar) also adds `Modifier.navigationBarsPadding()`.
@@ -186,12 +186,22 @@ If a new screen is added to the Figma file, give its stub composable a
    for the logic layer: `core:model`/`core:database`/`domain` needed no changes at all (no
    `expect`/`actual` coupling anywhere yet), and `data` now has an `iosMain` `databaseModule`
    mirroring `androidMain`'s (SQLDelight's `NativeSqliteDriver`, Ktor's `Darwin` engine, the
-   `RecipeRepository` language tag read from `NSLocale` instead of `AppCompatDelegate`). Still to
-   come: migrating `core:ui`/`core:designsystem`/`feature:*` off `levelchef.android.*` onto
-   `levelchef.kmp.feature` (this also moves every module's `strings.xml` into Compose Multiplatform
-   resources — `core:designsystem` reads Android string resources directly too, not just
-   `feature:*`), the `feature:settings` theme/language platform bridge (an in-app override — the
-   `data` seam above only reads the system-wide locale so far), and the actual `iosApp` Xcode shell.
+   `RecipeRepository` language tag read from `NSLocale` instead of `AppCompatDelegate`), and
+   `core:ui`/`core:designsystem` are now Compose Multiplatform modules on `levelchef.kmp.designsystem`
+   (the base `levelchef.kmp.feature` builds on): their `strings.xml`/font moved into
+   `commonMain/composeResources`, every `stringResource(R.string.x)` call site became
+   `stringResource(Res.string.x)`, and `LevelChefTheme`'s typography moved behind a
+   `LocalLevelChefTextStyles` composition local (same pattern `LocalLevelChefColors` already used)
+   since Compose Multiplatform's resource-backed `Font` loader is `@Composable`, unlike Android's old
+   resource-id overload — existing `LevelChefTextStyles.x` call sites are unaffected (property-access
+   syntax doesn't change for a `@Composable get()`). `@LevelChefPreview` is now `expect`/`actual`
+   (real `@Preview` on Android, a no-op marker on iOS — Compose Multiplatform has no iOS preview
+   tooling equivalent yet). The Inter variable font's per-weight axis (`FontVariation`) isn't fully
+   supported on iOS yet upstream (JetBrains/compose-multiplatform#3127) — verify visually once an iOS
+   build exists. Still to come: migrating `feature:*` off `levelchef.android.feature` onto
+   `levelchef.kmp.feature` (same `strings.xml`→`composeResources` treatment, per module), the
+   `feature:settings` theme/language platform bridge (an in-app override — the `data` seam above
+   only reads the system-wide locale so far), and the actual `iosApp` Xcode shell.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is

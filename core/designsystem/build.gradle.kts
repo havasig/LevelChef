@@ -1,13 +1,19 @@
 plugins {
-    id("levelchef.android.library")
+    id("levelchef.kmp.designsystem")
+}
+
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":core:ui"))
+        }
+    }
+}
+
+compose.resources {
+    packageOfResClass = "com.levelchef.core.designsystem.generated.resources"
 }
 
 android {
     namespace = "com.levelchef.core.designsystem"
-}
-
-dependencies {
-    implementation(project(":core:ui"))
-    implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.ui.tooling.preview)
 }
