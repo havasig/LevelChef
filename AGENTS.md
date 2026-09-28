@@ -260,7 +260,21 @@ If a new screen is added to the Figma file, give its stub composable a
    `androidMain` `actual`, where it's still legal to call, mirroring `@LevelChefPreview`'s existing
    `expect`/`actual` shape; the iOS `actual`s (app version, store link, feedback email) stay no-op
    stubs — there's no store listing or email composer to open without an actual `iosApp` yet.
-   Still to come: the actual `iosApp` Xcode shell.
+   **A minimal `iosApp` Xcode shell now exists** — a new `:shared` KMP module
+   (`shared/build.gradle.kts`, applies `levelchef.kmp.feature` like every `feature:*` module, plus
+   the repo's first `binaries.framework { baseName = "LevelChefShared"; isStatic = true }` export
+   block) and a hand-built `iosApp/iosApp.xcodeproj` (no CocoaPods — a Run Script build phase calls
+   `./gradlew :shared:embedAndSignAppleFrameworkForXcode`, the standard direct-integration
+   approach). `shared/src/iosMain/kotlin/com/levelchef/shared/IosEntryPoint.kt`'s `doInitKoin()`
+   mirrors `LevelChefApplication.onCreate()`'s `startKoin` call (iOS `databaseModule` + `dataModule`
+   + `homeModule`, blank `geminiApiKey`), and `MainViewController()` boots
+   `LevelChefTheme { HomeRoute() }` via `ComposeUIViewController` — real Koin-wired data (SQLDelight
+   `NativeSqliteDriver`, Ktor `Darwin`), no navigation. Deliberately **not** done yet, so don't
+   assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
+   the shell shows Home directly), the full bottom-nav graph isn't in `:shared` (`androidx.navigation:navigation-compose`
+   hasn't been proven on iOS in this repo), there's no real Gemini key path for iOS (recipe
+   recommendations always use the bundled fallback), and `applyPersistedThemeMode`'s iOS
+   `.preferredColorScheme` wiring (noted above) still isn't connected to a live `UIWindow`.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is
