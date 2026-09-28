@@ -40,3 +40,5 @@ include(":feature:cookinglog")
 include(":feature:onboarding")
 include(":feature:settings")
 include(":feature:ingredients")
+
+include(":shared")

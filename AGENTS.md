@@ -260,7 +260,43 @@ If a new screen is added to the Figma file, give its stub composable a
    `androidMain` `actual`, where it's still legal to call, mirroring `@LevelChefPreview`'s existing
    `expect`/`actual` shape; the iOS `actual`s (app version, store link, feedback email) stay no-op
    stubs — there's no store listing or email composer to open without an actual `iosApp` yet.
-   Still to come: the actual `iosApp` Xcode shell.
+   **A minimal `iosApp` Xcode shell now exists** — a new `:shared` KMP module
+   (`shared/build.gradle.kts`, applies `levelchef.kmp.feature` like every `feature:*` module, plus
+   the repo's first `binaries.framework { baseName = "LevelChefShared"; isStatic = true }` export
+   block) and a hand-built `iosApp/iosApp.xcodeproj` (no CocoaPods — a Run Script build phase calls
+   `./gradlew :shared:embedAndSignAppleFrameworkForXcode`, the standard direct-integration
+   approach). `shared/src/iosMain/kotlin/com/levelchef/shared/IosEntryPoint.kt`'s `doInitKoin()`
+   mirrors `LevelChefApplication.onCreate()`'s `startKoin` call (iOS `databaseModule` + `dataModule`
+   + `homeModule`, blank `geminiApiKey`), and `MainViewController()` boots
+   `LevelChefTheme { HomeRoute() }` via `ComposeUIViewController` — real Koin-wired data (SQLDelight
+   `NativeSqliteDriver`, Ktor `Darwin`), no navigation.
+
+   **Known blocker — the app builds but crashes before rendering anything, and this isn't a
+   scaffold bug.** Manually running it in the simulator (`xcrun simctl launch --console` to see
+   stdout) throws `Error was captured in composition.` from inside Compose's own composition error
+   boundary, with no further detail. Bisecting proved it's not `HomeRoute`, not `LevelChefTheme`,
+   not the Inter variable font (already flagged above), and not even LevelChef code — a **bare**
+   `MaterialTheme { Text("...") }` with zero app code crashes identically. The real cause: this repo
+   pins `kotlinx-datetime` `0.8.0` (`gradle/libs.versions.toml`), but Compose Multiplatform `1.7.3`'s
+   `material3` iOS library was compiled against an older `Instant` shape. An earlier build log already
+   showed the tell: `PlatformDateFormat.darwin.kt` linking with `Can not get instance of singleton
+   'Companion': No class found for symbol 'kotlinx.datetime/Instant.Companion|null[0]'` — Kotlin/Native's
+   partial-linkage feature turns that into a runtime-throwing stub instead of a build failure, and
+   `MaterialTheme`'s internal init touches it immediately, before any of the app's own code runs.
+   Fixing this for real needs one of two larger moves, neither attempted yet: downgrade
+   `kotlinx-datetime` repo-wide to match what CMP `1.7.3` expects (risky — it's used across `data`
+   for badge/streak/challenge-week date bucketing, and Android already depends on the current API
+   shape), or bump Kotlin + Compose Multiplatform together (CMP `1.8.0`+ needs Kotlin `2.1.0`+, see
+   the CMP-pin note above) — a real toolchain migration, not a quick fix. Until one of those lands,
+   **the iOS shell does not visually render** — `./gradlew`/`xcodebuild` succeeding only proves it
+   compiles and links, not that it runs.
+
+   Deliberately **not** done yet (separately from the blocker above), so don't
+   assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
+   the shell shows Home directly), the full bottom-nav graph isn't in `:shared` (`androidx.navigation:navigation-compose`
+   hasn't been proven on iOS in this repo), there's no real Gemini key path for iOS (recipe
+   recommendations always use the bundled fallback), and `applyPersistedThemeMode`'s iOS
+   `.preferredColorScheme` wiring (noted above) still isn't connected to a live `UIWindow`.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is
