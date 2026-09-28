@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +39,32 @@ import com.levelchef.core.model.RecipeStep
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.core.ui.theme.OnAccent
+import com.levelchef.feature.recipedetail.generated.resources.Res
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_cancel_timer
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_ingredient_new
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_ingredients_title
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_macro_calories
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_macro_carbs
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_macro_fat
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_macro_grams_value
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_macro_kcal_value
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_macro_protein
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_macro_unknown
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_made_it
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_open_video
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_related_video
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_save
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_saved
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_snackbar_saved
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_snackbar_timer_done
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_snackbar_unsaved
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_start_timer
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_steps_title
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_tag_ingredients
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_tag_protein
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_tag_time
+import com.levelchef.feature.recipedetail.generated.resources.recipe_detail_xp_badge
+import org.jetbrains.compose.resources.stringResource
 
 /** Section composables for [RecipeDetailScreen], kept internal to this feature. */
 
@@ -55,7 +80,7 @@ internal fun HeroTile(emoji: String, xpReward: Int) {
     ) {
         Text(emoji, fontSize = 88.sp)
         LevelChefBadge(
-            text = stringResource(R.string.recipe_detail_xp_badge, xpReward),
+            text = stringResource(Res.string.recipe_detail_xp_badge, xpReward),
             style = BadgeStyle.LIGHT,
             modifier = Modifier
                 .align(Alignment.TopEnd)
@@ -70,14 +95,14 @@ internal fun TitleAndTags(recipe: Recipe) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(recipe.name, color = colors.textPrimary, style = LevelChefTextStyles.bodyLargeBold)
         val tags = buildList {
-            add(TagSpec(stringResource(R.string.recipe_detail_tag_time, recipe.timeMinutes), "⏱", TagColor.PURPLE))
+            add(TagSpec(stringResource(Res.string.recipe_detail_tag_time, recipe.timeMinutes), "⏱", TagColor.PURPLE))
             recipe.proteinGrams?.let {
-                add(TagSpec(stringResource(R.string.recipe_detail_tag_protein, it), "💪", TagColor.YELLOW))
+                add(TagSpec(stringResource(Res.string.recipe_detail_tag_protein, it), "💪", TagColor.YELLOW))
             }
             add(TagSpec(recipe.difficulty.label(), null, TagColor.GREEN))
             add(
                 TagSpec(
-                    stringResource(R.string.recipe_detail_tag_ingredients, recipe.ingredients.size),
+                    stringResource(Res.string.recipe_detail_tag_ingredients, recipe.ingredients.size),
                     "🛒",
                     TagColor.RED,
                 ),
@@ -97,16 +122,16 @@ private data class TagSpec(val label: String, val emoji: String?, val color: Tag
 
 @Composable
 internal fun recipeMacroCells(recipe: Recipe): List<Pair<String, String>> {
-    val gramsFormat = R.string.recipe_detail_macro_grams_value
-    val unknown = stringResource(R.string.recipe_detail_macro_unknown)
+    val gramsFormat = Res.string.recipe_detail_macro_grams_value
+    val unknown = stringResource(Res.string.recipe_detail_macro_unknown)
     return listOf(
-        stringResource(R.string.recipe_detail_macro_calories) to
-            (recipe.caloriesKcal?.let { stringResource(R.string.recipe_detail_macro_kcal_value, it) } ?: unknown),
-        stringResource(R.string.recipe_detail_macro_protein) to
+        stringResource(Res.string.recipe_detail_macro_calories) to
+            (recipe.caloriesKcal?.let { stringResource(Res.string.recipe_detail_macro_kcal_value, it) } ?: unknown),
+        stringResource(Res.string.recipe_detail_macro_protein) to
             (recipe.proteinGrams?.let { stringResource(gramsFormat, it) } ?: unknown),
-        stringResource(R.string.recipe_detail_macro_carbs) to
+        stringResource(Res.string.recipe_detail_macro_carbs) to
             (recipe.carbsGrams?.let { stringResource(gramsFormat, it) } ?: unknown),
-        stringResource(R.string.recipe_detail_macro_fat) to
+        stringResource(Res.string.recipe_detail_macro_fat) to
             (recipe.fatGrams?.let { stringResource(gramsFormat, it) } ?: unknown),
     )
 }
@@ -121,7 +146,7 @@ internal fun IngredientsSection(
     val colors = LevelChefTheme.colors
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            stringResource(R.string.recipe_detail_ingredients_title),
+            stringResource(Res.string.recipe_detail_ingredients_title),
             color = colors.textPrimary,
             style = LevelChefTextStyles.bodyLargeBold,
         )
@@ -177,7 +202,7 @@ private fun IngredientRow(text: String, isNew: Boolean, checked: Boolean, onTogg
             textDecoration = if (checked) TextDecoration.LineThrough else null,
             modifier = Modifier.weight(1f),
         )
-        if (isNew) LevelChefBadge(stringResource(R.string.recipe_detail_ingredient_new), style = BadgeStyle.LIGHT)
+        if (isNew) LevelChefBadge(stringResource(Res.string.recipe_detail_ingredient_new), style = BadgeStyle.LIGHT)
     }
 }
 
@@ -192,7 +217,7 @@ internal fun StepsSection(
     val colors = LevelChefTheme.colors
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            stringResource(R.string.recipe_detail_steps_title),
+            stringResource(Res.string.recipe_detail_steps_title),
             color = colors.textPrimary,
             style = LevelChefTextStyles.bodyLargeBold,
         )
@@ -221,7 +246,7 @@ internal fun StepsSection(
 private fun IdleTimerChip(minutes: Int, onClick: () -> Unit) {
     TimerChipShell(
         icon = Icons.Filled.PlayArrow,
-        label = stringResource(R.string.recipe_detail_start_timer, minutes),
+        label = stringResource(Res.string.recipe_detail_start_timer, minutes),
         onClick = onClick,
     )
 }
@@ -233,8 +258,8 @@ private fun RunningTimerChip(secondsRemaining: Int, onClick: () -> Unit) {
     val seconds = secondsRemaining % SECONDS_PER_MINUTE
     TimerChipShell(
         icon = Icons.Filled.Close,
-        label = "%d:%02d".format(minutes, seconds),
-        contentDescription = stringResource(R.string.recipe_detail_cancel_timer),
+        label = "$minutes:${seconds.toString().padStart(2, '0')}",
+        contentDescription = stringResource(Res.string.recipe_detail_cancel_timer),
         onClick = onClick,
     )
 }
@@ -279,14 +304,14 @@ internal fun RelatedVideoRow(onClick: () -> Unit) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Filled.PlayArrow, contentDescription = null, tint = colors.textPrimary, modifier = Modifier.size(16.dp))
             Text(
-                stringResource(R.string.recipe_detail_related_video),
+                stringResource(Res.string.recipe_detail_related_video),
                 color = colors.textPrimary,
                 style = LevelChefTextStyles.bodySmallBold,
             )
         }
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = stringResource(R.string.recipe_detail_open_video),
+            contentDescription = stringResource(Res.string.recipe_detail_open_video),
             tint = colors.textSecondary,
             modifier = Modifier.size(16.dp),
         )
@@ -314,14 +339,14 @@ internal fun ActionButtons(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                stringResource(R.string.recipe_detail_made_it),
+                stringResource(Res.string.recipe_detail_made_it),
                 color = colors.accentPrimary,
                 style = LevelChefTextStyles.bodyRegularBold,
             )
-            LevelChefBadge(stringResource(R.string.recipe_detail_xp_badge, xpReward), style = BadgeStyle.LIGHT)
+            LevelChefBadge(stringResource(Res.string.recipe_detail_xp_badge, xpReward), style = BadgeStyle.LIGHT)
         }
         LevelChefButton(
-            label = stringResource(if (isSaved) R.string.recipe_detail_saved else R.string.recipe_detail_save),
+            label = stringResource(if (isSaved) Res.string.recipe_detail_saved else Res.string.recipe_detail_save),
             type = if (isSaved) ButtonType.SECONDARY else ButtonType.PRIMARY,
             onClick = onToggleSaved,
             modifier = Modifier.fillMaxWidth(),
@@ -331,7 +356,7 @@ internal fun ActionButtons(
 
 @Composable
 internal fun TransientMessage.text(): String = when (this) {
-    TransientMessage.SAVED -> stringResource(R.string.recipe_detail_snackbar_saved)
-    TransientMessage.UNSAVED -> stringResource(R.string.recipe_detail_snackbar_unsaved)
-    TransientMessage.TIMER_DONE -> stringResource(R.string.recipe_detail_snackbar_timer_done)
+    TransientMessage.SAVED -> stringResource(Res.string.recipe_detail_snackbar_saved)
+    TransientMessage.UNSAVED -> stringResource(Res.string.recipe_detail_snackbar_unsaved)
+    TransientMessage.TIMER_DONE -> stringResource(Res.string.recipe_detail_snackbar_timer_done)
 }
