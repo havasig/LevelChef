@@ -179,10 +179,12 @@ If a new screen is added to the Figma file, give its stub composable a
 ## Not yet done (see README "Next steps")
 
 1. **iOS target, via Compose Multiplatform — in progress.** The build-logic/version-catalog
-   foundation has landed (`levelchef.kmp.library` now declares `iosX64`/`iosArm64`/
-   `iosSimulatorArm64` alongside `androidTarget`; a new `levelchef.kmp.feature` convention plugin
-   applies `org.jetbrains.compose` 1.7.3 — the last CMP line compatible with our pinned Kotlin
-   2.0.21 before CMP 1.8.0's K2-only cutover requires Kotlin 2.1.0+), and so has a real iOS target
+   foundation has landed (`levelchef.kmp.library` now declares `iosArm64`/`iosSimulatorArm64`
+   alongside `androidTarget` — no `iosX64`; Compose Multiplatform 1.12.1 no longer publishes
+   artifacts for the Intel simulator target, and every real dev machine and this repo's own CI are
+   Apple Silicon anyway; a new `levelchef.kmp.feature` convention plugin applies
+   `org.jetbrains.compose` 1.12.1, Kotlin pinned at 2.4.10 — see the "Material3 on iOS" note below
+   for why), and so has a real iOS target
    for the logic layer: `core:model`/`core:database`/`domain` needed no changes at all (no
    `expect`/`actual` coupling anywhere yet), and `data` now has an `iosMain` `databaseModule`
    mirroring `androidMain`'s (SQLDelight's `NativeSqliteDriver`, Ktor's `Darwin` engine, the
@@ -271,28 +273,30 @@ If a new screen is added to the Figma file, give its stub composable a
    `LevelChefTheme { HomeRoute() }` via `ComposeUIViewController` — real Koin-wired data (SQLDelight
    `NativeSqliteDriver`, Ktor `Darwin`), no navigation.
 
-   **Known blocker — the app builds but crashes before rendering anything, and this isn't a
-   scaffold bug.** Manually running it in the simulator (`xcrun simctl launch --console` to see
-   stdout) throws `Error was captured in composition.` from inside Compose's own composition error
-   boundary, with no further detail. Bisecting proved it's not `HomeRoute`, not `LevelChefTheme`,
-   not the Inter variable font (already flagged above), and not even LevelChef code — a **bare**
-   `MaterialTheme { Text("...") }` with zero app code crashes identically. The real cause: this repo
-   pins `kotlinx-datetime` `0.8.0` (`gradle/libs.versions.toml`), but Compose Multiplatform `1.7.3`'s
-   `material3` iOS library was compiled against an older `Instant` shape. An earlier build log already
-   showed the tell: `PlatformDateFormat.darwin.kt` linking with `Can not get instance of singleton
-   'Companion': No class found for symbol 'kotlinx.datetime/Instant.Companion|null[0]'` — Kotlin/Native's
-   partial-linkage feature turns that into a runtime-throwing stub instead of a build failure, and
-   `MaterialTheme`'s internal init touches it immediately, before any of the app's own code runs.
-   Fixing this for real needs one of two larger moves, neither attempted yet: downgrade
-   `kotlinx-datetime` repo-wide to match what CMP `1.7.3` expects (risky — it's used across `data`
-   for badge/streak/challenge-week date bucketing, and Android already depends on the current API
-   shape), or bump Kotlin + Compose Multiplatform together (CMP `1.8.0`+ needs Kotlin `2.1.0`+, see
-   the CMP-pin note above) — a real toolchain migration, not a quick fix. Until one of those lands,
-   **the iOS shell does not visually render** — `./gradlew`/`xcodebuild` succeeding only proves it
-   compiles and links, not that it runs.
+   **Material3-on-iOS crash — found and fixed.** Manually running the shell in the simulator
+   (`xcrun simctl launch --console` to see stdout) originally threw `Error was captured in
+   composition.` from inside Compose's own composition error boundary, with no further detail.
+   Bisecting proved it wasn't `HomeRoute`, not `LevelChefTheme`, not the Inter variable font — a
+   **bare** `MaterialTheme { Text("...") }` with zero app code crashed identically. Root cause: CMP
+   `1.7.3`'s `material3` iOS library was compiled against `kotlinx-datetime 0.6.0`, while this repo
+   pinned `0.8.0` — a klib binary mismatch (`PlatformDateFormat.darwin.kt` linking with `Can not get
+   instance of singleton 'Companion': No class found for symbol
+   'kotlinx.datetime/Instant.Companion|null[0]'`) that Kotlin/Native's partial-linkage feature turned
+   into a runtime-throwing stub `MaterialTheme`'s init touched immediately. Fixed by bumping the
+   whole toolchain forward rather than downgrading `kotlinx-datetime`: **Kotlin `2.4.10`** (pinned to
+   exactly this, not just "2.1.0+", to match `detekt 2.0.0-alpha.6`'s own exact Kotlin requirement —
+   each `detekt 2.0.0-alpha.N` pins one specific Kotlin version) and **Compose Multiplatform
+   `1.12.1`**, whose `material3` depends on `kotlinx-datetime 0.7.1+` — compatible with this repo's
+   `0.8.0`, no downgrade needed. Two things broke and got fixed along the way: `iosX64()` (Intel
+   simulator) had to be dropped entirely from every KMP convention plugin and `shared/build.gradle.kts`
+   — CMP `1.12.1` no longer publishes artifacts for it at all (JetBrains dropped Intel-simulator
+   support; `iosArm64`/`iosSimulatorArm64` are what any real Apple Silicon dev machine or this repo's
+   CI actually use, so nothing is lost); and `compose.material3` stopped transitively pulling in
+   `material-icons-core` on iOS the way it did in `1.7.3`, so `levelchef.kmp.designsystem` now
+   explicitly adds `implementation(compose.materialIconsExtended)` (the only icons accessor CMP's
+   `ComposePlugin.Dependencies` exposes — there's no separate "core-only" one).
 
-   Deliberately **not** done yet (separately from the blocker above), so don't
-   assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
+   Deliberately **not** done yet, so don't assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
    the shell shows Home directly), the full bottom-nav graph isn't in `:shared` (`androidx.navigation:navigation-compose`
    hasn't been proven on iOS in this repo), there's no real Gemini key path for iOS (recipe
    recommendations always use the bundled fallback), and `applyPersistedThemeMode`'s iOS

@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-29 · covers through the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the minimal iOS app shell (`iosApp/` — builds and launches, but see SM-22's known Material3-on-iOS rendering blocker)._
+_Last updated: 2026-09-29 · covers through the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the minimal iOS app shell (`iosApp/`, Home screen only — Kotlin 2.4.10 / Compose Multiplatform 1.12.1)._
 
 ---
 
@@ -475,30 +475,25 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
    - **A snackbar reads "No email app found on this device"** (Hungarian: "Nem található e-mail
      alkalmazás ezen az eszközön").
 
-### SM-22 · iOS app shell builds (does not yet render — known blocker)
+### SM-22 · iOS app shell launches (Home only)
 
 **Priority:** P1 · **Preconditions:** macOS with Xcode installed; the Android SDK configured
 (`local.properties` → `sdk.dir`) since `:shared` still compiles an (unused) Android target.
-
-**Known failing as of this writing** — see `AGENTS.md`'s iOS "Not yet done" item for the full
-root-cause writeup (a `kotlinx-datetime` / Compose Multiplatform `material3` iOS binary
-incompatibility). Steps 1–2 below currently pass; step 3 currently fails and is expected to until
-that's fixed — don't file it as a new regression, check it's still the same known crash instead.
 
 1. Open `iosApp/iosApp.xcodeproj` in Xcode, select an iOS Simulator destination, and Run (⌘R), or
    from the CLI: `xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -destination
    'platform=iOS Simulator,name=iPhone 15' CODE_SIGNING_ALLOWED=NO build`.
    - **The Run Script build phase invokes `./gradlew :shared:embedAndSignAppleFrameworkForXcode`
-     and the build succeeds.**
-2. Install and launch on a booted simulator (`xcrun simctl install`/`launch`), or Run from Xcode.
-   - **The app installs and launches** (no install-time or immediate-crash-to-Springboard error).
-3. Observe the first screen shown.
-   - **Currently fails:** the screen stays blank/white. Console output (`xcrun simctl launch
-     --console`) shows `Error was captured in composition.` — Compose's `MaterialTheme` throws
-     before any content renders, root-caused in `AGENTS.md`. Once that's fixed, the expected result
-     is the Home screen rendering directly (no onboarding survey, no bottom nav — both out of scope
-     for this shell; stat cards and a "Recommended for you" list from the bundled fallback recipe
-     set, since no Gemini key reaches iOS).
+     and the app launches without a build error.**
+2. Observe the first screen shown.
+   - **The Home screen renders directly** — no onboarding survey (it isn't wired up on iOS yet;
+     see `AGENTS.md`'s iOS "Not yet done" item), no bottom navigation bar (out of scope for this
+     shell), stat cards and a "Recommended for you" list populated from the **bundled fallback
+     recipe set** (no Gemini key reaches iOS yet, so this is always the fallback, not a bug).
+3. Tap anywhere that would navigate on Android (a recipe card, the settings gear, the ingredients
+   card).
+   - **Nothing happens** — every `HomeRoute` callback is a no-op in this shell; this is expected,
+     not a regression.
 
 ---
 
@@ -532,7 +527,7 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-19 Trophies — refresh on return      | P1 |  |  |  |  |
 | SM-20 Settings — delete account         | P0 |  |  |  |  |
 | SM-21 Settings — send feedback          | P1 |  |  |  |  |
-| SM-22 iOS app shell (builds; known render blocker) | P1 |  |  |  |  |
+| SM-22 iOS app shell launches            | P1 |  |  |  |  |
 ```
 
 **Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install (once a previous release exists); **zero** crashes in any scenario.

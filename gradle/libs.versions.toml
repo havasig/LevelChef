@@ -1,11 +1,13 @@
 [versions]
 agp = "8.13.2"
-kotlin = "2.0.21"
+kotlin = "2.4.10"
 compose-bom = "2024.12.01"
-# Compose Multiplatform 1.8.0+ requires Kotlin 2.1.0+ (full K2 transition); 1.7.3 is the last line
-# compatible with our pinned Kotlin 2.0.21, and pairs with Jetpack Compose 1.7.6 — a close match to
-# compose-bom 2024.12.01 above, so the Android target's rendering stays effectively unchanged.
-compose-multiplatform = "1.7.3"
+# Bumped from CMP 1.7.3/Kotlin 2.0.21: 1.7.3's material3 klib was compiled against kotlinx-datetime
+# 0.6.0, which binary-mismatches this repo's 0.8.0 and crashes MaterialTheme on iOS via Kotlin/Native
+# partial linkage. material3 1.9.0+ (aliased by CMP 1.12.1+) depends on kotlinx-datetime 0.7.1+,
+# resolving that. Kotlin pinned to exactly 2.4.10 (not just "2.1.0+") to match detekt 2.0.0-alpha.6's
+# own exact Kotlin requirement below, rather than also needing to change the detekt pin.
+compose-multiplatform = "1.12.1"
 sqldelight = "2.3.2"
 ktor = "3.5.1"
 kotlinx-serialization = "1.7.3"
