@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +37,18 @@ import com.levelchef.core.designsystem.TagColor
 import com.levelchef.core.model.Ingredient
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.ingredients.generated.resources.Res
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_default_unit
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_delete
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_delete_confirm_message
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_delete_confirm_title
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_edit
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_macros_title
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_no_unit
+import com.levelchef.feature.ingredients.generated.resources.ingredient_detail_title
+import com.levelchef.feature.ingredients.generated.resources.ingredient_dialog_cancel
+import com.levelchef.feature.ingredients.generated.resources.ingredient_dialog_delete
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun IngredientDetailScreen(
@@ -53,7 +64,7 @@ fun IngredientDetailScreen(
             .navigationBarsPadding(),
     ) {
         LevelChefTopAppBarInner(
-            title = stringResource(R.string.ingredient_detail_title),
+            title = stringResource(Res.string.ingredient_detail_title),
             onBackClick = onBackClick,
             modifier = Modifier.statusBarsPadding(),
         )
@@ -103,7 +114,7 @@ private fun DetailContent(ingredient: Ingredient, onEditClick: () -> Unit, onDel
         ingredient.macros?.let { macros ->
             LevelChefCard {
                 Text(
-                    stringResource(R.string.ingredient_detail_macros_title),
+                    stringResource(Res.string.ingredient_detail_macros_title),
                     color = colors.textPrimary,
                     style = LevelChefTextStyles.bodySmallBold,
                 )
@@ -116,7 +127,7 @@ private fun DetailContent(ingredient: Ingredient, onEditClick: () -> Unit, onDel
             modifier = Modifier.padding(top = 8.dp),
         ) {
             LevelChefButton(
-                label = stringResource(R.string.ingredient_detail_edit),
+                label = stringResource(Res.string.ingredient_detail_edit),
                 type = ButtonType.PRIMARY,
                 onClick = onEditClick,
                 modifier = Modifier.fillMaxWidth(),
@@ -138,12 +149,12 @@ private fun UnitBox(ingredient: Ingredient) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            stringResource(R.string.ingredient_detail_default_unit),
+            stringResource(Res.string.ingredient_detail_default_unit),
             color = colors.textSecondary,
             style = LevelChefTextStyles.captionRegular,
         )
         Text(
-            ingredient.defaultUnit?.label() ?: stringResource(R.string.ingredient_detail_no_unit),
+            ingredient.defaultUnit?.label() ?: stringResource(Res.string.ingredient_detail_no_unit),
             color = colors.textPrimary,
             style = LevelChefTextStyles.bodyRegularBold,
         )
@@ -154,22 +165,22 @@ private fun UnitBox(ingredient: Ingredient) {
 private fun DeleteButton(ingredientName: String, onConfirmed: () -> Unit) {
     var showConfirm by remember { mutableStateOf(false) }
     LevelChefButton(
-        label = stringResource(R.string.ingredient_detail_delete),
+        label = stringResource(Res.string.ingredient_detail_delete),
         type = ButtonType.DESTRUCTIVE_SECONDARY,
         onClick = { showConfirm = true },
         modifier = Modifier.fillMaxWidth(),
     )
     if (showConfirm) {
         LevelChefModal(
-            title = stringResource(R.string.ingredient_detail_delete_confirm_title),
-            message = stringResource(R.string.ingredient_detail_delete_confirm_message, ingredientName),
+            title = stringResource(Res.string.ingredient_detail_delete_confirm_title),
+            message = stringResource(Res.string.ingredient_detail_delete_confirm_message, ingredientName),
             onDismiss = { showConfirm = false },
             onConfirm = {
                 showConfirm = false
                 onConfirmed()
             },
-            cancelLabel = stringResource(R.string.ingredient_dialog_cancel),
-            confirmLabel = stringResource(R.string.ingredient_dialog_delete),
+            cancelLabel = stringResource(Res.string.ingredient_dialog_cancel),
+            confirmLabel = stringResource(Res.string.ingredient_dialog_delete),
         )
     }
 }

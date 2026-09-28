@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +33,24 @@ import com.levelchef.core.model.IngredientCategory
 import com.levelchef.core.model.MeasurementUnit
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.ingredients.generated.resources.Res
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_calories_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_carbs_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_category_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_fat_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_image_caption
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_macros_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_name_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_name_placeholder
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_optional
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_protein_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_save
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_title_edit
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_title_new
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_unit_label
+import com.levelchef.feature.ingredients.generated.resources.ingredient_form_unit_none
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun IngredientFormScreen(
@@ -49,7 +66,7 @@ fun IngredientFormScreen(
     ) {
         LevelChefTopAppBarInner(
             title = stringResource(
-                if (state.editing) R.string.ingredient_form_title_edit else R.string.ingredient_form_title_new,
+                if (state.editing) Res.string.ingredient_form_title_edit else Res.string.ingredient_form_title_new,
             ),
             onBackClick = onBackClick,
             modifier = Modifier.statusBarsPadding(),
@@ -64,10 +81,10 @@ fun IngredientFormScreen(
             ImagePreview(state.category)
 
             LevelChefInputField(
-                label = stringResource(R.string.ingredient_form_name_label),
+                label = stringResource(Res.string.ingredient_form_name_label),
                 value = state.name,
                 onValueChange = actions.onNameChange,
-                placeholder = stringResource(R.string.ingredient_form_name_placeholder),
+                placeholder = stringResource(Res.string.ingredient_form_name_placeholder),
             )
 
             CategoryPicker(state.category, actions.onCategoryChange)
@@ -75,7 +92,7 @@ fun IngredientFormScreen(
             MacrosInput(state, actions)
 
             LevelChefButton(
-                label = stringResource(R.string.ingredient_form_save),
+                label = stringResource(Res.string.ingredient_form_save),
                 type = ButtonType.PRIMARY,
                 onClick = actions.onSave,
                 enabled = state.canSave,
@@ -106,7 +123,7 @@ private fun ImagePreview(category: IngredientCategory) {
             Text(categoryEmoji(category), fontSize = 40.sp)
         }
         Text(
-            stringResource(R.string.ingredient_form_image_caption),
+            stringResource(Res.string.ingredient_form_image_caption),
             color = colors.textSecondary,
             style = LevelChefTextStyles.captionRegular,
         )
@@ -117,7 +134,7 @@ private fun ImagePreview(category: IngredientCategory) {
 private fun CategoryPicker(selected: IngredientCategory, onChange: (IngredientCategory) -> Unit) {
     val labels = IngredientCategory.entries.associateWith { it.label() }
     LevelChefDropdown(
-        label = stringResource(R.string.ingredient_form_category_label),
+        label = stringResource(Res.string.ingredient_form_category_label),
         selectedOption = labels.getValue(selected),
         options = labels.values.toList(),
         onOptionSelected = { picked -> labels.entries.first { it.value == picked }.key.let(onChange) },
@@ -126,10 +143,10 @@ private fun CategoryPicker(selected: IngredientCategory, onChange: (IngredientCa
 
 @Composable
 private fun UnitPicker(selected: MeasurementUnit?, onChange: (MeasurementUnit?) -> Unit) {
-    val none = stringResource(R.string.ingredient_form_unit_none)
+    val none = stringResource(Res.string.ingredient_form_unit_none)
     val unitLabels = MeasurementUnit.entries.associateWith { it.label() }
     LevelChefDropdown(
-        label = stringResource(R.string.ingredient_form_unit_label),
+        label = stringResource(Res.string.ingredient_form_unit_label),
         selectedOption = selected?.let { unitLabels.getValue(it) } ?: none,
         options = listOf(none) + unitLabels.values,
         onOptionSelected = { picked ->
@@ -143,29 +160,29 @@ private fun MacrosInput(state: IngredientFormUiState, actions: IngredientFormAct
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                stringResource(R.string.ingredient_form_macros_label),
+                stringResource(Res.string.ingredient_form_macros_label),
                 color = LevelChefTheme.colors.textPrimary,
                 style = LevelChefTextStyles.bodyRegularBold,
             )
             Text(
-                stringResource(R.string.ingredient_form_optional),
+                stringResource(Res.string.ingredient_form_optional),
                 color = LevelChefTheme.colors.textSecondary,
                 style = LevelChefTextStyles.captionRegular,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            NumberField(R.string.ingredient_form_calories_label, state.calories, actions.onCaloriesChange, Modifier.weight(1f))
-            NumberField(R.string.ingredient_form_protein_label, state.protein, actions.onProteinChange, Modifier.weight(1f))
+            NumberField(Res.string.ingredient_form_calories_label, state.calories, actions.onCaloriesChange, Modifier.weight(1f))
+            NumberField(Res.string.ingredient_form_protein_label, state.protein, actions.onProteinChange, Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            NumberField(R.string.ingredient_form_carbs_label, state.carbs, actions.onCarbsChange, Modifier.weight(1f))
-            NumberField(R.string.ingredient_form_fat_label, state.fat, actions.onFatChange, Modifier.weight(1f))
+            NumberField(Res.string.ingredient_form_carbs_label, state.carbs, actions.onCarbsChange, Modifier.weight(1f))
+            NumberField(Res.string.ingredient_form_fat_label, state.fat, actions.onFatChange, Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun NumberField(labelRes: Int, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun NumberField(labelRes: StringResource, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier) {
     LevelChefInputField(
         label = stringResource(labelRes),
         value = value,
