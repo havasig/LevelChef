@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.BadgeStyle
 import com.levelchef.core.designsystem.ButtonType
@@ -24,6 +23,13 @@ import com.levelchef.core.designsystem.LevelChefRecipeCard
 import com.levelchef.core.designsystem.LevelChefWeeklyChallengeCard
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.home.generated.resources.Res
+import com.levelchef.feature.home.generated.resources.home_challenge_done
+import com.levelchef.feature.home.generated.resources.home_cooking_sessions_label
+import com.levelchef.feature.home.generated.resources.home_ingredients_tried_label
+import com.levelchef.feature.home.generated.resources.home_level_badge
+import com.levelchef.feature.home.generated.resources.home_xp_to_next_level
+import org.jetbrains.compose.resources.stringResource
 
 /** Section composables for [HomeScreen], kept internal since they're implementation details of this feature. */
 
@@ -32,7 +38,7 @@ internal fun LevelProgressSection(state: HomeUiState) {
     val colors = LevelChefTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         LevelChefBadge(
-            stringResource(R.string.home_level_badge, state.level.label(), state.level.ordinal + 1),
+            stringResource(Res.string.home_level_badge, state.level.label(), state.level.ordinal + 1),
             style = BadgeStyle.LIGHT,
         )
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -51,7 +57,7 @@ internal fun LevelProgressSection(state: HomeUiState) {
                 )
             }
             Text(
-                stringResource(R.string.home_xp_to_next_level, state.currentXp, state.xpForNextLevel),
+                stringResource(Res.string.home_xp_to_next_level, state.currentXp, state.xpForNextLevel),
                 color = colors.textSecondary,
                 style = LevelChefTextStyles.bodySmall,
             )
@@ -64,12 +70,12 @@ internal fun StatCardsRow(state: HomeUiState, onIngredientsClick: () -> Unit = {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         StatCard(
             "🍳 ${state.cookingSessions}",
-            stringResource(R.string.home_cooking_sessions_label),
+            stringResource(Res.string.home_cooking_sessions_label),
             Modifier.weight(1f),
         )
         StatCard(
             "🌿 ${state.ingredientsTried}",
-            stringResource(R.string.home_ingredients_tried_label),
+            stringResource(Res.string.home_ingredients_tried_label),
             Modifier.weight(1f),
             onClick = onIngredientsClick,
         )
@@ -98,7 +104,7 @@ internal fun WeeklyChallengeSection(state: HomeUiState, onDoneClick: () -> Unit)
         } else {
             {
                 LevelChefButton(
-                    label = stringResource(R.string.home_challenge_done),
+                    label = stringResource(Res.string.home_challenge_done),
                     type = ButtonType.SECONDARY,
                     enabled = state.challengeEligible,
                     onClick = onDoneClick,
