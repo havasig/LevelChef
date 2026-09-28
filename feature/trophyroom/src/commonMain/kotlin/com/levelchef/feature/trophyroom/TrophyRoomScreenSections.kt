@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.BadgeStyle
 import com.levelchef.core.designsystem.LevelChefAvatar
@@ -22,6 +21,23 @@ import com.levelchef.core.designsystem.LevelChefTag
 import com.levelchef.core.designsystem.TagColor
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.trophyroom.generated.resources.Res
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_avg_rating
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_completed
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_earned
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_in_progress
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_kitchen_time_caption
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_kitchen_time_label
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_level_of
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_level_progress
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_locked
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_max_level
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_not_started
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_streak
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_weekly_challenge_caption
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_weekly_challenge_label
+import com.levelchef.feature.trophyroom.generated.resources.trophy_room_xp_percent
+import org.jetbrains.compose.resources.stringResource
 
 /** Section composables for [TrophyRoomScreen], kept internal since they're implementation details of this feature. */
 
@@ -39,26 +55,26 @@ internal fun ProfileCard(state: TrophyRoomUiState) {
                 Column {
                     Text(state.level.label(), color = colors.textPrimary, style = LevelChefTextStyles.bodyLargeBold)
                     Text(
-                        stringResource(R.string.trophy_room_level_of, state.levelIndex, state.levelCount),
+                        stringResource(Res.string.trophy_room_level_of, state.levelIndex, state.levelCount),
                         color = colors.textSecondary,
                         style = LevelChefTextStyles.bodySmall,
                     )
                 }
             }
             if (state.isMaxLevel) {
-                LevelChefBadge(stringResource(R.string.trophy_room_max_level), style = BadgeStyle.DARK)
+                LevelChefBadge(stringResource(Res.string.trophy_room_max_level), style = BadgeStyle.DARK)
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
-                    stringResource(R.string.trophy_room_level_progress),
+                    stringResource(Res.string.trophy_room_level_progress),
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodySmall,
                 )
                 val percent = levelProgressPercent(state.currentXp, state.xpForNextLevel)
                 Text(
-                    stringResource(R.string.trophy_room_xp_percent, state.currentXp, state.xpForNextLevel, percent),
+                    stringResource(Res.string.trophy_room_xp_percent, state.currentXp, state.xpForNextLevel, percent),
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodySmall,
                 )
@@ -67,13 +83,13 @@ internal fun ProfileCard(state: TrophyRoomUiState) {
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                "🔥 " + stringResource(R.string.trophy_room_streak, state.streakDays),
+                "🔥 " + stringResource(Res.string.trophy_room_streak, state.streakDays),
                 color = colors.textSecondary,
                 style = LevelChefTextStyles.bodySmall,
             )
             state.avgRatingPercent?.let {
                 Text(
-                    "🎯 " + stringResource(R.string.trophy_room_avg_rating, it),
+                    "🎯 " + stringResource(Res.string.trophy_room_avg_rating, it),
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodySmall,
                 )
@@ -86,19 +102,19 @@ internal fun ProfileCard(state: TrophyRoomUiState) {
 internal fun TrophyStatCardsRow(state: TrophyRoomUiState) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         TrophyStatCard(
-            label = stringResource(R.string.trophy_room_weekly_challenge_label),
+            label = stringResource(Res.string.trophy_room_weekly_challenge_label),
             value = if (state.weeklyChallengeCompleted) {
-                stringResource(R.string.trophy_room_completed)
+                stringResource(Res.string.trophy_room_completed)
             } else {
                 state.weeklyChallengeProgressText
             },
-            caption = stringResource(R.string.trophy_room_weekly_challenge_caption),
+            caption = stringResource(Res.string.trophy_room_weekly_challenge_caption),
             modifier = Modifier.weight(1f),
         )
         TrophyStatCard(
-            label = stringResource(R.string.trophy_room_kitchen_time_label),
+            label = stringResource(Res.string.trophy_room_kitchen_time_label),
             value = kitchenTimeLabel(state.kitchenTimeMinutes),
-            caption = stringResource(R.string.trophy_room_kitchen_time_caption),
+            caption = stringResource(Res.string.trophy_room_kitchen_time_caption),
             modifier = Modifier.weight(1f),
         )
     }
@@ -136,9 +152,9 @@ internal fun StreakBadgeCard(badge: BadgeUiModel) {
                 Text(badge.localizedName(), color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
             }
             when {
-                badge.earned -> LevelChefTag(stringResource(R.string.trophy_room_earned), color = TagColor.GREEN)
-                badge.progressCurrent > 0 -> LevelChefTag(stringResource(R.string.trophy_room_in_progress), color = TagColor.PURPLE)
-                else -> LevelChefBadge(stringResource(R.string.trophy_room_not_started), style = BadgeStyle.LIGHT)
+                badge.earned -> LevelChefTag(stringResource(Res.string.trophy_room_earned), color = TagColor.GREEN)
+                badge.progressCurrent > 0 -> LevelChefTag(stringResource(Res.string.trophy_room_in_progress), color = TagColor.PURPLE)
+                else -> LevelChefBadge(stringResource(Res.string.trophy_room_not_started), style = BadgeStyle.LIGHT)
             }
         }
         Text(badge.localizedDescription(), color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
@@ -172,9 +188,9 @@ internal fun BadgeCard(badge: BadgeUiModel) {
                 )
             }
             if (badge.earned) {
-                LevelChefTag(stringResource(R.string.trophy_room_earned), color = TagColor.GREEN)
+                LevelChefTag(stringResource(Res.string.trophy_room_earned), color = TagColor.GREEN)
             } else {
-                LevelChefBadge(stringResource(R.string.trophy_room_locked), style = BadgeStyle.LIGHT)
+                LevelChefBadge(stringResource(Res.string.trophy_room_locked), style = BadgeStyle.LIGHT)
             }
         }
         Text(badge.localizedDescription(), color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
