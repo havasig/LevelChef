@@ -54,10 +54,10 @@ class SettingsScreenScreenshotTest {
             LevelChefTheme(darkTheme = dark) { content() }
         }
 
-        compose.onRoot().captureRoboImage("src/test/screenshots/${name}_light.png", screenshotOptions)
+        compose.onRoot().captureRoboImage("src/androidUnitTest/screenshots/${name}_light.png", screenshotOptions)
         dark = true
         compose.waitForIdle()
-        compose.onRoot().captureRoboImage("src/test/screenshots/${name}_dark.png", screenshotOptions)
+        compose.onRoot().captureRoboImage("src/androidUnitTest/screenshots/${name}_dark.png", screenshotOptions)
     }
 
     @Test
