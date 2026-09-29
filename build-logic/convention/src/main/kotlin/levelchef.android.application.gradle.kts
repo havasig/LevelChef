@@ -36,6 +36,10 @@ dependencies {
     add("implementation", platform(catalogLibs.findLibrary("compose-bom").get()))
     add("implementation", catalogLibs.findLibrary("compose-ui").get())
     add("implementation", catalogLibs.findLibrary("compose-material3").get())
+    // See levelchef.android.feature's identical comment: core:designsystem's Compose Multiplatform
+    // material3 no longer transitively pulls in material-icons-core, and its own fix for that is
+    // implementation-scoped, invisible to project-dependency consumers like androidApp.
+    add("implementation", catalogLibs.findLibrary("compose-material-icons-extended").get())
     add("implementation", catalogLibs.findLibrary("kermit").get())
 
     // Renders @Preview / @LevelChefPreview in the IDE preview pane (ui-tooling-preview only supplies

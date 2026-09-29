@@ -16,8 +16,10 @@ kotlin {
     }
 
     // Kotlin/Native can only compile these on a macOS host; on Linux (CI's ubuntu-latest job) Kotlin
-    // still configures the targets but their compile/link tasks are skipped automatically.
-    iosX64()
+    // still configures the targets but their compile/link tasks are skipped automatically. No
+    // iosX64() (Intel simulator) — Compose Multiplatform stopped publishing artifacts for it
+    // somewhere past 1.7.3 (JetBrains dropped Intel-simulator support); iosSimulatorArm64 (Apple Silicon, what both
+    // this repo's CI and any real dev machine actually use) and iosArm64 (real devices) cover it.
     iosArm64()
     iosSimulatorArm64()
 
@@ -32,6 +34,10 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.components.resources)
+            // Starting somewhere past CMP 1.7.3, compose.material3 no longer transitively pulls in
+            // material-icons-core for iOS the way 1.7.3 did (Icons.Filled.* previously resolved via that dep) —
+            // materialIconsExtended is the only icons accessor CMP's ComposePlugin.Dependencies exposes.
+            implementation(compose.materialIconsExtended)
 
             implementation(catalogLibs.findLibrary("kermit").get())
         }

@@ -179,10 +179,12 @@ If a new screen is added to the Figma file, give its stub composable a
 ## Not yet done (see README "Next steps")
 
 1. **iOS target, via Compose Multiplatform — in progress.** The build-logic/version-catalog
-   foundation has landed (`levelchef.kmp.library` now declares `iosX64`/`iosArm64`/
-   `iosSimulatorArm64` alongside `androidTarget`; a new `levelchef.kmp.feature` convention plugin
-   applies `org.jetbrains.compose` 1.7.3 — the last CMP line compatible with our pinned Kotlin
-   2.0.21 before CMP 1.8.0's K2-only cutover requires Kotlin 2.1.0+), and so has a real iOS target
+   foundation has landed (`levelchef.kmp.library` now declares `iosArm64`/`iosSimulatorArm64`
+   alongside `androidTarget` — no `iosX64`, dropped when bumping Compose Multiplatform past `1.7.3`
+   (see the "Material3 on iOS" note below); every real dev machine and this repo's own CI are Apple
+   Silicon anyway, so nothing is lost; a new `levelchef.kmp.feature` convention plugin applies
+   `org.jetbrains.compose` `1.11.0`, Kotlin pinned at 2.4.10 — see the "Material3 on iOS" note below
+   for why), and so has a real iOS target
    for the logic layer: `core:model`/`core:database`/`domain` needed no changes at all (no
    `expect`/`actual` coupling anywhere yet), and `data` now has an `iosMain` `databaseModule`
    mirroring `androidMain`'s (SQLDelight's `NativeSqliteDriver`, Ktor's `Darwin` engine, the
@@ -271,28 +273,64 @@ If a new screen is added to the Figma file, give its stub composable a
    `LevelChefTheme { HomeRoute() }` via `ComposeUIViewController` — real Koin-wired data (SQLDelight
    `NativeSqliteDriver`, Ktor `Darwin`), no navigation.
 
-   **Known blocker — the app builds but crashes before rendering anything, and this isn't a
-   scaffold bug.** Manually running it in the simulator (`xcrun simctl launch --console` to see
-   stdout) throws `Error was captured in composition.` from inside Compose's own composition error
-   boundary, with no further detail. Bisecting proved it's not `HomeRoute`, not `LevelChefTheme`,
-   not the Inter variable font (already flagged above), and not even LevelChef code — a **bare**
-   `MaterialTheme { Text("...") }` with zero app code crashes identically. The real cause: this repo
-   pins `kotlinx-datetime` `0.8.0` (`gradle/libs.versions.toml`), but Compose Multiplatform `1.7.3`'s
-   `material3` iOS library was compiled against an older `Instant` shape. An earlier build log already
-   showed the tell: `PlatformDateFormat.darwin.kt` linking with `Can not get instance of singleton
-   'Companion': No class found for symbol 'kotlinx.datetime/Instant.Companion|null[0]'` — Kotlin/Native's
-   partial-linkage feature turns that into a runtime-throwing stub instead of a build failure, and
-   `MaterialTheme`'s internal init touches it immediately, before any of the app's own code runs.
-   Fixing this for real needs one of two larger moves, neither attempted yet: downgrade
-   `kotlinx-datetime` repo-wide to match what CMP `1.7.3` expects (risky — it's used across `data`
-   for badge/streak/challenge-week date bucketing, and Android already depends on the current API
-   shape), or bump Kotlin + Compose Multiplatform together (CMP `1.8.0`+ needs Kotlin `2.1.0`+, see
-   the CMP-pin note above) — a real toolchain migration, not a quick fix. Until one of those lands,
-   **the iOS shell does not visually render** — `./gradlew`/`xcodebuild` succeeding only proves it
-   compiles and links, not that it runs.
+   **Material3-on-iOS crash — found and fixed.** Manually running the shell in the simulator
+   (`xcrun simctl launch --console` to see stdout) originally threw `Error was captured in
+   composition.` from inside Compose's own composition error boundary, with no further detail.
+   Bisecting proved it wasn't `HomeRoute`, not `LevelChefTheme`, not the Inter variable font — a
+   **bare** `MaterialTheme { Text("...") }` with zero app code crashed identically. Root cause: CMP
+   `1.7.3`'s `material3` iOS library was compiled against `kotlinx-datetime 0.6.0`, while this repo
+   pinned `0.8.0` — a klib binary mismatch (`PlatformDateFormat.darwin.kt` linking with `Can not get
+   instance of singleton 'Companion': No class found for symbol
+   'kotlinx.datetime/Instant.Companion|null[0]'`) that Kotlin/Native's partial-linkage feature turned
+   into a runtime-throwing stub `MaterialTheme`'s init touched immediately. Fixed by bumping the
+   whole toolchain forward rather than downgrading `kotlinx-datetime`: **Kotlin `2.4.10`** (pinned to
+   exactly this, not just "2.1.0+", to match `detekt 2.0.0-alpha.6`'s own exact Kotlin requirement —
+   each `detekt 2.0.0-alpha.N` pins one specific Kotlin version) and **Compose Multiplatform
+   `1.11.0`**, whose `material3` depends on `kotlinx-datetime 0.7.1+` — compatible with this repo's
+   `0.8.0`, no downgrade needed (material3 versioning decoupled from CMP's own starting CMP 1.9;
+   confirmed by resolving `:feature:settings`'s `iosArm64CompileKlibraries` configuration and reading
+   `material3:1.9.0 -> kotlinx-datetime:0.7.1 -> 0.8.0`, no mismatch). **Pinned to exactly `1.11.0`,
+   not CMP's newer releases**: `1.12.1`'s Android-interop artifacts (`androidx.compose.*` `1.12.1`)
+   require `compileSdk 37` + AGP `9.1.0`+, and AGP 9's built-in Kotlin support in turn rejects
+   `com.android.library` + `org.jetbrains.kotlin.multiplatform` together — every KMP module in this
+   repo. AGP's own error names the fix as migrating to `com.android.kotlin.multiplatform.library`
+   (a different plugin, different DSL — single-variant only, `androidResources`/tests opt-in, source
+   sets possibly renamed) — a real, separate migration project, not a version bump, and its own
+   suggested escape hatch (`android.builtInKotlin=false`/`android.newDsl=false` in `gradle.properties`)
+   doesn't reach precompiled script convention plugins like this repo's at all (tried it in both the
+   root and `build-logic`'s own `gradle.properties`, and as explicit `-P` flags — identical failure
+   every time; Gradle's type-safe-accessor generation for precompiled script plugins evaluates each
+   plugin in an isolated context that doesn't read Gradle properties). `1.11.0` needs none of this —
+   compileSdk 36 / AGP 8.13.2 unchanged. Revisit once/if the `com.android.kotlin.multiplatform.library`
+   migration is worth doing on its own. Two other things broke and got fixed along the way: `iosX64()`
+   (Intel simulator) had to be dropped from every KMP convention plugin and `shared/build.gradle.kts`
+   — CMP stopped publishing artifacts for it somewhere past `1.7.3` (`iosArm64`/`iosSimulatorArm64`
+   are what any real Apple Silicon dev machine or this repo's CI actually use, so nothing is lost);
+   and `compose.material3` stopped transitively pulling in `material-icons-core` on iOS the way it
+   did in `1.7.3`, so `levelchef.kmp.designsystem` now explicitly adds
+   `implementation(compose.materialIconsExtended)` (the only icons accessor CMP's
+   `ComposePlugin.Dependencies` exposes — there's no separate "core-only" one). **That same
+   material-icons-core breakage also hit the Android target** for the two modules that aren't
+   `levelchef.kmp.*`-based and so never got that fix transitively (`implementation`-scoped, invisible
+   to project-dependency consumers): `androidApp` and `feature:onboarding` (see below — not yet
+   migrated to KMP). Both now explicitly add the plain Jetpack Compose equivalent (new
+   version-catalog entry `compose-material-icons-extended`,
+   `androidx.compose.material:material-icons-extended`) in
+   `levelchef.android.application`/`levelchef.android.feature`.
+   This was caught building the Android target locally with a real Android SDK — the dev machine that
+   found and fixed the original iOS crash had none configured, so it couldn't compile-check
+   `androidApp` or `feature:onboarding` at all. **Re-verified on an actual iOS Simulator** (Xcode
+   27.0, iOS 27.0 SDK, iPhone 17 simulator, CMP `1.11.0` — not the `1.12.1` the fix was originally
+   confirmed on-device at): a full `xcodebuild` build/install/launch renders the Home screen fully
+   (stat cards, weekly challenge, all 3 bundled fallback recipes), and manual tap/scroll interaction
+   testing (settings gear, a recipe card, scrolling through the full recommendation list, the "Done"
+   button, the "Cook today" CTA) produced zero crashes — confirming the Material3/`kotlinx-datetime`
+   fix holds at the `1.11.0` pin, not just at `1.12.1`. (Note: CMP `1.11.0` itself hard-links
+   `_OBJC_CLASS_$_UIViewLayoutRegion`, an iOS 26+ UIKit symbol, and only fails to link on an
+   older Xcode/SDK than that — not a regression of this fix, just a reason this re-verification
+   needed a current Xcode/macOS to run at all.)
 
-   Deliberately **not** done yet (separately from the blocker above), so don't
-   assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
+   Deliberately **not** done yet, so don't assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
    the shell shows Home directly), the full bottom-nav graph isn't in `:shared` (`androidx.navigation:navigation-compose`
    hasn't been proven on iOS in this repo), there's no real Gemini key path for iOS (recipe
    recommendations always use the bundled fallback), and `applyPersistedThemeMode`'s iOS

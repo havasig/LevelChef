@@ -3,11 +3,12 @@ plugins {
 }
 
 kotlin {
-    // No `ios()` shortcut exists in this project (see levelchef.kmp.designsystem) — the three
-    // targets are declared individually there. Re-invoking each accessor here returns the
-    // already-configured target rather than recreating it, so this just adds the framework export
-    // on top of what the convention plugin already set up.
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { target ->
+    // No `ios()` shortcut exists in this project (see levelchef.kmp.designsystem) — the two
+    // targets (iosArm64, iosSimulatorArm64 — no iosX64, see levelchef.kmp.designsystem's comment)
+    // are declared individually there. Re-invoking each accessor here returns the already-configured
+    // target rather than recreating it, so this just adds the framework export on top of what the
+    // convention plugin already set up.
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
         target.binaries.framework {
             baseName = "LevelChefShared"
             isStatic = true

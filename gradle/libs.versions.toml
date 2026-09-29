@@ -1,11 +1,23 @@
 [versions]
 agp = "8.13.2"
-kotlin = "2.0.21"
+kotlin = "2.4.10"
 compose-bom = "2024.12.01"
-# Compose Multiplatform 1.8.0+ requires Kotlin 2.1.0+ (full K2 transition); 1.7.3 is the last line
-# compatible with our pinned Kotlin 2.0.21, and pairs with Jetpack Compose 1.7.6 — a close match to
-# compose-bom 2024.12.01 above, so the Android target's rendering stays effectively unchanged.
-compose-multiplatform = "1.7.3"
+# Bumped from CMP 1.7.3/Kotlin 2.0.21: 1.7.3's material3 klib was compiled against kotlinx-datetime
+# 0.6.0, which binary-mismatches this repo's 0.8.0 and crashes MaterialTheme on iOS via Kotlin/Native
+# partial linkage. material3 versioning decoupled from CMP's own starting CMP 1.9 — material3 1.9.0+
+# (aliased starting CMP 1.9.x) depends on kotlinx-datetime 0.7.1+, resolving that; confirmed via
+# `./gradlew :feature:settings:dependencies --configuration iosArm64CompileKlibraries`, which shows
+# material3:1.9.0 -> kotlinx-datetime:0.7.1 -> resolved 0.8.0, no mismatch. Pinned to exactly 1.11.0,
+# not CMP's latest (1.12.1): CMP 1.12.1's Android-interop artifacts (androidx.compose.* 1.12.1)
+# require compileSdk 37 + AGP 9.1.0+, and AGP 9's built-in Kotlin support in turn rejects the
+# `com.android.library` + `org.jetbrains.kotlin.multiplatform` combination every KMP module here
+# uses (AGP suggests migrating to `com.android.kotlin.multiplatform.library` instead — a real,
+# separate migration, not a version bump). 1.11.0 already has the material3 fix and stays on
+# compileSdk 36 / AGP 8.13.2 with zero other changes needed. Revisit once the
+# com.android.kotlin.multiplatform.library migration happens. Kotlin pinned to exactly 2.4.10 (not
+# just "2.1.0+") to match detekt 2.0.0-alpha.6's own exact Kotlin requirement below, rather than also
+# needing to change the detekt pin.
+compose-multiplatform = "1.11.0"
 sqldelight = "2.3.2"
 ktor = "3.5.1"
 kotlinx-serialization = "1.7.3"
@@ -45,6 +57,7 @@ compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 sqldelight-android-driver = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
