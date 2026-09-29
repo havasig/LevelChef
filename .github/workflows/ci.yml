@@ -96,12 +96,19 @@ jobs:
           validate-wrappers: true
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
+      - name: Pick an available arm64 simulator
+        id: sim
+        run: |
+          NAME=$(xcrun simctl list devices available -j \
+            | jq -r '[.devices[] | .[] | select(.name | test("iPhone"))][0].name')
+          echo "Using simulator: $NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
       - name: Build iosApp for the simulator
         working-directory: iosApp
         run: |
           xcodebuild -project iosApp.xcodeproj -scheme iosApp \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=${{ steps.sim.outputs.name }}' \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
-            'EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64' \
             build
