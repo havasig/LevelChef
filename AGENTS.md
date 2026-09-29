@@ -319,12 +319,16 @@ If a new screen is added to the Figma file, give its stub composable a
    `levelchef.android.application`/`levelchef.android.feature`.
    This was caught building the Android target locally with a real Android SDK — the dev machine that
    found and fixed the original iOS crash had none configured, so it couldn't compile-check
-   `androidApp` or `feature:onboarding` at all. **Still needs re-verification on an actual iOS
-   Simulator**: everything above was chosen and compile-verified from a Windows machine (Kotlin/Native
-   klib compilation for `iosArm64`/`iosSimulatorArm64` works fine there; only the final framework
-   *link* and anything simulator-side needs actual Xcode/macOS) — the original Material3 crash fix was
-   confirmed on-device at `1.12.1`, not at this `1.11.0` pin, so re-confirm the crash is still gone
-   before trusting this.
+   `androidApp` or `feature:onboarding` at all. **Re-verified on an actual iOS Simulator** (Xcode
+   27.0, iOS 27.0 SDK, iPhone 17 simulator, CMP `1.11.0` — not the `1.12.1` the fix was originally
+   confirmed on-device at): a full `xcodebuild` build/install/launch renders the Home screen fully
+   (stat cards, weekly challenge, all 3 bundled fallback recipes), and manual tap/scroll interaction
+   testing (settings gear, a recipe card, scrolling through the full recommendation list, the "Done"
+   button, the "Cook today" CTA) produced zero crashes — confirming the Material3/`kotlinx-datetime`
+   fix holds at the `1.11.0` pin, not just at `1.12.1`. (Note: CMP `1.11.0` itself hard-links
+   `_OBJC_CLASS_$_UIViewLayoutRegion`, an iOS 26+ UIKit symbol, and only fails to link on an
+   older Xcode/SDK than that — not a regression of this fix, just a reason this re-verification
+   needed a current Xcode/macOS to run at all.)
 
    Deliberately **not** done yet, so don't assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
    the shell shows Home directly), the full bottom-nav graph isn't in `:shared` (`androidx.navigation:navigation-compose`
