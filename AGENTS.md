@@ -330,11 +330,39 @@ If a new screen is added to the Figma file, give its stub composable a
    older Xcode/SDK than that — not a regression of this fix, just a reason this re-verification
    needed a current Xcode/macOS to run at all.)
 
-   Deliberately **not** done yet, so don't assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
-   the shell shows Home directly), the full bottom-nav graph isn't in `:shared` (`androidx.navigation:navigation-compose`
-   hasn't been proven on iOS in this repo), there's no real Gemini key path for iOS (recipe
-   recommendations always use the bundled fallback), and `applyPersistedThemeMode`'s iOS
-   `.preferredColorScheme` wiring (noted above) still isn't connected to a live `UIWindow`.
+   **Full bottom-nav graph — done.** `:shared`'s `nav/SharedApp.kt` + `nav/SharedDestination.kt`
+   port androidApp's own `LevelChefNav.kt`/`LevelChefDestination.kt` route graph into commonMain:
+   the Home/Recipes/Trophies bottom bar (reusing `core:designsystem`'s existing
+   `LevelChefBottomNavigationBar`, unchanged), and every drill-down reachable from Home — recipe
+   detail, meal review, settings, and the ingredients list/detail/add-edit form — using the same
+   route strings/args as Android. `:shared` now also depends on `feature:settings`,
+   `feature:ingredients`, `feature:recipedetail`, `feature:mealreview`, `feature:trophyroom` and
+   `feature:cookinglog` (all already KMP; only `feature:onboarding` isn't, see below), and
+   `IosEntryPoint.kt`'s `doInitKoin()` registers each one's Koin module. The nav library is
+   **`org.jetbrains.androidx.navigation:navigation-compose`** (`navigationComposeMultiplatform` in
+   `libs.versions.toml`, pinned to `2.9.2`) — a *different* Maven coordinate from androidApp's own
+   `androidx.navigation:navigation-compose` (`navigationCompose`, `2.8.4`): Google's artifact has no
+   iOS klib, JetBrains' multiplatform fork does. `:shared`-only; androidApp is untouched. One real
+   API difference surfaced porting the route-arg-reading code: a multiplatform
+   `NavBackStackEntry.arguments` is `androidx.savedstate.SavedState`, not Android's `Bundle` —
+   `.getString(key)` doesn't exist directly; read it via `.read { getStringOrNull(key) }`
+   (`androidx.savedstate.read`). Verified end to end on Xcode 27.0/iPhone 17 simulator: bottom nav
+   switches all three tabs with real data, Home → recipe card → Recipe Detail → "I made it" → Meal
+   Review works, Recipe Detail's own Save/bookmark and step timer both work, gear → Settings → back
+   works, Ingredients card → list (empty state) → "+" → add form works. **One real finding, not
+   caused by this change**: `feature:mealreview`'s own pre-existing `Save` button (`MealReviewScreen.kt`,
+   untouched by this PR) did not respond to synthetic taps during this simulator session, despite
+   every other control on that same screen (rating stars, macro steppers, back navigation) and the
+   identical `LevelChefButton`-based Save button on Recipe Detail responding correctly — no crash or
+   exception in the device log either. Not chased further since it's outside this change's scope;
+   worth a real-finger check on an actual simulator run before trusting the meal-review Save path on
+   iOS.
+
+   Still deliberately **not** done, so don't assume they work: `feature:onboarding` isn't KMP
+   (`OnboardingGate` is skipped entirely on iOS — the shell shows Home directly), there's no real
+   Gemini key path for iOS (recipe recommendations always use the bundled fallback), and
+   `applyPersistedThemeMode`'s iOS `.preferredColorScheme` wiring (noted above) still isn't
+   connected to a live `UIWindow`.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is
