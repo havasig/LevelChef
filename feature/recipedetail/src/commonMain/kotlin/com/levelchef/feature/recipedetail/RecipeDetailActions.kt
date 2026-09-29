@@ -7,7 +7,8 @@ data class RecipeDetailActions(
     val onServingsChange: (delta: Int) -> Unit = {},
     val onIngredientToggle: (index: Int) -> Unit = {},
     val onToggleSaved: () -> Unit = {},
-    val onMadeIt: () -> Unit = {},
+    /** Opens "Log experience" for the serving count the user cooked (the stepper value). */
+    val onMadeIt: (servings: Int) -> Unit = {},
     val onStartTimer: (stepIndex: Int, minutes: Int) -> Unit = { _, _ -> },
     val onCancelTimer: () -> Unit = {},
     val onOpenVideo: (url: String) -> Unit = {},

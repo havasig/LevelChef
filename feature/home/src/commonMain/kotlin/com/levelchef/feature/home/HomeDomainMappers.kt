@@ -17,8 +17,9 @@ internal fun Recipe.toRecommendation(): RecipeRecommendation = RecipeRecommendat
     difficulty = difficulty,
 )
 
-internal fun CookingSession.toLastCooked(): LastCooked = LastCooked(
-    recipeName = recipeName,
+/** [nameOverride] is the recipe's current (app-language) name; the logged [CookingSession.recipeName] is the fallback. */
+internal fun CookingSession.toLastCooked(nameOverride: String? = null): LastCooked = LastCooked(
+    recipeName = nameOverride ?: recipeName,
     daysAgo = cookedAt.wholeDaysAgo(),
     stars = rating ?: 0,
 )
