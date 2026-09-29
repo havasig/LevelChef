@@ -180,10 +180,10 @@ If a new screen is added to the Figma file, give its stub composable a
 
 1. **iOS target, via Compose Multiplatform — in progress.** The build-logic/version-catalog
    foundation has landed (`levelchef.kmp.library` now declares `iosArm64`/`iosSimulatorArm64`
-   alongside `androidTarget` — no `iosX64`; Compose Multiplatform 1.12.1 no longer publishes
-   artifacts for the Intel simulator target, and every real dev machine and this repo's own CI are
-   Apple Silicon anyway; a new `levelchef.kmp.feature` convention plugin applies
-   `org.jetbrains.compose` 1.12.1, Kotlin pinned at 2.4.10 — see the "Material3 on iOS" note below
+   alongside `androidTarget` — no `iosX64`, dropped when bumping Compose Multiplatform past `1.7.3`
+   (see the "Material3 on iOS" note below); every real dev machine and this repo's own CI are Apple
+   Silicon anyway, so nothing is lost; a new `levelchef.kmp.feature` convention plugin applies
+   `org.jetbrains.compose` `1.11.0`, Kotlin pinned at 2.4.10 — see the "Material3 on iOS" note below
    for why), and so has a real iOS target
    for the logic layer: `core:model`/`core:database`/`domain` needed no changes at all (no
    `expect`/`actual` coupling anywhere yet), and `data` now has an `iosMain` `databaseModule`
@@ -286,15 +286,45 @@ If a new screen is added to the Figma file, give its stub composable a
    whole toolchain forward rather than downgrading `kotlinx-datetime`: **Kotlin `2.4.10`** (pinned to
    exactly this, not just "2.1.0+", to match `detekt 2.0.0-alpha.6`'s own exact Kotlin requirement —
    each `detekt 2.0.0-alpha.N` pins one specific Kotlin version) and **Compose Multiplatform
-   `1.12.1`**, whose `material3` depends on `kotlinx-datetime 0.7.1+` — compatible with this repo's
-   `0.8.0`, no downgrade needed. Two things broke and got fixed along the way: `iosX64()` (Intel
-   simulator) had to be dropped entirely from every KMP convention plugin and `shared/build.gradle.kts`
-   — CMP `1.12.1` no longer publishes artifacts for it at all (JetBrains dropped Intel-simulator
-   support; `iosArm64`/`iosSimulatorArm64` are what any real Apple Silicon dev machine or this repo's
-   CI actually use, so nothing is lost); and `compose.material3` stopped transitively pulling in
-   `material-icons-core` on iOS the way it did in `1.7.3`, so `levelchef.kmp.designsystem` now
-   explicitly adds `implementation(compose.materialIconsExtended)` (the only icons accessor CMP's
-   `ComposePlugin.Dependencies` exposes — there's no separate "core-only" one).
+   `1.11.0`**, whose `material3` depends on `kotlinx-datetime 0.7.1+` — compatible with this repo's
+   `0.8.0`, no downgrade needed (material3 versioning decoupled from CMP's own starting CMP 1.9;
+   confirmed by resolving `:feature:settings`'s `iosArm64CompileKlibraries` configuration and reading
+   `material3:1.9.0 -> kotlinx-datetime:0.7.1 -> 0.8.0`, no mismatch). **Pinned to exactly `1.11.0`,
+   not CMP's newer releases**: `1.12.1`'s Android-interop artifacts (`androidx.compose.*` `1.12.1`)
+   require `compileSdk 37` + AGP `9.1.0`+, and AGP 9's built-in Kotlin support in turn rejects
+   `com.android.library` + `org.jetbrains.kotlin.multiplatform` together — every KMP module in this
+   repo. AGP's own error names the fix as migrating to `com.android.kotlin.multiplatform.library`
+   (a different plugin, different DSL — single-variant only, `androidResources`/tests opt-in, source
+   sets possibly renamed) — a real, separate migration project, not a version bump, and its own
+   suggested escape hatch (`android.builtInKotlin=false`/`android.newDsl=false` in `gradle.properties`)
+   doesn't reach precompiled script convention plugins like this repo's at all (tried it in both the
+   root and `build-logic`'s own `gradle.properties`, and as explicit `-P` flags — identical failure
+   every time; Gradle's type-safe-accessor generation for precompiled script plugins evaluates each
+   plugin in an isolated context that doesn't read Gradle properties). `1.11.0` needs none of this —
+   compileSdk 36 / AGP 8.13.2 unchanged. Revisit once/if the `com.android.kotlin.multiplatform.library`
+   migration is worth doing on its own. Two other things broke and got fixed along the way: `iosX64()`
+   (Intel simulator) had to be dropped from every KMP convention plugin and `shared/build.gradle.kts`
+   — CMP stopped publishing artifacts for it somewhere past `1.7.3` (`iosArm64`/`iosSimulatorArm64`
+   are what any real Apple Silicon dev machine or this repo's CI actually use, so nothing is lost);
+   and `compose.material3` stopped transitively pulling in `material-icons-core` on iOS the way it
+   did in `1.7.3`, so `levelchef.kmp.designsystem` now explicitly adds
+   `implementation(compose.materialIconsExtended)` (the only icons accessor CMP's
+   `ComposePlugin.Dependencies` exposes — there's no separate "core-only" one). **That same
+   material-icons-core breakage also hit the Android target** for the two modules that aren't
+   `levelchef.kmp.*`-based and so never got that fix transitively (`implementation`-scoped, invisible
+   to project-dependency consumers): `androidApp` and `feature:onboarding` (see below — not yet
+   migrated to KMP). Both now explicitly add the plain Jetpack Compose equivalent (new
+   version-catalog entry `compose-material-icons-extended`,
+   `androidx.compose.material:material-icons-extended`) in
+   `levelchef.android.application`/`levelchef.android.feature`.
+   This was caught building the Android target locally with a real Android SDK — the dev machine that
+   found and fixed the original iOS crash had none configured, so it couldn't compile-check
+   `androidApp` or `feature:onboarding` at all. **Still needs re-verification on an actual iOS
+   Simulator**: everything above was chosen and compile-verified from a Windows machine (Kotlin/Native
+   klib compilation for `iosArm64`/`iosSimulatorArm64` works fine there; only the final framework
+   *link* and anything simulator-side needs actual Xcode/macOS) — the original Material3 crash fix was
+   confirmed on-device at `1.12.1`, not at this `1.11.0` pin, so re-confirm the crash is still gone
+   before trusting this.
 
    Deliberately **not** done yet, so don't assume they work: `feature:onboarding` isn't KMP (`OnboardingGate` is skipped entirely on iOS —
    the shell shows Home directly), the full bottom-nav graph isn't in `:shared` (`androidx.navigation:navigation-compose`

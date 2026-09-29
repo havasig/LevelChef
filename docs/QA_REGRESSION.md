@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-29 · covers through the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the minimal iOS app shell (`iosApp/`, Home screen only — Kotlin 2.4.10 / Compose Multiplatform 1.12.1)._
+_Last updated: 2026-09-29 · covers through the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the minimal iOS app shell (`iosApp/`, Home screen only — Kotlin 2.4.10 / Compose Multiplatform 1.11.0)._
 
 ---
 
