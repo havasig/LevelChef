@@ -4,7 +4,7 @@
     <string name="onboarding_step_counter">%1$d of %2$d</string>
     <string name="onboarding_back">Back</string>
     <string name="onboarding_continue">Continue</string>
-    <string name="onboarding_finish">Let\'s cook</string>
+    <string name="onboarding_finish">Let's cook</string>
 
     <!-- Welcome -->
     <string name="onboarding_welcome_title">LevelChef</string>
@@ -13,10 +13,10 @@
     <string name="onboarding_welcome_cta">Get started</string>
 
     <!-- Cooking level -->
-    <string name="onboarding_experience_title">What\'s your cooking level?</string>
-    <string name="onboarding_experience_subtitle">We\'ll match recipes to your skill.</string>
+    <string name="onboarding_experience_title">What's your cooking level?</string>
+    <string name="onboarding_experience_subtitle">We'll match recipes to your skill.</string>
     <string name="onboarding_experience_never">Never cooked</string>
-    <string name="onboarding_experience_never_desc">I\'m starting from scratch</string>
+    <string name="onboarding_experience_never_desc">I'm starting from scratch</string>
     <string name="onboarding_experience_beginner">Beginner</string>
     <string name="onboarding_experience_beginner_desc">I can follow a recipe</string>
     <string name="onboarding_experience_comfortable">Comfortable</string>
@@ -24,7 +24,7 @@
     <string name="onboarding_experience_confident">Confident</string>
     <string name="onboarding_experience_confident_desc">I improvise without a recipe</string>
     <string name="onboarding_experience_pro">Pro</string>
-    <string name="onboarding_experience_pro_desc">I\'ve cooked professionally</string>
+    <string name="onboarding_experience_pro_desc">I've cooked professionally</string>
 
     <!-- Diet -->
     <string name="onboarding_diet_title">How do you eat?</string>
@@ -42,7 +42,7 @@
 
     <!-- Allergies -->
     <string name="onboarding_allergens_title">Any allergies or avoidances?</string>
-    <string name="onboarding_allergens_subtitle">We\'ll keep these out of every recipe.</string>
+    <string name="onboarding_allergens_subtitle">We'll keep these out of every recipe.</string>
     <string name="onboarding_allergens_none">No allergies</string>
     <string name="onboarding_allergen_gluten">Gluten</string>
     <string name="onboarding_allergen_dairy">Dairy</string>
@@ -99,7 +99,7 @@
 
     <!-- Household size -->
     <string name="onboarding_household_title">How many people do you cook for?</string>
-    <string name="onboarding_household_subtitle">We\'ll size portions to match.</string>
+    <string name="onboarding_household_subtitle">We'll size portions to match.</string>
     <string name="onboarding_household_solo">Just me</string>
     <string name="onboarding_household_two">Two</string>
     <string name="onboarding_household_three_four">Three or four</string>

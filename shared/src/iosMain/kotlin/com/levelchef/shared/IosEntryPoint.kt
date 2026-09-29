@@ -8,6 +8,8 @@ import com.levelchef.feature.cookinglog.di.cookingLogModule
 import com.levelchef.feature.home.di.homeModule
 import com.levelchef.feature.ingredients.di.ingredientsModule
 import com.levelchef.feature.mealreview.di.mealReviewModule
+import com.levelchef.feature.onboarding.OnboardingGate
+import com.levelchef.feature.onboarding.di.onboardingModule
 import com.levelchef.feature.recipedetail.di.recipeDetailModule
 import com.levelchef.feature.settings.di.settingsModule
 import com.levelchef.feature.trophyroom.di.trophyroomModule
@@ -19,11 +21,9 @@ import platform.UIKit.UIViewController
 
 /**
  * iOS entry point, called once from `iOSApp.swift`'s `init()` — mirrors `LevelChefApplication`'s
- * `startKoin` call on Android (minus `onboardingModule`: `feature:onboarding` isn't KMP yet, so
- * the iOS shell skips straight to Home). `geminiApiKey` is blank until a real key is plumbed in
- * from Xcode build settings/Info.plist (see AGENTS.md's iOS "Not yet done" item);
- * `RecipeRepositoryImpl` already treats a blank key as "serve the bundled fallback recipes", so
- * this never fails.
+ * `startKoin` call on Android. `geminiApiKey` is blank until a real key is plumbed in from Xcode
+ * build settings/Info.plist (see AGENTS.md's iOS "Not yet done" item); `RecipeRepositoryImpl`
+ * already treats a blank key as "serve the bundled fallback recipes", so this never fails.
  */
 fun doInitKoin() {
     startKoin {
@@ -32,6 +32,7 @@ fun doInitKoin() {
             databaseModule,
             dataModule,
             homeModule,
+            onboardingModule,
             settingsModule,
             ingredientsModule,
             trophyroomModule,
@@ -43,12 +44,15 @@ fun doInitKoin() {
 }
 
 /**
- * Called from `ContentView.swift` via a `UIViewControllerRepresentable`. Boots the full bottom-nav
- * graph (`SharedApp`) — everything reachable from Home except onboarding (skipped, see
- * `doInitKoin`'s doc comment) and the Android-only debug showcase.
+ * Called from `ContentView.swift` via a `UIViewControllerRepresentable`. Gates the full bottom-nav
+ * graph (`SharedApp`) behind the mandatory first-launch survey (`OnboardingGate`), same as
+ * androidApp's own `LevelChefApp()` — everything reachable from Home except the Android-only debug
+ * showcase.
  */
 fun MainViewController(): UIViewController = ComposeUIViewController {
     LevelChefTheme {
-        SharedApp()
+        OnboardingGate {
+            SharedApp()
+        }
     }
 }

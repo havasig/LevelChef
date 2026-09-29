@@ -310,13 +310,17 @@ If a new screen is added to the Figma file, give its stub composable a
    did in `1.7.3`, so `levelchef.kmp.designsystem` now explicitly adds
    `implementation(compose.materialIconsExtended)` (the only icons accessor CMP's
    `ComposePlugin.Dependencies` exposes — there's no separate "core-only" one). **That same
-   material-icons-core breakage also hit the Android target** for the two modules that aren't
-   `levelchef.kmp.*`-based and so never got that fix transitively (`implementation`-scoped, invisible
-   to project-dependency consumers): `androidApp` and `feature:onboarding` (see below — not yet
-   migrated to KMP). Both now explicitly add the plain Jetpack Compose equivalent (new
-   version-catalog entry `compose-material-icons-extended`,
-   `androidx.compose.material:material-icons-extended`) in
-   `levelchef.android.application`/`levelchef.android.feature`.
+   material-icons-core breakage also hit the Android target** for the modules that weren't
+   `levelchef.kmp.*`-based yet and so never got that fix transitively (`implementation`-scoped,
+   invisible to project-dependency consumers): `androidApp` (still `levelchef.android.application`,
+   unaffected by the KMP migrations below) and, at the time, `feature:onboarding` (now migrated —
+   see the "Onboarding — migrated to KMP" note below; it gets `materialIconsExtended` transitively
+   through `levelchef.kmp.designsystem` now, same as every other feature module, so its explicit fix
+   in `levelchef.android.feature` is no longer exercised by any feature module — that convention
+   plugin is now unused by `feature:*` entirely, left in place since removing it wasn't part of the
+   onboarding migration). `androidApp` still explicitly adds the plain Jetpack Compose equivalent
+   (version-catalog entry `compose-material-icons-extended`,
+   `androidx.compose.material:material-icons-extended`) via `levelchef.android.application`.
    This was caught building the Android target locally with a real Android SDK — the dev machine that
    found and fixed the original iOS crash had none configured, so it couldn't compile-check
    `androidApp` or `feature:onboarding` at all. **Re-verified on an actual iOS Simulator** (Xcode
@@ -336,9 +340,10 @@ If a new screen is added to the Figma file, give its stub composable a
    `LevelChefBottomNavigationBar`, unchanged), and every drill-down reachable from Home — recipe
    detail, meal review, settings, and the ingredients list/detail/add-edit form — using the same
    route strings/args as Android. `:shared` now also depends on `feature:settings`,
-   `feature:ingredients`, `feature:recipedetail`, `feature:mealreview`, `feature:trophyroom` and
-   `feature:cookinglog` (all already KMP; only `feature:onboarding` isn't, see below), and
-   `IosEntryPoint.kt`'s `doInitKoin()` registers each one's Koin module. The nav library is
+   `feature:ingredients`, `feature:recipedetail`, `feature:mealreview`, `feature:trophyroom`,
+   `feature:cookinglog` and `feature:onboarding` (all KMP — see the "Onboarding — migrated to KMP"
+   note below), and `IosEntryPoint.kt`'s `doInitKoin()` registers each one's Koin module. The nav
+   library is
    **`org.jetbrains.androidx.navigation:navigation-compose`** (`navigationComposeMultiplatform` in
    `libs.versions.toml`, pinned to `2.9.2`) — a *different* Maven coordinate from androidApp's own
    `androidx.navigation:navigation-compose` (`navigationCompose`, `2.8.4`): Google's artifact has no
@@ -358,11 +363,23 @@ If a new screen is added to the Figma file, give its stub composable a
    worth a real-finger check on an actual simulator run before trusting the meal-review Save path on
    iOS.
 
-   Still deliberately **not** done, so don't assume they work: `feature:onboarding` isn't KMP
-   (`OnboardingGate` is skipped entirely on iOS — the shell shows Home directly), there's no real
-   Gemini key path for iOS (recipe recommendations always use the bundled fallback), and
-   `applyPersistedThemeMode`'s iOS `.preferredColorScheme` wiring (noted above) still isn't
-   connected to a live `UIWindow`.
+   **Onboarding — migrated to KMP and wired into the iOS shell.** `feature:onboarding` was the
+   last `feature:*` module still on `levelchef.android.feature`; it moved to `levelchef.kmp.feature`
+   following the same mechanical-move recipe already proven for `feature:home`/`ingredients`/
+   `trophyroom`/`cookinglog` (unlike `feature:settings`, it had zero Android-only API usage — no
+   `Context`, no `.format()`, no platform-specific persistence — so no `androidMain`/`iosMain` split
+   was needed, just `src/main` → `src/commonMain`, `src/test` → `src/androidUnitTest`, and the usual
+   `R.string.x` → `Res.string.x` / `@StringRes Int` → `StringResource` conversion in
+   `OnboardingScreen.kt` and `OnboardingScreenSections.kt`, the latter's `OptionUi` data class and
+   eight `<Enum>.ui()` mapper functions being the bulk of it). `shared/build.gradle.kts` now depends
+   on `feature:onboarding`, and `IosEntryPoint.kt`'s `MainViewController()` wraps `SharedApp()` in
+   `OnboardingGate { }` — the exact same gate androidApp's own `LevelChefApp()` uses — so the iOS
+   shell now shows the mandatory first-launch survey before Home, same as Android, instead of
+   skipping straight to Home.
+
+   Still deliberately **not** done, so don't assume they work: there's no real Gemini key path for
+   iOS (recipe recommendations always use the bundled fallback), and `applyPersistedThemeMode`'s iOS
+   `.preferredColorScheme` wiring (noted above) still isn't connected to a live `UIWindow`.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is

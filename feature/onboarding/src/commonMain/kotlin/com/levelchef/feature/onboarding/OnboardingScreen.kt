@@ -14,12 +14,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.ButtonType
 import com.levelchef.core.designsystem.LevelChefButton
 import com.levelchef.core.designsystem.LevelChefPreview
 import com.levelchef.core.ui.theme.LevelChefTheme
+import com.levelchef.feature.onboarding.generated.resources.Res
+import com.levelchef.feature.onboarding.generated.resources.onboarding_continue
+import com.levelchef.feature.onboarding.generated.resources.onboarding_finish
+import com.levelchef.feature.onboarding.generated.resources.onboarding_welcome_cta
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Stateless first-launch survey wizard — one question per step, a page indicator, Back / Continue.
@@ -74,10 +79,10 @@ fun OnboardingScreen(
     }
 }
 
-private fun bottomButtonLabel(state: OnboardingUiState): Int = when {
-    state.currentStep == OnboardingStep.WELCOME -> R.string.onboarding_welcome_cta
-    state.isLastStep -> R.string.onboarding_finish
-    else -> R.string.onboarding_continue
+private fun bottomButtonLabel(state: OnboardingUiState): StringResource = when {
+    state.currentStep == OnboardingStep.WELCOME -> Res.string.onboarding_welcome_cta
+    state.isLastStep -> Res.string.onboarding_finish
+    else -> Res.string.onboarding_continue
 }
 
 @LevelChefPreview
