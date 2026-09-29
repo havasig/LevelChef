@@ -20,6 +20,7 @@ kotlin {
             implementation(project(":domain"))
             implementation(project(":data"))
             implementation(project(":feature:home"))
+            implementation(project(":feature:onboarding"))
             implementation(project(":feature:settings"))
             implementation(project(":feature:ingredients"))
             implementation(project(":feature:recipedetail"))
