@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-29 · covers through the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the minimal iOS app shell (`iosApp/`, Home screen only — Kotlin 2.4.10 / Compose Multiplatform 1.11.0)._
+_Last updated: 2026-09-29 · covers through the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the iOS app shell (`iosApp/`, Kotlin 2.4.10 / Compose Multiplatform 1.11.0) with its full bottom-nav graph (Home/Recipes/Trophies, recipe detail, meal review, settings, ingredients)._
 
 ---
 
@@ -475,7 +475,7 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
    - **A snackbar reads "No email app found on this device"** (Hungarian: "Nem található e-mail
      alkalmazás ezen az eszközön").
 
-### SM-22 · iOS app shell launches (Home only)
+### SM-22 · iOS app shell — Home and full navigation graph
 
 **Priority:** P1 · **Preconditions:** macOS with Xcode installed; the Android SDK configured
 (`local.properties` → `sdk.dir`) since `:shared` still compiles an (unused) Android target.
@@ -486,14 +486,34 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
    - **The Run Script build phase invokes `./gradlew :shared:embedAndSignAppleFrameworkForXcode`
      and the app launches without a build error.**
 2. Observe the first screen shown.
-   - **The Home screen renders directly** — no onboarding survey (it isn't wired up on iOS yet;
-     see `AGENTS.md`'s iOS "Not yet done" item), no bottom navigation bar (out of scope for this
-     shell), stat cards and a "Recommended for you" list populated from the **bundled fallback
-     recipe set** (no Gemini key reaches iOS yet, so this is always the fallback, not a bug).
-3. Tap anywhere that would navigate on Android (a recipe card, the settings gear, the ingredients
-   card).
-   - **Nothing happens** — every `HomeRoute` callback is a no-op in this shell; this is expected,
-     not a regression.
+   - **The Home screen renders directly** — no onboarding survey (`feature:onboarding` isn't KMP
+     yet; see `AGENTS.md`'s iOS "Not yet done" item), stat cards and a "Recommended for you" list
+     populated from the **bundled fallback recipe set** (no Gemini key reaches iOS yet, so this is
+     always the fallback, not a bug), and a **Home / Recipes / Trophies bottom navigation bar**.
+3. Tap the **Recipes** and **Trophies** bottom-nav tabs, then back to **Home**.
+   - **Each tab switches immediately** and shows real data (saved recipes on Recipes, chef
+     level/streaks/badges on Trophies); the previously-selected tab highlights correctly.
+4. From Home, tap a recommendation card.
+   - **Opens Recipe Detail** for that recipe, with real ingredients/steps/macros.
+5. On Recipe Detail: tap the servings stepper, an ingredient checkbox, the step timer chip, and
+   **Save**.
+   - **All respond** — servings scale, checkboxes toggle, the timer counts down, and Save toggles
+     to a **Saved** state.
+6. Tap **"I made it"**.
+   - **Opens Meal Review** for that recipe with a star rating, note field, duration/macro steppers,
+     and an ingredients checklist, all pre-filled from the recipe.
+7. Set a star rating, then tap **Save**.
+   - **Known issue, not a regression of this graph**: as of this scenario's last run, `Save` on
+     this screen did not respond to input on the iOS Simulator, despite every other control on the
+     same screen working and no crash in the device log. Re-check on a real Xcode/simulator run
+     (not just automated touch injection) before trusting this specific path; if still broken, file
+     it as its own bug — it is pre-existing `feature:mealreview` code, not part of the nav wiring.
+8. Back out to Home, tap the **gear icon**.
+   - **Opens Settings** (no developer-only options section on iOS); back returns to the previous
+     screen.
+9. From Home, tap the **Ingredients tried** card.
+   - **Opens the ingredients list** (empty until ingredients are logged via cooking); tapping **+**
+     opens the **add-ingredient form** with name/category/unit/macro fields and a Save button.
 
 ---
 
@@ -527,7 +547,7 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-19 Trophies — refresh on return      | P1 |  |  |  |  |
 | SM-20 Settings — delete account         | P0 |  |  |  |  |
 | SM-21 Settings — send feedback          | P1 |  |  |  |  |
-| SM-22 iOS app shell launches            | P1 |  |  |  |  |
+| SM-22 iOS app shell — nav graph          | P1 |  |  |  |  |
 ```
 
 **Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install (once a previous release exists); **zero** crashes in any scenario.

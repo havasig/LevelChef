@@ -20,9 +20,18 @@ kotlin {
             implementation(project(":domain"))
             implementation(project(":data"))
             implementation(project(":feature:home"))
+            implementation(project(":feature:settings"))
+            implementation(project(":feature:ingredients"))
+            implementation(project(":feature:recipedetail"))
+            implementation(project(":feature:mealreview"))
+            implementation(project(":feature:trophyroom"))
+            implementation(project(":feature:cookinglog"))
 
             implementation(libs.koin.core)
             implementation(libs.koin.viewmodel.compose)
+            // JetBrains' multiplatform fork of navigation-compose (see libs.versions.toml) — the
+            // only navigation-compose artifact with an iOS klib; androidApp keeps using Google's.
+            implementation(libs.compose.navigation.multiplatform)
         }
     }
 }
