@@ -103,4 +103,5 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
+            'EXCLUDED_ARCHS[sdk=iphonesimulator*]=x86_64' \
             build
