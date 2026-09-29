@@ -108,7 +108,7 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun challenge_is_not_completed_when_its_completedAt_is_null() = runTest(dispatcher) {
+    fun challenge_is_not_completed_when_its_completed_at_is_null() = runTest(dispatcher) {
         viewModel(challenge = challenge(completedAt = null)).uiState.test {
             testScheduler.advanceUntilIdle()
             assertFalse(expectMostRecentItem().challengeCompleted)
@@ -116,7 +116,7 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun challenge_is_completed_when_its_completedAt_is_set() = runTest(dispatcher) {
+    fun challenge_is_completed_when_its_completed_at_is_set() = runTest(dispatcher) {
         viewModel(challenge = challenge(completedAt = Instant.fromEpochMilliseconds(0))).uiState.test {
             testScheduler.advanceUntilIdle()
             assertTrue(expectMostRecentItem().challengeCompleted)
