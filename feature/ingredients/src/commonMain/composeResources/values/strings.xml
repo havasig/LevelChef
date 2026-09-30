@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ingredients_list_title">Used Ingredients</string>
+    <string name="ingredients_list_title">Ingredients tried</string>
     <string name="ingredients_add">Add ingredient</string>
     <string name="ingredients_empty">No ingredients yet. Tap + to add one.</string>
     <string name="ingredients_show_all">Show all</string>

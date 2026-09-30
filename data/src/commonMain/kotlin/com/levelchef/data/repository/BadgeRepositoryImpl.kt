@@ -73,7 +73,7 @@ private val CATALOG = listOf(
         "Log 5 different ingredients in your pantry.", target = 5,
     ) { it.ingredients.size },
     BadgeDefinition(
-        "ingredient-explorer", "Ingredient Explorer", "🧭", BadgeCategory.DISCOVERY,
+        "ingredient-explorer", "Ingredient Explorer", "🗺️", BadgeCategory.DISCOVERY,
         "Log 20 different ingredients in your pantry.", target = 20,
     ) { it.ingredients.size },
     BadgeDefinition(

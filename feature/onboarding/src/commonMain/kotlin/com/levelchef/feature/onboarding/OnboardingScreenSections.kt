@@ -324,7 +324,7 @@ private fun Cuisine.ui(): OptionUi = when (this) {
     Cuisine.INDIAN -> OptionUi("🍛", Res.string.onboarding_cuisine_indian)
     Cuisine.MEDITERRANEAN -> OptionUi("🥗", Res.string.onboarding_cuisine_mediterranean)
     Cuisine.AMERICAN -> OptionUi("🍔", Res.string.onboarding_cuisine_american)
-    Cuisine.MIDDLE_EASTERN -> OptionUi("🧆", Res.string.onboarding_cuisine_middle_eastern)
+    Cuisine.MIDDLE_EASTERN -> OptionUi("🥙", Res.string.onboarding_cuisine_middle_eastern)
     Cuisine.FRENCH -> OptionUi("🥐", Res.string.onboarding_cuisine_french)
 }
 
