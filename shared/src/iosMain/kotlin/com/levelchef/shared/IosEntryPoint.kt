@@ -6,6 +6,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.data.di.dataModule
 import com.levelchef.data.di.databaseModule
+import com.levelchef.domain.repository.IngredientRepository
 import com.levelchef.feature.cookinglog.di.cookingLogModule
 import com.levelchef.feature.home.di.homeModule
 import com.levelchef.feature.ingredients.di.ingredientsModule
@@ -18,10 +19,15 @@ import com.levelchef.feature.settings.IosThemeBridge
 import com.levelchef.feature.settings.di.settingsModule
 import com.levelchef.feature.trophyroom.di.trophyroomModule
 import com.levelchef.shared.nav.SharedApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import platform.UIKit.UIViewController
+
+private val appScope = CoroutineScope(Dispatchers.Default)
 
 /**
  * iOS entry point, called once from `iOSApp.swift`'s `init()` — mirrors `LevelChefApplication`'s
@@ -48,6 +54,9 @@ fun doInitKoin() {
     // Seeds IosThemeBridge from the persisted theme choice — mirrors LevelChefApplication.onCreate()
     // calling appSettingsController.applyPersistedThemeMode() right after startKoin on Android.
     koinApp.koin.get<AppSettingsController>().applyPersistedThemeMode()
+    // Mirrors LevelChefApplication.onCreate()'s appScope.launch { ingredientRepository.seedDefaults() }
+    // — without it the starter pantry never existed on iOS, leaving the Ingredients screen empty.
+    appScope.launch { koinApp.koin.get<IngredientRepository>().seedDefaults() }
 }
 
 /**
