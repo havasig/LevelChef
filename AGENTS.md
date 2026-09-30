@@ -246,10 +246,9 @@ If a new screen is added to the Figma file, give its stub composable a
    directly rather than `NSLocale.preferredLanguages`, since the OS only folds an `AppleLanguages`
    change into `preferredLanguages` on the next launch — reading our own key keeps the in-process
    reflection immediate, the same way `AppCompatDelegate`'s locale is readable right after
-   `setApplicationLocales` on Android. `applyPersistedThemeMode()` stays a no-op on iOS: unlike
-   `AppCompatDelegate.setDefaultNightMode`, there's no app-wide call to make without a live
-   `UIWindow` — that's `iosApp`'s job once it exists (e.g. a SwiftUI root view reading `themeMode()`
-   into `.preferredColorScheme`). `data`'s iosMain `databaseModule` still reads
+   `setApplicationLocales` on Android. `applyPersistedThemeMode()` was a no-op on iOS at this point
+   in the migration — see the "iOS theme switching" note below for how it was later wired up for
+   real. `data`'s iosMain `databaseModule` still reads
    `NSLocale.preferredLanguages` directly rather than this override (it can't depend on
    `feature:settings`, mirroring the same Android-side constraint), so a language switch here only
    affects recipe generation after the app is relaunched — same caveat the Android seam's own doc
@@ -377,9 +376,35 @@ If a new screen is added to the Figma file, give its stub composable a
    shell now shows the mandatory first-launch survey before Home, same as Android, instead of
    skipping straight to Home.
 
-   Still deliberately **not** done, so don't assume they work: there's no real Gemini key path for
-   iOS (recipe recommendations always use the bundled fallback), and `applyPersistedThemeMode`'s iOS
-   `.preferredColorScheme` wiring (noted above) still isn't connected to a live `UIWindow`.
+   **iOS theme switching — wired up.** Settings' Light/Dark/System choice now actually applies on
+   iOS, not just persists. Naively setting `overrideUserInterfaceStyle` and letting Compose's
+   `isSystemInDarkTheme()` default pick it up doesn't work reliably — that's a known open Compose
+   Multiplatform bug (JetBrains/compose-multiplatform#3575: `isSystemInDarkTheme()` doesn't
+   reliably track iOS appearance/trait-collection changes). Instead, `feature:settings`'s new
+   `IosThemeBridge` (public object — `:shared` and `ContentView.swift` both call it directly, so it
+   needs `export(project(":feature:settings"))` in `shared/build.gradle.kts`'s framework block
+   *and* that dependency to be `api(...)` not `implementation(...)`, or the symbol never reaches the
+   generated Obj-C/Swift header) combines the persisted `ThemeMode` with a live "is iOS in dark
+   mode right now" bit into one `effectiveDarkTheme` flow, which `IosEntryPoint.kt`'s
+   `MainViewController()` collects and passes explicitly as `LevelChefTheme(darkTheme = ...)`,
+   sidestepping the buggy default entirely. `IosAppSettingsController.setThemeMode()` now pushes
+   into the bridge immediately (matching the interface's "persists and applies it immediately"
+   contract, same as Android), and `applyPersistedThemeMode()` — called from `doInitKoin()` right
+   after `startKoin`, exactly where `LevelChefApplication.onCreate()` calls it on Android — seeds
+   the bridge from `NSUserDefaults` at cold launch. The one native hook needed: `ContentView.swift`
+   wraps the Compose view controller in a small `ThemedHostingController` (`UIViewController`
+   subclass) that overrides `traitCollectionDidChange` and forwards `userInterfaceStyle` changes
+   into the bridge — the only reliable way to detect a live OS light/dark toggle while the app is
+   running, needed for System mode to track a mid-session OS appearance change (explicit Light/Dark
+   choices don't need this at all). Verified on-device: Dark/Light apply instantly with no restart,
+   System mode both matches the simulator's current appearance at launch and live-updates when the
+   simulator's own appearance is toggled while running, and the choice survives a cold restart.
+   `overrideUserInterfaceStyle` itself (for native, non-Compose chrome like the keyboard or system
+   alerts to match too) is *not* set — deliberately out of scope, since the app is ~100%
+   Compose-rendered; revisit only if that chrome turns out to matter.
+
+   Still deliberately **not** done, so don't assume it works: there's no real Gemini key path for
+   iOS — recipe recommendations always use the bundled fallback.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
    directly and dev devices just clear app data. That exception ends the moment a build is

@@ -1,5 +1,7 @@
 package com.levelchef.shared
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.ComposeUIViewController
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.data.di.dataModule
@@ -11,6 +13,8 @@ import com.levelchef.feature.mealreview.di.mealReviewModule
 import com.levelchef.feature.onboarding.OnboardingGate
 import com.levelchef.feature.onboarding.di.onboardingModule
 import com.levelchef.feature.recipedetail.di.recipeDetailModule
+import com.levelchef.feature.settings.AppSettingsController
+import com.levelchef.feature.settings.IosThemeBridge
 import com.levelchef.feature.settings.di.settingsModule
 import com.levelchef.feature.trophyroom.di.trophyroomModule
 import com.levelchef.shared.nav.SharedApp
@@ -26,7 +30,7 @@ import platform.UIKit.UIViewController
  * already treats a blank key as "serve the bundled fallback recipes", so this never fails.
  */
 fun doInitKoin() {
-    startKoin {
+    val koinApp = startKoin {
         modules(
             module { single(named("geminiApiKey")) { "" } },
             databaseModule,
@@ -41,16 +45,21 @@ fun doInitKoin() {
             cookingLogModule,
         )
     }
+    // Seeds IosThemeBridge from the persisted theme choice — mirrors LevelChefApplication.onCreate()
+    // calling appSettingsController.applyPersistedThemeMode() right after startKoin on Android.
+    koinApp.koin.get<AppSettingsController>().applyPersistedThemeMode()
 }
 
 /**
  * Called from `ContentView.swift` via a `UIViewControllerRepresentable`. Gates the full bottom-nav
  * graph (`SharedApp`) behind the mandatory first-launch survey (`OnboardingGate`), same as
  * androidApp's own `LevelChefApp()` — everything reachable from Home except the Android-only debug
- * showcase.
+ * showcase. `darkTheme` is read explicitly from [IosThemeBridge] rather than left to
+ * `LevelChefTheme`'s `isSystemInDarkTheme()` default — see that bridge's doc comment for why.
  */
 fun MainViewController(): UIViewController = ComposeUIViewController {
-    LevelChefTheme {
+    val isDark by IosThemeBridge.effectiveDarkTheme.collectAsState(initial = false)
+    LevelChefTheme(darkTheme = isDark) {
         OnboardingGate {
             SharedApp()
         }
