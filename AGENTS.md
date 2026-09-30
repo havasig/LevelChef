@@ -353,14 +353,31 @@ If a new screen is added to the Figma file, give its stub composable a
    (`androidx.savedstate.read`). Verified end to end on Xcode 27.0/iPhone 17 simulator: bottom nav
    switches all three tabs with real data, Home → recipe card → Recipe Detail → "I made it" → Meal
    Review works, Recipe Detail's own Save/bookmark and step timer both work, gear → Settings → back
-   works, Ingredients card → list (empty state) → "+" → add form works. **One real finding, not
-   caused by this change**: `feature:mealreview`'s own pre-existing `Save` button (`MealReviewScreen.kt`,
-   untouched by this PR) did not respond to synthetic taps during this simulator session, despite
-   every other control on that same screen (rating stars, macro steppers, back navigation) and the
-   identical `LevelChefButton`-based Save button on Recipe Detail responding correctly — no crash or
-   exception in the device log either. Not chased further since it's outside this change's scope;
-   worth a real-finger check on an actual simulator run before trusting the meal-review Save path on
-   iOS.
+   works, Ingredients card → list (empty state) → "+" → add form works. **One finding, since
+   resolved (was a testing artifact, not a bug)**: `feature:mealreview`'s pre-existing `Save`
+   button (`MealReviewScreen.kt`, untouched by any nav-graph PR) appeared not to respond to
+   synthetic taps on the iOS Simulator across two separate investigation sessions — the second
+   session went as far as confirming (via a synchronous pre-coroutine state mutation) that the
+   click handler itself never ran, and believed it had ruled out a coordinate-targeting mistake
+   (the same coordinates reliably hit every other control on the screen). A third session
+   re-derived tap coordinates directly from actual screenshot pixel dimensions (screenshot px ÷ 3
+   = simulator point, confirmed via `sips -g pixelWidth -g pixelHeight`) rather than an
+   on-screen-preview scale factor, and every previously-"broken" control — the ingredient
+   checkbox, "I made it", Recipe Detail's Save bookmark, and Meal Review's Save — worked
+   correctly on the first precisely-computed attempt, with no app code changes in between.
+   Root cause of the false signal: imprecise coordinates reliably hit *taller* elements near the
+   top of a scrolled screen while missing *shorter* buttons near the bottom, which looks exactly
+   like "every other control works, only these specific buttons don't." See
+   `docs/QA_REGRESSION.md`'s SM-22 steps 6-7 for the verified-working behavior. If a *human*
+   tester's real-finger session ever reproduces the same symptom, treat that as a genuine bug
+   report — this resolution only clears the automated-touch-injection explanation.
+   - **Fixed in passing, keep**: iOS had no Kermit log writer installed at all (`IosEntryPoint.kt`'s
+     `doInitKoin()` never called `Logger.setLogWriters(...)`, unlike `LevelChefApplication.onCreate()`
+     on Android) — `Logger.i`/`.e` calls on iOS silently went nowhere, appearing in neither `xcrun
+     simctl ... log show` (unified logging) nor `simctl launch --console`/`--console-pty` (stdout).
+     Added `Logger.setLogWriters(platformLogWriter())` there so iOS logging actually works for future
+     debugging; still no `CrashLogWriter`-equivalent crash reporting on iOS (that stays Android-only,
+     unchanged).
 
    **Onboarding — migrated to KMP and wired into the iOS shell.** `feature:onboarding` was the
    last `feature:*` module still on `levelchef.android.feature`; it moved to `levelchef.kmp.feature`

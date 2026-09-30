@@ -3,6 +3,8 @@ package com.levelchef.shared
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.ComposeUIViewController
+import co.touchlab.kermit.Logger
+import co.touchlab.kermit.platformLogWriter
 import com.levelchef.core.ui.theme.LevelChefTheme
 import com.levelchef.data.di.dataModule
 import com.levelchef.data.di.databaseModule
@@ -36,6 +38,7 @@ private val appScope = CoroutineScope(Dispatchers.Default)
  * already treats a blank key as "serve the bundled fallback recipes", so this never fails.
  */
 fun doInitKoin() {
+    Logger.setLogWriters(platformLogWriter())
     val koinApp = startKoin {
         modules(
             module { single(named("geminiApiKey")) { "" } },
