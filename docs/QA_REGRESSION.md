@@ -10,7 +10,10 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-30 (#78) · covers through a second round of manual-QA fixes (Trophy Room's
+_Last updated: 2026-09-30 (#80) · covers through a third round of manual-QA fixes (iOS: the starter
+pantry is now seeded on first launch same as Android, the Settings "Version" row shows a real
+number instead of a bare "v", and Settings' Danger Zone section now re-localizes with the rest of
+the screen on a language switch), a second round of manual-QA fixes (Trophy Room's
 "N%" display no longer doubles to "N%%", the Ingredients screen title matches its Home card, the
 Meal Review star rating has a reliable tap target, and three default-content emoji that predate
 this app's `minSdk` no longer show as missing-glyph boxes), the emulator-QA fixes (search no-match
@@ -539,24 +542,38 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
      level/streaks/badges on Trophies); the previously-selected tab highlights correctly.
 5. From Home, tap a recommendation card.
    - **Opens Recipe Detail** for that recipe, with real ingredients/steps/macros.
-6. On Recipe Detail: tap the servings stepper, an ingredient checkbox, the step timer chip, and
-   **Save**.
-   - **All respond** — servings scale, checkboxes toggle, the timer counts down, and Save toggles
-     to a **Saved** state.
-7. Tap **"I made it"**.
-   - **Opens Meal Review** for that recipe with a star rating, note field, duration/macro steppers,
-     and an ingredients checklist, all pre-filled from the recipe.
-8. Set a star rating, then tap **Save**.
-   - **Known issue, not a regression of this graph**: as of this scenario's last run, `Save` on
-     this screen did not respond to input on the iOS Simulator, despite every other control on the
-     same screen working and no crash in the device log. Re-check on a real Xcode/simulator run
-     (not just automated touch injection) before trusting this specific path; if still broken, file
-     it as its own bug — it is pre-existing `feature:mealreview` code, not part of the nav wiring.
-9. Back out to Home, tap the **gear icon**.
+6. On Recipe Detail: tap the servings stepper, an ingredient checkbox, the step timer chip, the
+   related-video row, **"I made it"**, and **Save** (bookmark).
+   - The servings stepper and step timer **reliably respond**.
+   - **Known issue, unresolved**: as of this scenario's last run (2026-09-30), the ingredient
+     checklist checkboxes, **"I made it"**, and the **Save** bookmark button did *not* respond to
+     tap on the iOS Simulator (automated touch injection), while the related-video row one line
+     above them — and every other button on this same screen — worked. Re-checking wasn't a
+     coordinate-precision issue (retried at the same computed coordinates that hit the working
+     video row correctly) or a missing-`interactionSource` styling gap (adding the same
+     `interactionSource = null` pattern `LevelChefButton` uses did not fix it; that speculative
+     change was reverted rather than shipped). Root cause is still open — verify with a **real
+     finger on a real Xcode/simulator run**, not just automated touch injection, before trusting
+     this path; if it still fails there, this blocks the whole "log a cooked meal" flow on iOS and
+     should be treated as a priority bug, filed separately from the nav wiring.
+7. If step 6's "I made it" happens to respond, continue: it should open **Meal Review** for that
+   recipe with a star rating, note field, duration/macro steppers, and an ingredients checklist,
+   all pre-filled from the recipe. Set a star rating, then tap **Save**.
+   - Same known issue as step 6 may apply here too (a bare `Modifier.clickable` in
+     `feature:mealreview`) — re-verify with a real finger before trusting it.
+8. Back out to Home, tap the **gear icon**.
    - **Opens Settings** (no developer-only options section on iOS); back returns to the previous
      screen.
+9. On the Settings screen: check the **Support → Version** row, then switch **Language** to
+   **Magyar** and scroll to the **Danger Zone** section.
+   - **Version shows a real number** (e.g. "v1.0"), not a bare "v".
+   - **The whole screen re-localizes, including Danger Zone** ("Veszélyzóna" / "Fiók törlése") —
+     this section previously stayed in English after a language switch because it was the only
+     section not parameterized on `state`, so Compose's recomposition skip left its
+     `stringResource(...)` calls stale.
 10. From Home, tap the **Ingredients tried** card.
-    - **Opens the ingredients list** (empty until ingredients are logged via cooking); tapping **+**
+    - **Opens the ingredients list showing the seeded starter pantry** (same starter items as
+      Android — e.g. "Chicken breast", "Broccoli", "Lemon" — not an empty list); tapping **+**
       opens the **add-ingredient form** with name/category/unit/macro fields and a Save button.
 
 ---

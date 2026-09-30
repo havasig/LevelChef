@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -54,8 +55,15 @@ fun SettingsScreen(
                 CookingPreferencesSection(state, actions)
                 AppPreferencesSection(state, actions)
                 SupportSection(state, actions)
-                DangerZoneSection(actions.onDeleteAccount)
-                if (state.showDeveloperSection) DeveloperSection(actions.onClearOnboardingStorage)
+                // DangerZoneSection/DeveloperSection take no part of `state`, so unlike every section
+                // above, Compose has no changed input to justify recomposing them — including their
+                // stringResource(...) calls — when only state.language changes elsewhere on this
+                // screen. `key(state.language)` forces them to rebuild (and re-resolve their strings)
+                // on a language switch instead of silently staying in the previous language.
+                key(state.language) {
+                    DangerZoneSection(actions.onDeleteAccount)
+                    if (state.showDeveloperSection) DeveloperSection(actions.onClearOnboardingStorage)
+                }
             }
         }
 
