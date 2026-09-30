@@ -10,7 +10,20 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-29 · covers through the emulator-QA fixes (search no-match message, Hungarian starter pantry, meal-review cook-time prefill and scaled ingredients, equal-height Home stat cards, "Last cooked" following the app language), the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the iOS app shell (`iosApp/`, Kotlin 2.4.10 / Compose Multiplatform 1.11.0) with its full bottom-nav graph (Home/Recipes/Trophies, recipe detail, meal review, settings, ingredients) now gated by the same first-launch onboarding survey as Android (`feature:onboarding` migrated to KMP), with Settings' Light/Dark/System theme choice now actually applying on iOS too (`IosThemeBridge`)._
+_Last updated: 2026-09-30 (#78) · covers through a second round of manual-QA fixes (Trophy Room's
+"N%" display no longer doubles to "N%%", the Ingredients screen title matches its Home card, the
+Meal Review star rating has a reliable tap target, and three default-content emoji that predate
+this app's `minSdk` no longer show as missing-glyph boxes), the emulator-QA fixes (search no-match
+message, Hungarian starter pantry, meal-review cook-time prefill and scaled ingredients,
+equal-height Home stat cards, "Last cooked" following the app language), the Gemini-backed recipe
+recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer
+tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the
+decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the
+mailto-based Settings feedback flow, and the iOS app shell (`iosApp/`, Kotlin 2.4.10 / Compose
+Multiplatform 1.11.0) with its full bottom-nav graph (Home/Recipes/Trophies, recipe detail, meal
+review, settings, ingredients) now gated by the same first-launch onboarding survey as Android
+(`feature:onboarding` migrated to KMP), with Settings' Light/Dark/System theme choice now actually
+applying on iOS too (`IosThemeBridge`)._
 
 ---
 
@@ -232,8 +245,12 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 **Priority:** P0 for *add* and *delete*; P1 otherwise · **Preconditions:** onboarding complete.
 
-1. Open the Ingredients list (Home → "ingredients tried" card).
+1. Open the Ingredients list (Home → "Ingredients tried" card).
+   - **The screen title reads "Ingredients tried"** — matching the Home card, not "Used Ingredients".
    - **On a fresh install the list is pre‑populated** (~18 items) **and grouped by category** (Meat, Dairy, Vegetables, …). No bottom bar.
+   - **No ingredient shows a missing‑glyph ("tofu") box in place of its emoji.** Bell pepper is a
+     known exception on an un‑updated device (its emoji predates this app's `minSdk`, see
+     `IngredientRepositoryImpl.kt`'s comment on that entry) — everything else should render.
 2. In a category that has a **"Show all"** link, tap it, then **"Show less"**.
    - **The extra rows expand and collapse.**
 3. Tap an ingredient.
@@ -417,7 +434,8 @@ following the raw system appearance regardless).
    - **Sections top to bottom:** recipe name + "+XP" badge, "RATING" (5 stars + "N/5"), "NOTE" (placeholder "Describe your experience…"), a bare cook‑time stepper ("N min"), "MACRO VALUES" (Calories/Protein/Carbs/Fat, each a colored label + a −/value/+ stepper), "INGREDIENTS" (a static checklist matching the recipe), and **Save**.
    - **Save is disabled** until a star is tapped.
 2. Tap the 3rd star.
-   - **Stars 1–3 fill in, 4–5 stay outline; the "N/5" text reads "3/5"; Save becomes enabled.**
+   - **A single tap reliably rates it** — each star has a real tap target around it, not just the
+     visible icon. **Stars 1–3 fill in, 4–5 stay outline; the "N/5" text reads "3/5"; Save becomes enabled.**
 3. Type a few words in the Note box.
    - **The placeholder disappears and the typed text shows.**
 4. Tap **+** / **−** on the cook‑time row and on each macro row.
@@ -456,6 +474,8 @@ one of them (SM-06) first.
 **Priority:** P1 · **Preconditions:** onboarding complete.
 
 1. Open the **Trophies** tab and note the XP, kitchen time and cooking-session numbers.
+   - **"Level progress" reads e.g. "40%", not "40%%"**; once a cook has been logged (step 3),
+     "avg rating" reads e.g. "80%", not "80%%".
 2. Switch to **Home**, open a recipe, tap **"I made it"**, set a rating and a duration, tap **Save**.
 3. Switch back to **Trophies**.
    - **XP, kitchen time and the session count already include the new cook** — no app restart needed.
