@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ingredients_list_title">Használt alapanyagok</string>
+    <string name="ingredients_list_title">Kipróbált alapanyagok</string>
     <string name="ingredients_add">Alapanyag hozzáadása</string>
     <string name="ingredients_empty">Még nincs alapanyag. Koppints a + gombra egy hozzáadásához.</string>
     <string name="ingredients_show_all">Összes mutatása</string>

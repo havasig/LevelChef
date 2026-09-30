@@ -96,14 +96,21 @@ internal fun RatingSection(rating: Int, onRatingChange: (Int) -> Unit) {
             val colors = LevelChefTheme.colors
             repeat(MAX_RATING) { index ->
                 val starValue = index + 1
-                Icon(
-                    Icons.Filled.Star,
-                    contentDescription = stringResource(Res.string.meal_review_rating_star, starValue),
-                    tint = if (starValue <= rating) colors.accentPrimary else colors.border,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable { onRatingChange(starValue) },
-                )
+                // A bare 20dp Icon.clickable{} falls well under Android's 48dp touch-target
+                // guidance; the surrounding Box gives each star a properly sized tap area
+                // (matching NeutralStepperButton/SurfaceStepperButton below) while the icon
+                // itself stays visually 20dp.
+                Box(
+                    modifier = Modifier.size(32.dp).clickable { onRatingChange(starValue) },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        Icons.Filled.Star,
+                        contentDescription = stringResource(Res.string.meal_review_rating_star, starValue),
+                        tint = if (starValue <= rating) colors.accentPrimary else colors.border,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
             Text(
                 stringResource(Res.string.meal_review_rating_value, rating),

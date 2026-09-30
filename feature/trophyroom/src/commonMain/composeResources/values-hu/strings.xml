@@ -5,9 +5,9 @@
     <string name="trophy_room_level_of">%1$d. szint / %2$d</string>
     <string name="trophy_room_max_level">MAX</string>
     <string name="trophy_room_level_progress">Szint előrehaladása</string>
-    <string name="trophy_room_xp_percent">%1$d / %2$d XP · %3$d%%</string>
+    <string name="trophy_room_xp_percent">%1$d / %2$d XP · %3$d%</string>
     <string name="trophy_room_streak">%1$d napos sorozat</string>
-    <string name="trophy_room_avg_rating">%1$d%% átlagos értékelés</string>
+    <string name="trophy_room_avg_rating">%1$d% átlagos értékelés</string>
 
     <string name="trophy_room_weekly_challenge_label">Heti kihívás</string>
     <string name="trophy_room_weekly_challenge_caption">heti trófea</string>

@@ -139,7 +139,11 @@ internal val DEFAULT_INGREDIENTS: List<Ingredient> = listOf(
     default("mozzarella", "Mozzarella", IngredientCategory.DAIRY, "🧀", MeasurementUnit.GRAM, 280, 28.0, 3.1, 17.0),
     default("broccoli", "Broccoli", IngredientCategory.VEGETABLE, "🥦", MeasurementUnit.GRAM, 34, 2.8, 7.0, 0.4),
     default("avocado", "Avocado", IngredientCategory.VEGETABLE, "🥑", MeasurementUnit.PIECE, 160, 2.0, 9.0, 15.0),
-    default("spinach", "Spinach", IngredientCategory.VEGETABLE, "🥬", MeasurementUnit.GRAM, 23, 2.9, 3.6, 0.4),
+    default("spinach", "Spinach", IngredientCategory.VEGETABLE, "🍃", MeasurementUnit.GRAM, 23, 2.9, 3.6, 0.4),
+    // "🫑" (bell pepper) has no earlier, accurate substitute -- it's Unicode 13.0 (2020) and won't
+    // render on devices whose system emoji font hasn't been updated since, showing a missing-glyph
+    // box instead (seen on an API 27 emulator; minSdk is 26). Left as-is rather than swapped to the
+    // wrong food (e.g. the earlier 🌶️ means "hot chili", not "bell pepper").
     default("bell-pepper", "Bell pepper", IngredientCategory.VEGETABLE, "🫑", MeasurementUnit.PIECE, 31, 1.0, 6.0, 0.3),
     default("zucchini", "Zucchini", IngredientCategory.VEGETABLE, "🥒", MeasurementUnit.PIECE, 17, 1.2, 3.1, 0.3),
     default("eggplant", "Eggplant", IngredientCategory.VEGETABLE, "🍆", MeasurementUnit.PIECE, 25, 1.0, 6.0, 0.2),
