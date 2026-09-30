@@ -12,6 +12,12 @@ kotlin {
         target.binaries.framework {
             baseName = "LevelChefShared"
             isStatic = true
+            // ContentView.swift calls IosThemeBridge (feature:settings) directly — Kotlin/Native
+            // only exposes a dependency's public API to the Obj-C/Swift header when it's both an
+            // `api` dependency (below) and explicitly exported here; `implementation` alone (every
+            // other feature:* dependency) stays internal to :shared's own Kotlin code, which is all
+            // Swift ever needs for them since it only calls IosEntryPointKt.* directly.
+            export(project(":feature:settings"))
         }
     }
 
@@ -21,7 +27,7 @@ kotlin {
             implementation(project(":data"))
             implementation(project(":feature:home"))
             implementation(project(":feature:onboarding"))
-            implementation(project(":feature:settings"))
+            api(project(":feature:settings"))
             implementation(project(":feature:ingredients"))
             implementation(project(":feature:recipedetail"))
             implementation(project(":feature:mealreview"))

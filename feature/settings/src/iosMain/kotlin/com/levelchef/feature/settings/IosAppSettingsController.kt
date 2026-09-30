@@ -7,10 +7,11 @@ import platform.Foundation.preferredLanguages
 /**
  * iOS implementation of [AppSettingsController].
  *
- * - **Theme** — persisted under [KEY_THEME_MODE] in `NSUserDefaults`. [applyPersistedThemeMode] is
- *   a no-op: unlike `AppCompatDelegate.setDefaultNightMode`, iOS has no app-wide "recreate every
- *   window with this interface style" call to make without a live `UIWindow` — that's `iosApp`'s
- *   job once it exists (e.g. a SwiftUI root view reading [themeMode] into `.preferredColorScheme`).
+ * - **Theme** — persisted under [KEY_THEME_MODE] in `NSUserDefaults`. Unlike
+ *   `AppCompatDelegate.setDefaultNightMode`, iOS has no app-wide "recreate every window with this
+ *   interface style" call, so [setThemeMode] and [applyPersistedThemeMode] instead push the mode
+ *   into [IosThemeBridge], which `shared`'s `MainViewController()` reads to theme Compose directly
+ *   — see [IosThemeBridge]'s doc comment for why.
  * - **Language** — persisted the way Apple documents for in-app language overrides: writing the
  *   `AppleLanguages` `NSUserDefaults` key (see
  *   https://developer.apple.com/library/archive/qa/qa1828/_index.html). [language] reads that key
@@ -33,9 +34,12 @@ class IosAppSettingsController : AppSettingsController {
 
     override fun setThemeMode(mode: ThemeMode) {
         defaults.setObject(mode.name, forKey = KEY_THEME_MODE)
+        IosThemeBridge.onThemeModeChanged(mode)
     }
 
-    override fun applyPersistedThemeMode() = Unit
+    override fun applyPersistedThemeMode() {
+        IosThemeBridge.onThemeModeChanged(themeMode())
+    }
 
     override fun language(): AppLanguage {
         val overrideTag = defaults.arrayForKey(KEY_APPLE_LANGUAGES)?.firstOrNull() as? String

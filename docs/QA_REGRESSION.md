@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-29 · covers through the emulator-QA fixes (search no-match message, Hungarian starter pantry, meal-review cook-time prefill and scaled ingredients, equal-height Home stat cards, "Last cooked" following the app language), the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the iOS app shell (`iosApp/`, Kotlin 2.4.10 / Compose Multiplatform 1.11.0) with its full bottom-nav graph (Home/Recipes/Trophies, recipe detail, meal review, settings, ingredients) now gated by the same first-launch onboarding survey as Android (`feature:onboarding` migrated to KMP)._
+_Last updated: 2026-09-29 · covers through the emulator-QA fixes (search no-match message, Hungarian starter pantry, meal-review cook-time prefill and scaled ingredients, equal-height Home stat cards, "Last cooked" following the app language), the Gemini-backed recipe recommender (now language-aware, with a Hungarian fallback recipe set), debug-only developer tools, the starter pantry not counting as "tried", device-time-zone badges/streaks/weeks, the decimal comma, the Hungarian translations for levels, badges, challenges and shared labels, the mailto-based Settings feedback flow, and the iOS app shell (`iosApp/`, Kotlin 2.4.10 / Compose Multiplatform 1.11.0) with its full bottom-nav graph (Home/Recipes/Trophies, recipe detail, meal review, settings, ingredients) now gated by the same first-launch onboarding survey as Android (`feature:onboarding` migrated to KMP), with Settings' Light/Dark/System theme choice now actually applying on iOS too (`IosThemeBridge`)._
 
 ---
 
@@ -255,15 +255,21 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 ### SM-09 · Settings — theme
 
-**Priority:** P0 · **Preconditions:** onboarding complete.
+**Priority:** P0 · **Preconditions:** onboarding complete. Applies on both Android and iOS (the
+iOS shell only actually applied a theme choice starting with the `IosThemeBridge` wiring — see
+`AGENTS.md`'s "iOS theme switching" note — before that, Settings persisted the choice but iOS kept
+following the raw system appearance regardless).
 
 1. Home → gear → Settings.
    - **No bottom bar; a back arrow is present.**
 2. Choose **Light**.
    - **The UI switches to light immediately** — no restart needed.
 3. Choose **Dark**, then **System**.
-   - **Dark applies immediately; System follows the current OS setting.**
-4. Set **Dark**, swipe the app away, relaunch.
+   - **Dark applies immediately; System follows the current OS setting.** On iOS, also toggle the
+     simulator's own appearance (Settings app → Developer, or `xcrun simctl ui <udid> appearance
+     dark|light`) while **System** is selected — the app should re-theme live, with no tap or
+     restart.
+4. Set **Dark**, swipe the app away (or on iOS, `xcrun simctl terminate`), relaunch.
    - **The app reopens in Dark** — the choice is remembered.
 5. Navigate around (Home, a Recipe Detail, Ingredients).
    - **The chosen theme is applied consistently on every screen.**
