@@ -544,23 +544,28 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
    - **Opens Recipe Detail** for that recipe, with real ingredients/steps/macros.
 6. On Recipe Detail: tap the servings stepper, an ingredient checkbox, the step timer chip, the
    related-video row, **"I made it"**, and **Save** (bookmark).
-   - The servings stepper and step timer **reliably respond**.
-   - **Known issue, unresolved**: as of this scenario's last run (2026-09-30), the ingredient
-     checklist checkboxes, **"I made it"**, and the **Save** bookmark button did *not* respond to
-     tap on the iOS Simulator (automated touch injection), while the related-video row one line
-     above them — and every other button on this same screen — worked. Re-checking wasn't a
-     coordinate-precision issue (retried at the same computed coordinates that hit the working
-     video row correctly) or a missing-`interactionSource` styling gap (adding the same
-     `interactionSource = null` pattern `LevelChefButton` uses did not fix it; that speculative
-     change was reverted rather than shipped). Root cause is still open — verify with a **real
-     finger on a real Xcode/simulator run**, not just automated touch injection, before trusting
-     this path; if it still fails there, this blocks the whole "log a cooked meal" flow on iOS and
-     should be treated as a priority bug, filed separately from the nav wiring.
-7. If step 6's "I made it" happens to respond, continue: it should open **Meal Review** for that
-   recipe with a star rating, note field, duration/macro steppers, and an ingredients checklist,
-   all pre-filled from the recipe. Set a star rating, then tap **Save**.
-   - Same known issue as step 6 may apply here too (a bare `Modifier.clickable` in
-     `feature:mealreview`) — re-verify with a real finger before trusting it.
+   - The servings stepper, step timer, ingredient checkbox, **"I made it"**, and **Save** bookmark
+     **all reliably respond** (checkbox shows a struck-through line, Save toggles to "Mentve").
+   - **Previously logged as a known issue (2026-09-30 morning run)** — the ingredient checklist
+     checkboxes, "I made it", and the Save bookmark appeared not to respond to automated touch
+     injection. Re-verified the same day (2026-09-30, afternoon): all four controls respond
+     correctly when tapped at coordinates computed precisely from the actual screenshot pixel
+     dimensions (1206×2622 px = exactly 3× the simulator's 402×874-point coordinate space — i.e.
+     point = pixel / 3). The original run's coordinates were off by enough to miss every button in
+     the bottom third of the screen while still landing on taller elements higher up (e.g. the
+     related-video row), which is what made it look like a real, button-specific input bug rather
+     than a calibration error. No app code changed between the two runs. Conclusion: this was a
+     testing-tool artifact, not an app defect — but if a *human* tester on a real device or
+     simulator ever sees the same "button doesn't respond" symptom, treat that as a genuine bug
+     report, since this note only clears automated/synthetic touch injection.
+7. Continue: "I made it" opens **Meal Review** for that recipe with a star rating, note field,
+   duration/macro steppers, and an ingredients checklist, all pre-filled from the recipe. Set a
+   star rating, then tap **Save**.
+   - **Save responds correctly** (verified 2026-09-30): it records the `CookingSession`, grants XP
+     (Home's "Főzési alkalmak" stat and XP bar update), and pops back to Home. Note the Save button
+     is intentionally disabled (dimmed, non-interactive) until a star rating is set — that gating,
+     not a platform bug, is why an untrained tap sequence that skips the rating looks like "Save
+     doesn't do anything."
 8. Back out to Home, tap the **gear icon**.
    - **Opens Settings** (no developer-only options section on iOS); back returns to the previous
      screen.
