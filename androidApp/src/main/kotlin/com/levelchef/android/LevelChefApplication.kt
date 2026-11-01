@@ -53,7 +53,7 @@ class LevelChefApplication : Application() {
         startKoin {
             androidContext(this@LevelChefApplication)
             modules(
-                module { single(named("geminiApiKey")) { BuildConfig.GEMINI_API_KEY } },
+                module { single(named("recipeProxyUrl")) { BuildConfig.RECIPE_PROXY_URL } },
                 databaseModule,
                 dataModule,
                 homeModule,

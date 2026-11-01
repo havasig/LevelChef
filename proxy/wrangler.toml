@@ -1,0 +1,19 @@
+name = "levelchef-recipe-proxy"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+GEMINI_MODEL = "gemini-3.8-flash"
+DEVICE_DAILY_LIMIT = "5"
+IP_DAILY_LIMIT = "20"
+GLOBAL_DAILY_LIMIT = "200"
+MAX_OUTPUT_TOKENS = "4096"
+# Gemini 3 reasoning depth; the model default can exceed Cloudflare's 100 s response limit. "" = model default.
+GEMINI_THINKING_LEVEL = "low"
+
+# Create with `npx wrangler kv namespace create RATE_LIMITS` and paste the printed id here.
+[[kv_namespaces]]
+binding = "RATE_LIMITS"
+id = "6d07290781764d46a39aae90fd3c4636"
+
+# The Gemini key is a secret, never committed: `npx wrangler secret put GEMINI_API_KEY`.

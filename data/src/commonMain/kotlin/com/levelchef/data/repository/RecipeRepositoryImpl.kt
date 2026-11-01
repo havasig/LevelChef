@@ -18,10 +18,10 @@ import com.levelchef.data.recipe.generatedRecipesJson
 import com.levelchef.domain.repository.RecipeRepository
 import com.levelchef.domain.repository.SurveyRepository
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.parameter
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -29,42 +29,58 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-private const val GEMINI_ENDPOINT =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+private const val DEVICE_ID_HEADER = "X-Device-Id"
 private const val RECOMMENDATION_COUNT = 5L
 
 private val json = Json { ignoreUnknownKeys = true }
 
 /**
- * Gemini-backed [RecipeRepository]. Recommendations are generated from the stored [SurveyResponse]
+ * Gemini-backed [RecipeRepository], reached through the LevelChef recipe proxy ([proxyUrl], see the
+ * repo's `proxy/` Cloudflare Worker) — the app never holds a Gemini API key. The proxy enforces the
+ * per-device/IP/global daily quota; an HTTP 429 (or any other failure) is handled like "no
+ * generation available" and falls through to the cache and the bundled set. [deviceId] is a stable
+ * per-install id the proxy meters the quota by.
+ *
+ * Recommendations are generated from the stored [SurveyResponse]
  * (and the current app [languageTag]) and cached in [LevelChefDatabase]'s `generatedRecipe` table,
  * keyed by a fingerprint of both — a repeat call with an unchanged survey and language is served
  * from the cache, and a changed survey, a changed language, or an empty cache triggers a new Gemini
  * call. [getById] resolves against the whole cache history, not just the latest batch, so a
  * saved/cooked recipe stays resolvable even after a newer batch replaces it in
- * [getRecommendations]. A blank [apiKey], or any failure talking to Gemini, falls back to existing
- * cache rows and finally to [fallbackRecipes] — the app never shows an empty "Recommended for you."
+ * [getRecommendations]. A blank [proxyUrl], or any failure talking to the proxy/Gemini, falls back
+ * to existing cache rows and finally to [fallbackRecipes] — the app never shows an empty
+ * "Recommended for you."
  * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`).
  */
 class RecipeRepositoryImpl(
     private val database: LevelChefDatabase,
     private val surveyRepository: SurveyRepository,
     private val httpClient: HttpClient,
-    private val apiKey: String,
+    private val proxyUrl: String,
     private val clock: Clock = Clock.System,
     private val languageTag: () -> String? = { null },
+    private val deviceId: () -> String = { "" },
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : RecipeRepository {
 
     private val queries: GeneratedRecipeQueries get() = database.generatedRecipeQueries
 
-    override suspend fun getRecommendations(): List<Recipe> {
+    /** Serializes [getRecommendations]: Home asks again on resume while a slow first generation is
+     * still in flight, and without this both calls would miss the cache and each spend a generation of
+     * the proxy's daily quota. The second caller now waits and is served the first one's cached batch. */
+    private val generationLock = Mutex()
+
+    override suspend fun getRecommendations(): List<Recipe> = generationLock.withLock { cachedOrGenerated() }
+
+    private suspend fun cachedOrGenerated(): List<Recipe> {
         val survey = surveyRepository.observeResponse().first() ?: return fallbackRecipes(languageTag())
         val fingerprint = fingerprint(survey, languageTag())
 
@@ -90,7 +106,7 @@ class RecipeRepositoryImpl(
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun generateRecommendations(survey: SurveyResponse, fingerprint: String): List<Recipe>? {
-        if (apiKey.isBlank()) return null
+        if (proxyUrl.isBlank()) return null
         return try {
             fetchGeneratedRecipes(survey)?.also { recipes -> cacheRecipes(recipes, fingerprint) }
         } catch (e: CancellationException) {
@@ -102,8 +118,8 @@ class RecipeRepositoryImpl(
     }
 
     private suspend fun fetchGeneratedRecipes(survey: SurveyResponse): List<Recipe>? {
-        val response = httpClient.post(GEMINI_ENDPOINT) {
-            parameter("key", apiKey)
+        val response = httpClient.post(proxyUrl) {
+            header(DEVICE_ID_HEADER, deviceId())
             contentType(ContentType.Application.Json)
             setBody(geminiRecipeRequest(buildRecipePrompt(survey, languageTag())))
         }
@@ -111,7 +127,9 @@ class RecipeRepositoryImpl(
             Logger.w { "Gemini recommendation request failed: ${response.status}" }
             return null
         }
-        val recipesJson = response.body<GeminiResponse>().generatedRecipesJson()
+        // Decoded with the lenient [json], not the HttpClient's own — Gemini adds fields (e.g. Gemini 3's
+        // `thoughtSignature`) that a strict decoder rejects.
+        val recipesJson = json.decodeFromString<GeminiResponse>(response.bodyAsText()).generatedRecipesJson()
         if (recipesJson == null) {
             Logger.w { "Gemini response had no generated content" }
             return null
@@ -143,11 +161,23 @@ private fun GeneratedRecipe.decodeRecipeOrNull(): Recipe? = try {
     null
 }
 
-/** A stable-enough hash of the answers (plus the current app language, so a language switch also
- * invalidates the cache) that matter for recommendations — not security-sensitive, only used to
- * detect "the user retook the survey, or changed the app language, since the last generation." */
-private fun fingerprint(survey: SurveyResponse, languageTag: String?): String =
-    "${survey.hashCode()}-${languageTag ?: "en"}"
+/** The answers that matter for recommendations, plus the current app language (so a language switch
+ * also invalidates the cache) — only used to detect "the user changed an answer, or the app language,
+ * since the last generation." Built from enum *names*: it is persisted, so it must be identical across
+ * processes, which `hashCode()` is not (an enum's hash is its identity hash on the JVM — every cold
+ * start missed the cache and spent a proxy generation). `completedAt` is left out on purpose:
+ * retaking the survey with the same answers keeps the cached batch. */
+internal fun fingerprint(survey: SurveyResponse, languageTag: String?): String = listOf(
+    survey.cookingExperience.name,
+    survey.dietaryPreference.name,
+    survey.allergens.map { it.name }.sorted().joinToString("+"),
+    survey.cuisines.map { it.name }.sorted().joinToString("+"),
+    survey.spiceTolerance.name,
+    survey.cookingGoal.name,
+    survey.weeknightTime.name,
+    survey.householdSize.name,
+    languageTag ?: "en",
+).joinToString("|")
 
 /** Small bundled set served when there's no survey yet, no API key configured, or Gemini/the cache
  * are both unavailable — the last-resort source so Home never shows an empty recommendation list.

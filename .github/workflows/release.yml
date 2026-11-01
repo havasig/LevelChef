@@ -8,7 +8,9 @@ name: Release
 #
 # Needs four repository secrets (see README "Signing a release build"): RELEASE_KEYSTORE_BASE64,
 # RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD. It refuses to fall back to debug
-# signing. GEMINI_API_KEY is intentionally not supplied, so the app uses its bundled recipes.
+# signing. The Gemini key is never supplied (it lives only in the proxy Worker); the optional repository
+# variable RECIPE_PROXY_URL points the app at the deployed proxy, and without it the app uses its
+# bundled recipes.
 
 on:
   release:
@@ -74,6 +76,7 @@ jobs:
 
       - name: Build the signed release APK
         env:
+          RECIPE_PROXY_URL: ${{ vars.RECIPE_PROXY_URL }}
           RELEASE_STORE_FILE: ${{ runner.temp }}/release.jks
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}

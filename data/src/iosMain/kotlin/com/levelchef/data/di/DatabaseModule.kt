@@ -24,6 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import platform.Foundation.NSLocale
+import platform.Foundation.NSUUID
+import platform.Foundation.NSUserDefaults
 import platform.Foundation.preferredLanguages
 
 // kotlinx.coroutines' Dispatchers.IO is unusable from application code on Kotlin/Native: a member
@@ -48,16 +50,17 @@ val databaseModule = module {
     single<BadgeRepository> { BadgeRepositoryImpl(get(), get(), get(), dispatcher = ioDispatcher) }
     single<WeeklyChallengeRepository> { WeeklyChallengeRepositoryImpl(get(), get(), dispatcher = ioDispatcher) }
     single<SavedRecipeRepository> { SavedRecipeRepositoryImpl(get(), dispatcher = ioDispatcher) }
-    // named("geminiApiKey") is registered by iosApp's shared Koin entry point, the same way
-    // androidApp's LevelChefApplication registers it from BuildConfig.GEMINI_API_KEY — `data` never
+    // named("recipeProxyUrl") is registered by iosApp's shared Koin entry point, the same way
+    // androidApp's LevelChefApplication registers it from BuildConfig.RECIPE_PROXY_URL — `data` never
     // references a platform config mechanism directly to stay platform-agnostic.
     single<RecipeRepository> {
         RecipeRepositoryImpl(
             get(),
             get(),
             get(),
-            get(named("geminiApiKey")),
+            get(named("recipeProxyUrl")),
             languageTag = { currentAppLanguageTag() },
+            deviceId = { installId() },
             dispatcher = ioDispatcher,
         )
     }
@@ -74,3 +77,13 @@ private fun currentAppLanguageTag(): String? =
     (NSLocale.preferredLanguages.firstOrNull() as? String)
         ?.substringBefore('-')
         ?.ifBlank { null }
+
+private const val INSTALL_ID_KEY = "levelchef.installId"
+
+/** A random per-install id the recipe proxy meters its daily quota by (see androidMain's `installId`). */
+private fun installId(): String {
+    val defaults = NSUserDefaults.standardUserDefaults
+    return defaults.stringForKey(INSTALL_ID_KEY) ?: NSUUID().UUIDString.also {
+        defaults.setObject(it, forKey = INSTALL_ID_KEY)
+    }
+}
