@@ -12,6 +12,6 @@ MAX_OUTPUT_TOKENS = "4096"
 # Create with `npx wrangler kv namespace create RATE_LIMITS` and paste the printed id here.
 [[kv_namespaces]]
 binding = "RATE_LIMITS"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "6d07290781764d46a39aae90fd3c4636"
 
 # The Gemini key is a secret, never committed: `npx wrangler secret put GEMINI_API_KEY`.
