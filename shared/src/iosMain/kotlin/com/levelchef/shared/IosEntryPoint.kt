@@ -33,15 +33,15 @@ private val appScope = CoroutineScope(Dispatchers.Default)
 
 /**
  * iOS entry point, called once from `iOSApp.swift`'s `init()` — mirrors `LevelChefApplication`'s
- * `startKoin` call on Android. `geminiApiKey` is blank until a real key is plumbed in from Xcode
+ * `startKoin` call on Android. `recipeProxyUrl` is blank until the proxy URL is plumbed in from Xcode
  * build settings/Info.plist (see AGENTS.md's iOS "Not yet done" item); `RecipeRepositoryImpl`
- * already treats a blank key as "serve the bundled fallback recipes", so this never fails.
+ * already treats a blank URL as "serve the bundled fallback recipes", so this never fails.
  */
 fun doInitKoin() {
     Logger.setLogWriters(platformLogWriter())
     val koinApp = startKoin {
         modules(
-            module { single(named("geminiApiKey")) { "" } },
+            module { single(named("recipeProxyUrl")) { "" } },
             databaseModule,
             dataModule,
             homeModule,

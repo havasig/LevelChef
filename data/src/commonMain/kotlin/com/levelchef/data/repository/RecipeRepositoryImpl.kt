@@ -19,7 +19,7 @@ import com.levelchef.domain.repository.RecipeRepository
 import com.levelchef.domain.repository.SurveyRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.parameter
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -35,30 +35,37 @@ import kotlinx.serialization.json.Json
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-private const val GEMINI_ENDPOINT =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+private const val DEVICE_ID_HEADER = "X-Device-Id"
 private const val RECOMMENDATION_COUNT = 5L
 
 private val json = Json { ignoreUnknownKeys = true }
 
 /**
- * Gemini-backed [RecipeRepository]. Recommendations are generated from the stored [SurveyResponse]
+ * Gemini-backed [RecipeRepository], reached through the LevelChef recipe proxy ([proxyUrl], see the
+ * repo's `proxy/` Cloudflare Worker) — the app never holds a Gemini API key. The proxy enforces the
+ * per-device/IP/global daily quota; an HTTP 429 (or any other failure) is handled like "no
+ * generation available" and falls through to the cache and the bundled set. [deviceId] is a stable
+ * per-install id the proxy meters the quota by.
+ *
+ * Recommendations are generated from the stored [SurveyResponse]
  * (and the current app [languageTag]) and cached in [LevelChefDatabase]'s `generatedRecipe` table,
  * keyed by a fingerprint of both — a repeat call with an unchanged survey and language is served
  * from the cache, and a changed survey, a changed language, or an empty cache triggers a new Gemini
  * call. [getById] resolves against the whole cache history, not just the latest batch, so a
  * saved/cooked recipe stays resolvable even after a newer batch replaces it in
- * [getRecommendations]. A blank [apiKey], or any failure talking to Gemini, falls back to existing
- * cache rows and finally to [fallbackRecipes] — the app never shows an empty "Recommended for you."
+ * [getRecommendations]. A blank [proxyUrl], or any failure talking to the proxy/Gemini, falls back
+ * to existing cache rows and finally to [fallbackRecipes] — the app never shows an empty
+ * "Recommended for you."
  * Blocking SQLite calls run on [dispatcher] — `Dispatchers.IO` on Android (see `databaseModule`).
  */
 class RecipeRepositoryImpl(
     private val database: LevelChefDatabase,
     private val surveyRepository: SurveyRepository,
     private val httpClient: HttpClient,
-    private val apiKey: String,
+    private val proxyUrl: String,
     private val clock: Clock = Clock.System,
     private val languageTag: () -> String? = { null },
+    private val deviceId: () -> String = { "" },
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : RecipeRepository {
 
@@ -90,7 +97,7 @@ class RecipeRepositoryImpl(
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun generateRecommendations(survey: SurveyResponse, fingerprint: String): List<Recipe>? {
-        if (apiKey.isBlank()) return null
+        if (proxyUrl.isBlank()) return null
         return try {
             fetchGeneratedRecipes(survey)?.also { recipes -> cacheRecipes(recipes, fingerprint) }
         } catch (e: CancellationException) {
@@ -102,8 +109,8 @@ class RecipeRepositoryImpl(
     }
 
     private suspend fun fetchGeneratedRecipes(survey: SurveyResponse): List<Recipe>? {
-        val response = httpClient.post(GEMINI_ENDPOINT) {
-            parameter("key", apiKey)
+        val response = httpClient.post(proxyUrl) {
+            header(DEVICE_ID_HEADER, deviceId())
             contentType(ContentType.Application.Json)
             setBody(geminiRecipeRequest(buildRecipePrompt(survey, languageTag())))
         }

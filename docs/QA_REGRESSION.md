@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-09-30 (#80) · covers through a third round of manual-QA fixes (iOS: the starter
+_Last updated: 2026-11-01 (recipe proxy, daily generation quota — SM-23) · covers through a third round of manual-QA fixes (iOS: the starter
 pantry is now seeded on first launch same as Android, the Settings "Version" row shows a real
 number instead of a bare "v", and Settings' Danger Zone section now re-localizes with the rest of
 the screen on a language switch), a second round of manual-QA fixes (Trophy Room's
@@ -89,10 +89,11 @@ the font resource failed to load) or new text wrapping/truncation versus a prior
 ### Recipe recommendations
 
 Home's "Recommended for you" list, and every recipe the Recipes tab and recipe detail resolve by
-id, are generated from your survey answers by the Gemini API when the build has `GEMINI_API_KEY`
-set in `local.properties`. With a key configured, the exact recipes, their count and their content
+id, are generated from your survey answers by the Gemini API (through the recipe proxy, see
+[SM-23](#sm-23--recipe-proxy-daily-quota)) when the build has `RECIPE_PROXY_URL` set in
+`local.properties`. With a proxy configured, the exact recipes, their count and their content
 will vary between builds/testers and change whenever you retake the survey (SM-11) — that's
-expected, not a bug. **Most test builds won't have a key set** and will instead see the fixed
+expected, not a bug. **Most test builds won't have a proxy URL set** and will instead see the fixed
 bundled fallback set of 3 recipes ("Chicken curry with coconut milk", "Steak quinoa bowl", "Juicy
 pasta") that the scenarios below were written against; note in the results log which case you ran.
 
@@ -322,9 +323,9 @@ following the raw system appearance regardless).
    - On **Home**, the two stat cards stay **the same height** even though
      **"Kipróbált alapanyagok"** wraps onto two lines.
 4c. Back on **Home**, check the recipe **content** itself (not just the surrounding chrome):
-   - **With `GEMINI_API_KEY` configured:** the recommended recipes' names, tags, ingredients and
+   - **With `RECIPE_PROXY_URL` configured:** the recommended recipes' names, tags, ingredients and
      steps are in Hungarian (Gemini follows the app-language instruction in the prompt).
-   - **Without a key** (or after clearing it): the bundled fallback recipes show their Hungarian
+   - **Without a proxy URL** (or after clearing it): the bundled fallback recipes show their Hungarian
      names — **"Csirke curry kókusztejjel"**, **"Steak quinoa tál"**, **"Szószos tészta"**.
    - Switch back to English and confirm recommendations regenerate/revert to English (switching
      the app language alone invalidates the cached batch, same as retaking the survey).
@@ -344,9 +345,9 @@ following the raw system appearance regardless).
    - **The onboarding wizard opens at step 1 (cooking level)** — *not* at the last step or a summary.
 2. Complete the wizard again, changing at least one answer (e.g. dietary preference).
    - **Returns to the app** with the new answers stored.
-   - If `GEMINI_API_KEY` is configured (see [Recipe recommendations](#recipe-recommendations)),
+   - If `RECIPE_PROXY_URL` is configured (see [Recipe recommendations](#recipe-recommendations)),
      **Home's "Recommended for you" list regenerates to reflect the new answers** the next time it
-     loads (may take a moment); without a key, the fallback set is unchanged.
+     loads (may take a moment); without a proxy URL, the fallback set is unchanged.
 3. If the wizard allows Back/cancel partway, do that.
    - **The app returns to a normal onboarded state;** the previous response is not lost.
 
@@ -398,7 +399,7 @@ following the raw system appearance regardless).
    - **Opens straight to Home** (survey not shown again).
    - **Cooking‑session count, XP, "Last cooked", saved recipes, earned badges and pantry items are all still there.**
 4. Exercise whatever the new schema adds (the migration's PR lists it) and relaunch.
-   - **No crash; the new data persists.** For the `generatedRecipe` table: if `GEMINI_API_KEY` is
+   - **No crash; the new data persists.** For the `generatedRecipe` table: if `RECIPE_PROXY_URL` is
      configured (see [Recipe recommendations](#recipe-recommendations)), load Home on the previous
      release so a recommendation batch is cached, then upgrade — **the same recommendations still
      resolve by id from the Recipes tab / recipe detail after the upgrade.**
@@ -534,7 +535,7 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
 3. Step through the survey (pick an option on each screen, including at least one multi-select
    step) and tap through to the end.
    - **Finishing the survey lands on the Home screen** — stat cards and a "Recommended for you"
-     list populated from the **bundled fallback recipe set** (no Gemini key reaches iOS yet, so
+     list populated from the **bundled fallback recipe set** (no proxy URL reaches iOS yet, so
      this is always the fallback, not a bug), and a **Home / Recipes / Trophies bottom navigation
      bar**.
 4. Tap the **Recipes** and **Trophies** bottom-nav tabs, then back to **Home**.
@@ -581,6 +582,26 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
       Android — e.g. "Chicken breast", "Broccoli", "Lemon" — not an empty list); tapping **+**
       opens the **add-ingredient form** with name/category/unit/macro fields and a Save button.
 
+### SM-23 · Recipe proxy — daily quota
+
+**Priority:** P1 · **Preconditions:** a build with `RECIPE_PROXY_URL` pointing at a deployed proxy
+(see README "Recipe proxy"); onboarding completed. Skip (log *Skipped*) on builds without a proxy.
+
+1. Fresh install, complete onboarding, open **Home**.
+   - **"Recommended for you" shows generated recipes** (not just the 3 bundled ones) — generation #1.
+2. Retake the survey (Settings → Retake the survey) changing an answer, return to Home; repeat with a
+   different answer until 5 generations have been made today (language switches count too).
+   - **Each time Home shows freshly generated recipes.**
+3. Change a survey answer once more (6th generation of the day).
+   - **No crash and no error screen**; Home shows the previously cached recipes or the bundled set
+     (the proxy answered 429). Recipes saved earlier still open.
+4. Kill and relaunch the app.
+   - **Home still shows recipes** (cache / bundled), never an empty list.
+5. Next UTC day (or after the operator resets the KV counter), change a survey answer.
+   - **Generation works again.**
+6. Airplane mode, change a survey answer, return to Home.
+   - **Falls back silently** to cached/bundled recipes; no crash.
+
 ---
 
 ## 4. Results log
@@ -614,6 +635,7 @@ Build / commit: __________     Device: __________     Android: __________     Te
 | SM-20 Settings — delete account         | P0 |  |  |  |  |
 | SM-21 Settings — send feedback          | P1 |  |  |  |  |
 | SM-22 iOS app shell — onboarding + nav graph | P1 |  |  |  |  |
+| SM-23 Recipe proxy — daily quota        | P1 |  |  |  |  |
 ```
 
 **Release exit criteria:** every **P0** scenario Pass in both light and dark; **SM-14** Pass on an upgrade install (once a previous release exists); **zero** crashes in any scenario.

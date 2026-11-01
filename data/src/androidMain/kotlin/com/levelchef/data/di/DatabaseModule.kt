@@ -1,5 +1,6 @@
 package com.levelchef.data.di
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import com.levelchef.core.database.db.LevelChefDatabase
 import com.levelchef.data.local.DatabaseDriverFactory
@@ -25,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import java.util.UUID
 
 /** Android-only: wires the SQLDelight driver + database + DB-backed repositories. Every repository
  * runs its blocking SQLite calls on [Dispatchers.IO], off the main thread. */
@@ -40,15 +42,17 @@ val databaseModule = module {
     single<BadgeRepository> { BadgeRepositoryImpl(get(), get(), get(), dispatcher = Dispatchers.IO) }
     single<WeeklyChallengeRepository> { WeeklyChallengeRepositoryImpl(get(), get(), dispatcher = Dispatchers.IO) }
     single<SavedRecipeRepository> { SavedRecipeRepositoryImpl(get(), dispatcher = Dispatchers.IO) }
-    // named("geminiApiKey") is registered by androidApp's LevelChefApplication (BuildConfig.GEMINI_API_KEY) —
-    // `data` never references BuildConfig directly to stay platform-agnostic.
+    // named("recipeProxyUrl") is registered by androidApp's LevelChefApplication (BuildConfig.RECIPE_PROXY_URL) —
+    // `data` never references BuildConfig directly to stay platform-agnostic. The Gemini key itself lives
+    // only in the proxy Worker (see /proxy), never in the app.
     single<RecipeRepository> {
         RecipeRepositoryImpl(
             get(),
             get(),
             get(),
-            get(named("geminiApiKey")),
+            get(named("recipeProxyUrl")),
             languageTag = { currentAppLanguageTag() },
+            deviceId = { installId(androidContext()) },
             dispatcher = Dispatchers.IO,
         )
     }
@@ -65,3 +69,15 @@ private fun currentAppLanguageTag(): String? =
         .substringBefore(',')
         .substringBefore('-')
         .ifBlank { null }
+
+private const val INSTALL_PREFS = "levelchef_install"
+private const val INSTALL_ID_KEY = "installId"
+
+/** A random per-install id the recipe proxy meters its daily quota by. Generated on first use and kept
+ * in SharedPreferences; it carries no personal data and changes if the app is reinstalled. */
+private fun installId(context: Context): String {
+    val prefs = context.getSharedPreferences(INSTALL_PREFS, Context.MODE_PRIVATE)
+    return prefs.getString(INSTALL_ID_KEY, null) ?: UUID.randomUUID().toString().also {
+        prefs.edit().putString(INSTALL_ID_KEY, it).apply()
+    }
+}

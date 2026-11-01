@@ -9,11 +9,6 @@ val localProperties = Properties().apply {
     if (file.exists()) file.inputStream().use(::load)
 }
 
-// Read from local.properties (gitignored) rather than committing a real key. Empty when unset —
-// RecipeRepositoryImpl treats a blank key as "no live recommender configured" and falls back to
-// its bundled sample recipes instead of failing.
-val geminiApiKey = localProperties.getProperty("GEMINI_API_KEY", "")
-
 // Release signing: RELEASE_STORE_FILE / RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS /
 // RELEASE_KEY_PASSWORD, from local.properties (a release manager's machine) or identically named
 // env vars (a CI/CD release job) — see README's "Signing a release build". The keystore itself is
@@ -23,6 +18,12 @@ val geminiApiKey = localProperties.getProperty("GEMINI_API_KEY", "")
 fun releaseSigningProperty(key: String): String? =
     localProperties.getProperty(key)?.takeIf { it.isNotBlank() }
         ?: System.getenv(key)?.takeIf { it.isNotBlank() }
+
+// The recipe proxy's URL (the Cloudflare Worker in /proxy) — NOT a secret; the Gemini key lives only in
+// the Worker. From local.properties or the identically named env var (the release job). Empty when
+// unset — RecipeRepositoryImpl treats a blank URL as "no live recommender configured" and falls back
+// to its bundled sample recipes instead of failing.
+val recipeProxyUrl = releaseSigningProperty("RECIPE_PROXY_URL") ?: ""
 
 val releaseStoreFile = releaseSigningProperty("RELEASE_STORE_FILE")
 val releaseStorePassword = releaseSigningProperty("RELEASE_STORE_PASSWORD")
@@ -39,7 +40,7 @@ android {
         applicationId = "com.levelchef.android"
         versionCode = 1
         versionName = "0.1.0"
-        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+        buildConfigField("String", "RECIPE_PROXY_URL", "\"$recipeProxyUrl\"")
     }
 
     signingConfigs {

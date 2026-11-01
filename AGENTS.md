@@ -47,9 +47,11 @@ core:database  ◀── data only
   `RecipeRepositoryImpl` builds a prompt from the stored `SurveyResponse` (see `SurveyRepository`)
   and the current app language (an injected `languageTag` provider — `data` can't depend on
   `feature:settings`, so `databaseModule` reads `AppCompatDelegate.getApplicationLocales()`
-  directly), calls the Gemini API (structured JSON output), and caches the result in
+  directly), calls the Gemini API **through the `proxy/` Cloudflare Worker** (structured JSON output; the app
+  never holds the Gemini key — the Worker does, and enforces the per-device/IP/global daily quota,
+  429 → fallback; the app sends a random per-install `X-Device-Id`), and caches the result in
   `generatedRecipe`; a repeat call with an unchanged survey *and* language is served from the
-  cache instead of calling Gemini again. A blank `GEMINI_API_KEY` (see root `README.md`), no
+  cache instead of calling Gemini again. A blank `RECIPE_PROXY_URL` (see root `README.md`), no
   survey yet, or any Gemini/cache failure falls back to a small bundled recipe set — English or
   Hungarian, matching the app language — recommendations are never empty. `SavedRecipeRepositoryImpl`
   backs the recipe-detail "Save" bookmark.
@@ -268,7 +270,7 @@ If a new screen is added to the Figma file, give its stub composable a
    `./gradlew :shared:embedAndSignAppleFrameworkForXcode`, the standard direct-integration
    approach). `shared/src/iosMain/kotlin/com/levelchef/shared/IosEntryPoint.kt`'s `doInitKoin()`
    mirrors `LevelChefApplication.onCreate()`'s `startKoin` call (iOS `databaseModule` + `dataModule`
-   + `homeModule`, blank `geminiApiKey`), and `MainViewController()` boots
+   + `homeModule`, blank `recipeProxyUrl`), and `MainViewController()` boots
    `LevelChefTheme { HomeRoute() }` via `ComposeUIViewController` — real Koin-wired data (SQLDelight
    `NativeSqliteDriver`, Ktor `Darwin`), no navigation.
 
@@ -420,7 +422,7 @@ If a new screen is added to the Figma file, give its stub composable a
    alerts to match too) is *not* set — deliberately out of scope, since the app is ~100%
    Compose-rendered; revisit only if that chrome turns out to matter.
 
-   Still deliberately **not** done, so don't assume it works: there's no real Gemini key path for
+   Still deliberately **not** done, so don't assume it works: there's no proxy URL wired for
    iOS — recipe recommendations always use the bundled fallback.
 2. **DB migration policy flips at the first release.** The `core:database` section above
    documents the pre-release exception: no `migrations/N.sqm` files yet, `.sq` files are edited
