@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-11-01 (recipe proxy, daily generation quota — SM-23) · covers through a third round of manual-QA fixes (iOS: the starter
+_Last updated: 2026-11-01 (recipe proxy, daily generation quota — SM-23; generation latency, cache-on-relaunch check) · covers through a third round of manual-QA fixes (iOS: the starter
 pantry is now seeded on first launch same as Android, the Settings "Version" row shows a real
 number instead of a bare "v", and Settings' Danger Zone section now re-localizes with the rest of
 the screen on a language switch), a second round of manual-QA fixes (Trophy Room's
@@ -589,14 +589,21 @@ recipe (SM-05), one earned badge (SM-19) and a custom pantry item (SM-08).
 
 1. Fresh install, complete onboarding, open **Home**.
    - **"Recommended for you" shows generated recipes** (not just the 3 bundled ones) — generation #1.
-2. Retake the survey (Settings → Retake the survey) changing an answer, return to Home; repeat with a
-   different answer until 5 generations have been made today (language switches count too).
+     A generation can take **up to ~90 s**; until it lands Home shows its placeholder cards (they look
+     like the bundled set), so don't log a failure before then. Running `npx wrangler tail` in `proxy/`
+     shows each request; an `(error) Gemini 503` line means Google's model is overloaded — retry later
+     rather than logging an app bug.
+2. Retake the survey changing an answer (SM-11, or on a debug build SM-12's **Clear onboarding
+   storage** and redo onboarding), return to Home; repeat with a different answer until 5 generations
+   have been made today (language switches count too).
    - **Each time Home shows freshly generated recipes.**
 3. Change a survey answer once more (6th generation of the day).
    - **No crash and no error screen**; Home shows the previously cached recipes or the bundled set
      (the proxy answered 429). Recipes saved earlier still open.
-4. Kill and relaunch the app.
+4. Kill and relaunch the app (repeat a few times).
    - **Home still shows recipes** (cache / bundled), never an empty list.
+   - After a *successful* generation, a relaunch **shows the same generated recipes without a new
+     generation** (no new request in `wrangler tail`) — relaunching must not spend the daily quota.
 5. Next UTC day (or after the operator resets the KV counter), change a survey answer.
    - **Generation works again.**
 6. Airplane mode, change a survey answer, return to Home.
