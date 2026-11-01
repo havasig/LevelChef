@@ -93,13 +93,17 @@ export async function handleRequest(request, env, { now = new Date(), fetchImpl 
     return json({ error: "quota_exceeded" }, 429, { "Retry-After": "3600" });
   }
 
-  const model = env.GEMINI_MODEL || "gemini-2.0-flash";
+  const model = env.GEMINI_MODEL || "gemini-3.8-flash";
   const upstream = await fetchImpl(`${GEMINI_BASE}/${model}:generateContent`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
     body: JSON.stringify(upstreamBody),
   });
-  if (!upstream.ok) return json({ error: "upstream_error", status: upstream.status }, 502);
+  if (!upstream.ok) {
+    // Gemini's error body names the cause (bad key, unknown model, invalid schema); it never echoes the key.
+    console.error(`Gemini ${upstream.status}: ${(await upstream.text()).slice(0, 500)}`);
+    return json({ error: "upstream_error", status: upstream.status }, 502);
+  }
 
   await Promise.all([
     bump(env.RATE_LIMITS, deviceKey),

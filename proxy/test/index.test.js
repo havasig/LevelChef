@@ -45,7 +45,7 @@ test("forwards a valid request with the key, a fixed model and a capped output",
 
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("X-RateLimit-Remaining"), "4");
-  assert.match(calls[0].url, /models\/gemini-2\.0-flash:generateContent$/);
+  assert.match(calls[0].url, /models\/gemini-3\.8-flash:generateContent$/);
   assert.equal(calls[0].init.headers["x-goog-api-key"], "secret");
   assert.equal(JSON.parse(calls[0].init.body).generationConfig.maxOutputTokens, 4096);
 });
