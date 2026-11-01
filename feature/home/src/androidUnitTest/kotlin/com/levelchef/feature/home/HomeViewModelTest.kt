@@ -241,6 +241,7 @@ private class FakeCookingSessionRepository(private val recent: CookingSession?) 
 private class FakeRecipeRepository(private val recommendations: List<Recipe>) : RecipeRepository {
     override suspend fun getRecommendations(): List<Recipe> = recommendations
     override suspend fun getById(id: String): Recipe? = recommendations.find { it.id == id }
+    override suspend fun deleteAll() = Unit
 }
 
 private class FakeWeeklyChallengeRepository(initial: WeeklyChallenge) : WeeklyChallengeRepository {

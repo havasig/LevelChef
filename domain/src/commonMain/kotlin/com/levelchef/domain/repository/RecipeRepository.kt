@@ -6,4 +6,7 @@ import com.levelchef.core.model.Recipe
 interface RecipeRepository {
     suspend fun getRecommendations(): List<Recipe>
     suspend fun getById(id: String): Recipe?
+
+    /** Forgets every generated recipe (account deletion). Bundled recipes stay resolvable. */
+    suspend fun deleteAll()
 }

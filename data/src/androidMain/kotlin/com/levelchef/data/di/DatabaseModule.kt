@@ -20,12 +20,14 @@ import com.levelchef.domain.repository.SurveyRepository
 import com.levelchef.domain.repository.WeeklyChallengeRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import java.util.Locale
 import java.util.UUID
 
 /** Android-only: wires the SQLDelight driver + database + DB-backed repositories. Every repository
@@ -33,7 +35,15 @@ import java.util.UUID
 val databaseModule = module {
     single { DatabaseDriverFactory(androidContext()).createDriver() }
     single { LevelChefDatabase(get()) }
-    single { HttpClient(Android) { install(ContentNegotiation) { json() } } }
+    single {
+        HttpClient(Android) {
+            install(ContentNegotiation) { json() }
+            install(HttpTimeout) {
+                connectTimeoutMillis = CONNECT_TIMEOUT_MS
+                requestTimeoutMillis = REQUEST_TIMEOUT_MS
+            }
+        }
+    }
     single<CookingSessionRepository> { CookingSessionRepositoryImpl(get(), dispatcher = Dispatchers.IO) }
     single<SurveyRepository> { SurveyResponseRepositoryImpl(get(), dispatcher = Dispatchers.IO) }
     single<IngredientRepository> {
@@ -58,17 +68,24 @@ val databaseModule = module {
     }
 }
 
-/** The app's current per-app language override (see `feature:settings`'
- * `AndroidAppSettingsController.language()`, which resolves the same
+/** The language the UI is actually shown in: the app's per-app language override (see
+ * `feature:settings`' `AndroidAppSettingsController.language()`, which resolves the same
  * [AppCompatDelegate.getApplicationLocales] into its `AppLanguage` enum — `data` can't depend on
- * `feature:settings`, so this inlines the same tag parsing). `null` means "System" (no override),
- * which [RecipeRepositoryImpl] and [IngredientRepositoryImpl] treat as English. */
+ * `feature:settings`, so this inlines the same tag parsing), or, with no override ("System"), the
+ * device language — so a Hungarian phone on "System" gets Hungarian recipes and starter pantry,
+ * matching the Hungarian UI. [RecipeRepositoryImpl] and [IngredientRepositoryImpl] treat anything
+ * but "hu" as English. */
 private fun currentAppLanguageTag(): String? =
     AppCompatDelegate.getApplicationLocales()
         .toLanguageTags()
         .substringBefore(',')
         .substringBefore('-')
+        .ifBlank { Locale.getDefault().language }
         .ifBlank { null }
+
+// The proxy waits on Gemini, which can take tens of seconds; Ktor's own default is no request timeout.
+private const val CONNECT_TIMEOUT_MS = 10_000L
+private const val REQUEST_TIMEOUT_MS = 60_000L
 
 private const val INSTALL_PREFS = "levelchef_install"
 private const val INSTALL_ID_KEY = "installId"

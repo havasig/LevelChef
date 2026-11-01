@@ -30,7 +30,7 @@ fun RecipeDetailRoute(
             onMadeIt = onMadeIt,
             onStartTimer = viewModel::startTimer,
             onCancelTimer = viewModel::cancelTimer,
-            onOpenVideo = uriHandler::openUri,
+            onOpenVideo = uriHandler::openWebLinkSafely,
             onDismissMessage = viewModel::dismissMessage,
         ),
     )
