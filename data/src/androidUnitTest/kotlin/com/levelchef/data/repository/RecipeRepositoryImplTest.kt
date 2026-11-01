@@ -162,6 +162,31 @@ class RecipeRepositoryImplTest {
     }
 
     @Test
+    fun the_survey_fingerprint_is_built_from_answer_names_so_it_survives_a_restart() {
+        // A literal, not a computed value: the fingerprint is persisted, so it must not depend on
+        // anything per-process like an enum's identity hashCode().
+        assertEquals(
+            "BEGINNER|OMNIVORE||ITALIAN|MILD|QUICK_MEALS|UNDER_15|SOLO|en",
+            fingerprint(sampleSurvey, languageTag = null),
+        )
+    }
+
+    @Test
+    fun the_survey_fingerprint_ignores_completion_time_and_answer_order() {
+        val retaken = sampleSurvey.copy(
+            completedAt = Instant.parse("2026-06-01T00:00:00Z"),
+            cuisines = setOf(Cuisine.MEXICAN, Cuisine.ITALIAN),
+        )
+        val reordered = retaken.copy(cuisines = setOf(Cuisine.ITALIAN, Cuisine.MEXICAN))
+
+        assertEquals(fingerprint(retaken, "hu"), fingerprint(reordered, "hu"))
+        assertEquals(
+            fingerprint(sampleSurvey, "hu"),
+            fingerprint(sampleSurvey.copy(completedAt = retaken.completedAt), "hu"),
+        )
+    }
+
+    @Test
     fun concurrent_calls_share_a_single_generation() = runTest {
         val gate = CompletableDeferred<Unit>()
         val repository = repository(responseGate = gate)

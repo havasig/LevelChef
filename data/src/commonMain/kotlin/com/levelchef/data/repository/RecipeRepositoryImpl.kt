@@ -161,11 +161,23 @@ private fun GeneratedRecipe.decodeRecipeOrNull(): Recipe? = try {
     null
 }
 
-/** A stable-enough hash of the answers (plus the current app language, so a language switch also
- * invalidates the cache) that matter for recommendations — not security-sensitive, only used to
- * detect "the user retook the survey, or changed the app language, since the last generation." */
-private fun fingerprint(survey: SurveyResponse, languageTag: String?): String =
-    "${survey.hashCode()}-${languageTag ?: "en"}"
+/** The answers that matter for recommendations, plus the current app language (so a language switch
+ * also invalidates the cache) — only used to detect "the user changed an answer, or the app language,
+ * since the last generation." Built from enum *names*: it is persisted, so it must be identical across
+ * processes, which `hashCode()` is not (an enum's hash is its identity hash on the JVM — every cold
+ * start missed the cache and spent a proxy generation). `completedAt` is left out on purpose:
+ * retaking the survey with the same answers keeps the cached batch. */
+internal fun fingerprint(survey: SurveyResponse, languageTag: String?): String = listOf(
+    survey.cookingExperience.name,
+    survey.dietaryPreference.name,
+    survey.allergens.map { it.name }.sorted().joinToString("+"),
+    survey.cuisines.map { it.name }.sorted().joinToString("+"),
+    survey.spiceTolerance.name,
+    survey.cookingGoal.name,
+    survey.weeknightTime.name,
+    survey.householdSize.name,
+    languageTag ?: "en",
+).joinToString("|")
 
 /** Small bundled set served when there's no survey yet, no API key configured, or Gemini/the cache
  * are both unavailable — the last-resort source so Home never shows an empty recommendation list.
