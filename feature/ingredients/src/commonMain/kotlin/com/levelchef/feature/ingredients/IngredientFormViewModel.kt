@@ -8,6 +8,10 @@ import com.levelchef.core.model.IngredientMacros
 import com.levelchef.core.model.MeasurementUnit
 import com.levelchef.domain.repository.IngredientRepository
 import com.levelchef.domain.usecase.SaveIngredientUseCase
+import com.levelchef.feature.ingredients.IngredientFormUiState.Companion.MAX_CALORIE_DIGITS
+import com.levelchef.feature.ingredients.IngredientFormUiState.Companion.MAX_GRAM_DECIMALS
+import com.levelchef.feature.ingredients.IngredientFormUiState.Companion.MAX_GRAM_INTEGER_DIGITS
+import com.levelchef.feature.ingredients.IngredientFormUiState.Companion.MAX_NAME_LENGTH
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,13 +51,13 @@ class IngredientFormViewModel(
         }
     }
 
-    fun setName(value: String) = _uiState.update { it.copy(name = value) }
+    fun setName(value: String) = _uiState.update { it.copy(name = value.take(MAX_NAME_LENGTH)) }
 
     fun setCategory(value: IngredientCategory) = _uiState.update { it.copy(category = value) }
 
     fun setUnit(value: MeasurementUnit?) = _uiState.update { it.copy(unit = value) }
 
-    fun setCalories(value: String) = _uiState.update { it.copy(calories = value.filter(Char::isDigit)) }
+    fun setCalories(value: String) = _uiState.update { it.copy(calories = value.filter(Char::isDigit).take(MAX_CALORIE_DIGITS)) }
 
     fun setProtein(value: String) = _uiState.update { it.copy(protein = decimal(value)) }
 
@@ -71,6 +75,7 @@ class IngredientFormViewModel(
         } else {
             categoryEmoji(state.category)
         }
+        _uiState.update { it.copy(saving = true) }
         viewModelScope.launch {
             saveIngredient(
                 Ingredient(
@@ -98,10 +103,14 @@ private fun IngredientFormUiState.macros(): IngredientMacros? {
     )
 }
 
-/** Keeps digits and one decimal point. A `,` (the decimal separator on e.g. Hungarian keyboards)
- * is read as `.`, so "2,5" is 2.5 rather than 25. */
+/** Keeps digits and one decimal point, at most [MAX_GRAM_INTEGER_DIGITS] digits before it and
+ * [MAX_GRAM_DECIMALS] after — so a value can never overflow or be silently saved as 0. A `,` (the
+ * decimal separator on e.g. Hungarian keyboards) is read as `.`, so "2,5" is 2.5 rather than 25. */
 private fun decimal(raw: String): String {
     val filtered = raw.replace(',', '.').filter { it.isDigit() || it == '.' }
     val dot = filtered.indexOf('.')
-    return if (dot == -1) filtered else filtered.substring(0, dot + 1) + filtered.substring(dot + 1).replace(".", "")
+    if (dot == -1) return filtered.take(MAX_GRAM_INTEGER_DIGITS)
+    val integer = filtered.substring(0, dot).take(MAX_GRAM_INTEGER_DIGITS)
+    val fraction = filtered.substring(dot + 1).replace(".", "").take(MAX_GRAM_DECIMALS)
+    return "$integer.$fraction"
 }

@@ -35,4 +35,5 @@
     <string name="home_last_cooked_today">ma</string>
     <string name="home_last_cooked_one_day_ago">1 napja</string>
     <string name="home_last_cooked_days_ago">%1$d napja</string>
+    <string name="home_recommendations_loading">Receptek keresése neked…</string>
 </resources>

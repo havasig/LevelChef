@@ -9,12 +9,14 @@ import com.levelchef.core.model.SurveyResponse
 import com.levelchef.domain.repository.SurveyRepository
 import com.levelchef.domain.usecase.ClearSurveyResponseUseCase
 import com.levelchef.domain.usecase.DeleteAccountDataUseCase
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsViewModel(
     private val controller: AppSettingsController,
@@ -81,16 +83,26 @@ class SettingsViewModel(
      * language back to their System defaults. The survey response is cleared *last*, after the
      * success message has had time to show: `OnboardingGate` observes it and swaps this whole
      * screen out for the mandatory survey the instant it becomes null.
+     *
+     * The whole sequence runs [NonCancellable]: leaving Settings during the success message clears
+     * this ViewModel, and a cancelled run would leave a half-deleted account (data gone, but the
+     * survey, theme and language kept, so no onboarding either). A second tap while it runs is ignored.
      */
     fun deleteAccount() {
+        if (deletionInProgress) return
+        deletionInProgress = true
         viewModelScope.launch {
-            deleteAccountData()
-            _uiState.update { it.copy(snackbarMessage = SettingsSnackbarMessage.ACCOUNT_DELETION_SUCCESS) }
-            delay(SNACKBAR_DISPLAY_MS)
-            controller.resetToDefaults()
-            clearSurveyResponse()
+            withContext(NonCancellable) {
+                deleteAccountData()
+                _uiState.update { it.copy(snackbarMessage = SettingsSnackbarMessage.ACCOUNT_DELETION_SUCCESS) }
+                delay(SNACKBAR_DISPLAY_MS)
+                controller.resetToDefaults()
+                clearSurveyResponse()
+            }
         }
     }
+
+    private var deletionInProgress = false
 
     private fun showSnackbarThenDismiss(message: SettingsSnackbarMessage) {
         viewModelScope.launch {
@@ -102,7 +114,9 @@ class SettingsViewModel(
 
     /**
      * Wipes the stored survey response. `OnboardingGate` observes that row, so the mandatory wizard
-     * reappears on its own — this backs the developer "clear onboarding storage" option.
+     * reappears on its own — this backs "Retake the survey" (the only way to change allergens,
+     * cuisines, spice, goal and weeknight time) and the developer "clear onboarding storage" option.
+     * Unlike [deleteAccount] it keeps every other piece of data.
      */
     fun clearOnboarding() {
         viewModelScope.launch { clearSurveyResponse() }

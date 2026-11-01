@@ -17,7 +17,11 @@ data class MealReviewUiState(
     /** One-shot signal: flips to true once Save has recorded the session, for [MealReviewRoute]
      * to navigate away. */
     val saved: Boolean = false,
+    /** True while Save is writing the session — further taps are ignored, so one cook is logged once. */
+    val saving: Boolean = false,
 ) {
+    val canSave: Boolean get() = rating > 0 && !saving && !saved
+
     companion object {
         const val MAX_RATING = 5
         const val DURATION_STEP_MINUTES = 5

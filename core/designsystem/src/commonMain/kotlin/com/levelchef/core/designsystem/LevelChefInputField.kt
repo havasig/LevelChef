@@ -15,6 +15,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.ui.theme.LevelChefTextStyles
 import com.levelchef.core.ui.theme.LevelChefTheme
@@ -32,11 +35,18 @@ fun LevelChefInputField(
 ) {
     val colors = LevelChefTheme.colors
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
+        // The visible label is a separate Text, so it is hidden from accessibility services and set on
+        // the field itself instead — otherwise TalkBack announces just "edit box" with no name.
+        Text(
+            label,
+            color = colors.textPrimary,
+            style = LevelChefTextStyles.bodyRegularBold,
+            modifier = Modifier.clearAndSetSemantics {},
+        )
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().semantics { contentDescription = label },
             keyboardOptions = keyboardOptions,
             singleLine = singleLine,
             placeholder = {

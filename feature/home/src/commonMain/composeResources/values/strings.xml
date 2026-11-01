@@ -35,4 +35,5 @@
     <string name="home_last_cooked_today">today</string>
     <string name="home_last_cooked_one_day_ago">1 day ago</string>
     <string name="home_last_cooked_days_ago">%1$d days ago</string>
+    <string name="home_recommendations_loading">Finding recipes for you…</string>
 </resources>

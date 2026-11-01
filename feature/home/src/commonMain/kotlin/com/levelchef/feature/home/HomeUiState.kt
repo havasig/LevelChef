@@ -17,4 +17,23 @@ data class HomeUiState(
     val challengeEligible: Boolean = false,
     val recommendations: List<RecipeRecommendation> = sampleRecommendations,
     val lastCooked: LastCooked? = LastCooked("Tofu stir-fry", daysAgo = 3, stars = 3),
-)
+    /** True while recommendations are being fetched (a live generation can take tens of seconds). */
+    val recommendationsLoading: Boolean = false,
+) {
+    companion object {
+        /** What [HomeViewModel] shows before its first load — zeros and no recipes, never the
+         * preview sample data the plain defaults above carry. */
+        val Initial = HomeUiState(
+            level = ChefLevel.KITCHEN_NOVICE,
+            currentXp = 0,
+            xpForNextLevel = 0,
+            cookingSessions = 0,
+            ingredientsTried = 0,
+            challengeTitle = "",
+            challengeXp = 0,
+            recommendations = emptyList(),
+            lastCooked = null,
+            recommendationsLoading = true,
+        )
+    }
+}

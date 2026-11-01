@@ -141,6 +141,38 @@ class MealReviewViewModelTest {
     }
 
     @Test
+    fun tapping_save_repeatedly_logs_the_cook_only_once() = runTest(dispatcher) {
+        val sessions = RecordingCookingSessionRepository()
+        val vm = viewModel(sessions = sessions)
+        advanceUntilIdle()
+
+        vm.changeRating(5)
+        vm.save()
+        vm.save()
+        vm.save()
+        advanceUntilIdle()
+        vm.save()
+        advanceUntilIdle()
+
+        assertEquals(1, sessions.recorded.size)
+    }
+
+    @Test
+    fun save_is_unavailable_without_a_rating() = runTest(dispatcher) {
+        val sessions = RecordingCookingSessionRepository()
+        val vm = viewModel(sessions = sessions)
+        advanceUntilIdle()
+
+        assertFalse(vm.uiState.value.canSave)
+        vm.save()
+        advanceUntilIdle()
+
+        assertTrue(sessions.recorded.isEmpty())
+        vm.changeRating(1)
+        assertTrue(vm.uiState.value.canSave)
+    }
+
+    @Test
     fun saving_before_the_recipe_loads_is_a_no_op() = runTest(dispatcher) {
         val sessions = RecordingCookingSessionRepository()
         val vm = viewModel(recipes = emptyList(), sessions = sessions)

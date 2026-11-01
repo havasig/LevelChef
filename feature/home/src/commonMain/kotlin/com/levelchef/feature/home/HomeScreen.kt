@@ -73,6 +73,9 @@ fun HomeScreen(
                     style = LevelChefTextStyles.bodyRegularBold,
                 )
             }
+            if (state.recommendationsLoading && state.recommendations.isEmpty()) {
+                item { RecommendationsLoadingRow() }
+            }
             items(state.recommendations) { rec ->
                 RecipeRecommendationCard(rec, onClick = { onRecipeClick(rec) })
             }

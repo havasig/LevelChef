@@ -12,6 +12,6 @@ import org.koin.dsl.module
  * in-memory stub on iOS for now), so it can't live here. */
 internal val settingsCommonModule = module {
     factory { ClearSurveyResponseUseCase(get()) }
-    factory { DeleteAccountDataUseCase(get(), get(), get(), get(), get()) }
+    factory { DeleteAccountDataUseCase(get(), get(), get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get()) }
 }

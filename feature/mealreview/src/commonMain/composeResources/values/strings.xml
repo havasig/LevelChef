@@ -5,7 +5,10 @@
 
     <string name="meal_review_rating_label">RATING</string>
     <string name="meal_review_rating_value">%1$d/5</string>
-    <string name="meal_review_rating_star">Rate %1$d star</string>
+    <plurals name="meal_review_rating_star">
+        <item quantity="one">Rate %1$d star</item>
+        <item quantity="other">Rate %1$d stars</item>
+    </plurals>
 
     <string name="meal_review_note_label">NOTE</string>
     <string name="meal_review_note_placeholder">Describe your experience…</string>
@@ -27,4 +30,5 @@
     <string name="meal_review_ingredients_label">INGREDIENTS</string>
 
     <string name="meal_review_save">Save</string>
+    <string name="meal_review_save_hint">Rate your meal above to save it.</string>
 </resources>

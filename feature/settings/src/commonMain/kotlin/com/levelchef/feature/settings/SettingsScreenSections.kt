@@ -68,6 +68,8 @@ import com.levelchef.feature.settings.generated.resources.settings_rate_app_subt
 import com.levelchef.feature.settings.generated.resources.settings_rate_app_title
 import com.levelchef.feature.settings.generated.resources.settings_send_feedback_subtitle
 import com.levelchef.feature.settings.generated.resources.settings_send_feedback_title
+import com.levelchef.feature.settings.generated.resources.settings_retake_survey_subtitle
+import com.levelchef.feature.settings.generated.resources.settings_retake_survey_title
 import com.levelchef.feature.settings.generated.resources.settings_serving_size_title
 import com.levelchef.feature.settings.generated.resources.settings_skill_beginner
 import com.levelchef.feature.settings.generated.resources.settings_skill_comfortable
@@ -106,6 +108,12 @@ internal fun CookingPreferencesSection(state: SettingsUiState, actions: Settings
                 title = stringResource(Res.string.settings_serving_size_title),
                 subtitle = state.householdSize.label(),
                 onClick = { editing = CookingPreferenceField.HOUSEHOLD },
+            )
+            LevelChefDivider()
+            SettingsRow(
+                title = stringResource(Res.string.settings_retake_survey_title),
+                subtitle = stringResource(Res.string.settings_retake_survey_subtitle),
+                onClick = actions.onRetakeSurvey,
             )
         }
     }

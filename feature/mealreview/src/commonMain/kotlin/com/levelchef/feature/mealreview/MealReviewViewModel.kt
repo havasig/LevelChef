@@ -77,6 +77,8 @@ class MealReviewViewModel(
     fun save() {
         val recipe = recipe ?: return
         val state = _uiState.value
+        if (!state.canSave) return
+        _uiState.update { it.copy(saving = true) }
         viewModelScope.launch {
             recordCookingSession(
                 recipe,

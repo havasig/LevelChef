@@ -63,4 +63,6 @@
 
     <string name="settings_dialog_cancel">Cancel</string>
     <string name="settings_dialog_confirm">Confirm</string>
+    <string name="settings_retake_survey_title">Retake the survey</string>
+    <string name="settings_retake_survey_subtitle">Change allergies, cuisines, spice level and more</string>
 </resources>

@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.levelchef.core.designsystem.BadgeStyle
@@ -31,6 +34,7 @@ import com.levelchef.feature.home.generated.resources.home_challenge_done
 import com.levelchef.feature.home.generated.resources.home_cooking_sessions_label
 import com.levelchef.feature.home.generated.resources.home_ingredients_tried_label
 import com.levelchef.feature.home.generated.resources.home_level_badge
+import com.levelchef.feature.home.generated.resources.home_recommendations_loading
 import com.levelchef.feature.home.generated.resources.home_xp_to_next_level
 import org.jetbrains.compose.resources.stringResource
 
@@ -116,6 +120,27 @@ internal fun WeeklyChallengeSection(state: HomeUiState, onDoneClick: () -> Unit)
             }
         },
     )
+}
+
+/** Shown under "Recommended for you" while the first recommendations are generated. */
+@Composable
+internal fun RecommendationsLoadingRow() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(20.dp),
+            strokeWidth = 2.dp,
+            color = LevelChefTheme.colors.accentPrimary,
+        )
+        Text(
+            stringResource(Res.string.home_recommendations_loading),
+            color = LevelChefTheme.colors.textSecondary,
+            style = LevelChefTextStyles.bodySmall,
+        )
+    }
 }
 
 @Composable

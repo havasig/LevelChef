@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /** Loads [HomeUiState] from the domain layer, including the active week's challenge from
@@ -24,24 +25,29 @@ class HomeViewModel(
     private val getChefLevelUseCase: GetChefLevelUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow(HomeUiState.Initial)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
         refresh()
     }
 
+    /**
+     * Loads the stats (local, fast) first, then the recommendations — a live generation can take tens
+     * of seconds, and the stats shouldn't wait for it. While recommendations load, the previous ones
+     * stay on screen and [HomeUiState.recommendationsLoading] is set.
+     */
     fun refresh() {
         viewModelScope.launch {
             val profile = userProfileRepository.getProfile()
             val level = getChefLevelUseCase()
             val lastCookedSession = cookingSessionRepository.mostRecent()
-            val recommendations = recipeRepository.getRecommendations()
             val challenge = weeklyChallengeRepository.observeCurrent().first()
             // The session keeps the name as logged; re-resolve it so a language switch renames it too.
             val lastCookedName = lastCookedSession?.let { recipeRepository.getById(it.recipeId)?.name }
 
-            _uiState.value = HomeUiState(
+            _uiState.update { current ->
+                current.copy(
                 level = level,
                 currentXp = profile.totalXp,
                 xpForNextLevel = (ChefLevel.next(level) ?: level).xpThreshold,
@@ -52,9 +58,15 @@ class HomeViewModel(
                 challengeXp = challenge.xpReward,
                 challengeCompleted = challenge.isCompleted,
                 challengeEligible = challenge.progressCurrent >= challenge.progressTarget,
-                recommendations = recommendations.map { it.toRecommendation() },
                 lastCooked = lastCookedSession?.toLastCooked(nameOverride = lastCookedName),
-            )
+                recommendationsLoading = true,
+                )
+            }
+
+            val recommendations = recipeRepository.getRecommendations()
+            _uiState.update {
+                it.copy(recommendations = recommendations.map { rec -> rec.toRecommendation() }, recommendationsLoading = false)
+            }
         }
     }
 
