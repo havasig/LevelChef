@@ -28,8 +28,12 @@ function intVar(value, fallback) {
   return Number.isFinite(n) && n >= 0 ? n : fallback;
 }
 
-/** Validates the client body and rebuilds a minimal, safe upstream request from it. */
-export function buildUpstreamBody(raw, maxOutputTokens) {
+/**
+ * Validates the client body and rebuilds a minimal, safe upstream request from it. `thinkingLevel`
+ * caps Gemini 3's reasoning ("minimal", "low", …) — its default thinking can run past Cloudflare's
+ * 100 s response limit. Blank keeps the model default.
+ */
+export function buildUpstreamBody(raw, maxOutputTokens, thinkingLevel = "") {
   let parsed;
   try {
     parsed = JSON.parse(raw);
@@ -46,6 +50,7 @@ export function buildUpstreamBody(raw, maxOutputTokens) {
       responseMimeType: "application/json",
       responseSchema: schema,
       maxOutputTokens,
+      ...(thinkingLevel ? { thinkingConfig: { thinkingLevel } } : {}),
     },
   };
 }
@@ -71,7 +76,7 @@ export async function handleRequest(request, env, { now = new Date(), fetchImpl 
 
   const raw = await request.text();
   if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) return json({ error: "payload_too_large" }, 413);
-  const upstreamBody = buildUpstreamBody(raw, intVar(env.MAX_OUTPUT_TOKENS, 4096));
+  const upstreamBody = buildUpstreamBody(raw, intVar(env.MAX_OUTPUT_TOKENS, 4096), env.GEMINI_THINKING_LEVEL ?? "");
   if (!upstreamBody) return json({ error: "invalid_request" }, 400);
 
   const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";

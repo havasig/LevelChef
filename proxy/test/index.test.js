@@ -50,6 +50,12 @@ test("forwards a valid request with the key, a fixed model and a capped output",
   assert.equal(JSON.parse(calls[0].init.body).generationConfig.maxOutputTokens, 4096);
 });
 
+test("buildUpstreamBody sets the thinking level only when one is configured", () => {
+  const body = JSON.stringify({ contents: [{ parts: [{ text: "hi" }] }], generationConfig: { responseSchema: {} } });
+  assert.deepEqual(buildUpstreamBody(body, 100, "low").generationConfig.thinkingConfig, { thinkingLevel: "low" });
+  assert.equal("thinkingConfig" in buildUpstreamBody(body, 100).generationConfig, false);
+});
+
 test("rejects the sixth generation of a device on the same day", async () => {
   const e = env();
   const { fetchImpl } = upstream();

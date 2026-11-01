@@ -8,6 +8,8 @@ DEVICE_DAILY_LIMIT = "5"
 IP_DAILY_LIMIT = "20"
 GLOBAL_DAILY_LIMIT = "200"
 MAX_OUTPUT_TOKENS = "4096"
+# Gemini 3 reasoning depth; the model default can exceed Cloudflare's 100 s response limit. "" = model default.
+GEMINI_THINKING_LEVEL = "low"
 
 # Create with `npx wrangler kv namespace create RATE_LIMITS` and paste the printed id here.
 [[kv_namespaces]]
