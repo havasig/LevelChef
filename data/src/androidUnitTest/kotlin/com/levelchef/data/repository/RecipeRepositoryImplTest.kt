@@ -24,9 +24,14 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -76,8 +81,10 @@ class RecipeRepositoryImplTest {
     private lateinit var driver: SqlDriver
     private lateinit var database: LevelChefDatabase
     private lateinit var surveyRepository: FakeSurveyRepository
-    private var requestCount = 0
-    private var lastRequest: HttpRequestData? = null
+    // Written from MockEngine's own threads, read from the test's.
+    @Volatile private var requestCount = 0
+
+    @Volatile private var lastRequest: HttpRequestData? = null
 
     /** Read by the repositories built below through a `languageTag = { currentLanguageTag }`
      * lambda, so a test can switch it mid-test the same way [surveyRepository] is mutated. */
@@ -100,12 +107,15 @@ class RecipeRepositoryImplTest {
         proxyUrl: String = PROXY_URL,
         recipesJson: String = SINGLE_RECIPE_JSON,
         status: HttpStatusCode = HttpStatusCode.OK,
+        envelope: (String) -> String = ::geminiEnvelope,
+        responseGate: CompletableDeferred<Unit>? = null,
     ): RecipeRepositoryImpl {
         val mockEngine = MockEngine { request ->
             requestCount++
             lastRequest = request
+            responseGate?.await()
             respond(
-                content = geminiEnvelope(recipesJson),
+                content = envelope(recipesJson),
                 status = status,
                 headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
             )
@@ -135,6 +145,39 @@ class RecipeRepositoryImplTest {
 
         assertEquals(1, requestCount)
         assertEquals(listOf("lemon-garlic-chicken"), recommendations.map { it.id })
+    }
+
+    @Test
+    fun unknown_fields_in_the_gemini_envelope_are_ignored() = runTest {
+        // Gemini 3 adds a `thoughtSignature` next to each part's text (and other fields over time).
+        val gemini3Envelope = { recipesJson: String ->
+            val escapedText = JsonPrimitive(recipesJson).toString()
+            """{"candidates":[{"content":{"parts":[{"text":$escapedText,"thoughtSignature":"abc"}]}}],""" +
+                """"modelVersion":"gemini-3.8-flash"}"""
+        }
+
+        val recommendations = repository(envelope = gemini3Envelope).getRecommendations()
+
+        assertEquals(listOf("lemon-garlic-chicken"), recommendations.map { it.id })
+    }
+
+    @Test
+    fun concurrent_calls_share_a_single_generation() = runTest {
+        val gate = CompletableDeferred<Unit>()
+        val repository = repository(responseGate = gate)
+
+        val first = async(Dispatchers.Default) { repository.getRecommendations() }
+        val second = async(Dispatchers.Default) { repository.getRecommendations() }
+        // Real time, not runTest's virtual clock: MockEngine answers on its own threads. Hold the first
+        // response back long enough that an unserialized second call would also reach the network.
+        withContext(Dispatchers.Default) {
+            while (requestCount == 0) delay(10)
+            delay(300)
+        }
+        gate.complete(Unit)
+
+        assertEquals(first.await(), second.await())
+        assertEquals(1, requestCount)
     }
 
     @Test

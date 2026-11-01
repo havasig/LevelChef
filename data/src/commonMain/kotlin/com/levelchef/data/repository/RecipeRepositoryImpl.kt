@@ -18,10 +18,10 @@ import com.levelchef.data.recipe.generatedRecipesJson
 import com.levelchef.domain.repository.RecipeRepository
 import com.levelchef.domain.repository.SurveyRepository
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -29,6 +29,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -71,7 +73,14 @@ class RecipeRepositoryImpl(
 
     private val queries: GeneratedRecipeQueries get() = database.generatedRecipeQueries
 
-    override suspend fun getRecommendations(): List<Recipe> {
+    /** Serializes [getRecommendations]: Home asks again on resume while a slow first generation is
+     * still in flight, and without this both calls would miss the cache and each spend a generation of
+     * the proxy's daily quota. The second caller now waits and is served the first one's cached batch. */
+    private val generationLock = Mutex()
+
+    override suspend fun getRecommendations(): List<Recipe> = generationLock.withLock { cachedOrGenerated() }
+
+    private suspend fun cachedOrGenerated(): List<Recipe> {
         val survey = surveyRepository.observeResponse().first() ?: return fallbackRecipes(languageTag())
         val fingerprint = fingerprint(survey, languageTag())
 
@@ -118,7 +127,9 @@ class RecipeRepositoryImpl(
             Logger.w { "Gemini recommendation request failed: ${response.status}" }
             return null
         }
-        val recipesJson = response.body<GeminiResponse>().generatedRecipesJson()
+        // Decoded with the lenient [json], not the HttpClient's own — Gemini adds fields (e.g. Gemini 3's
+        // `thoughtSignature`) that a strict decoder rejects.
+        val recipesJson = json.decodeFromString<GeminiResponse>(response.bodyAsText()).generatedRecipesJson()
         if (recipesJson == null) {
             Logger.w { "Gemini response had no generated content" }
             return null
