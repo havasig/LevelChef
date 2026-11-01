@@ -56,12 +56,26 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8: shrinks, optimizes and obfuscates the shipped app. Libraries ship their own rules;
+            // proguard-rules.pro covers the rest.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = if (hasReleaseKeystore) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")
             }
+        }
+        // Exactly the release build (R8 included) but debug-signed and installable next to the
+        // debug app — for smoke-testing a minified build on a device without the release keystore
+        // and without wiping the debug install's data: ./gradlew :androidApp:installQa
+        create("qa") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".qa"
+            versionNameSuffix = "-qa"
+            matchingFallbacks += listOf("release")
         }
     }
 
@@ -69,6 +83,17 @@ android {
     // lists LevelChef in Settings > Apps > Language with a per-app override — no custom UI needed.
     androidResources {
         generateLocaleConfig = true
+    }
+}
+
+// A Play Store upload must never be debug-signed: the debug fallback above only exists so
+// `./gradlew build` (which assembles release) keeps working on CI and contributors' machines.
+tasks.matching { it.name == "bundleRelease" }.configureEach {
+    doFirst {
+        check(hasReleaseKeystore) {
+            "bundleRelease needs RELEASE_STORE_FILE / RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / " +
+                "RELEASE_KEY_PASSWORD (local.properties or env) — refusing to build a debug-signed bundle."
+        }
     }
 }
 

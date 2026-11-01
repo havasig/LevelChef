@@ -41,16 +41,31 @@ Dependency direction is one-way: `feature:*` → `core:designsystem`/`core:ui` (
 
 Live recommendations go through a small Cloudflare Worker in [`proxy/`](proxy/), so the Gemini API
 key stays server-side (a key inside the APK can be extracted by anyone) and usage is capped where a
-modified client cannot bypass it. Per UTC day, only *successful* generations count:
+modified client cannot bypass it. **The app never sends a prompt**: it posts only the onboarding
+answers (enum names) and the content language (`{"survey": {…}, "language": "en" | "hu"}`); the Worker
+validates every value against a whitelist and builds the prompt and response schema itself, so the
+endpoint can't be used as a free general-purpose Gemini relay. Per UTC day, only *successful*
+generations count against the first three limits (the quota is reserved before the Gemini call and
+refunded if it fails):
 
 | Limit | Default | Setting (`proxy/wrangler.toml`) |
 |---|---|---|
 | per device (random per-install id) | 5 | `DEVICE_DAILY_LIMIT` |
 | per client IP | 20 | `IP_DAILY_LIMIT` |
-| global, all users | 200 | `GLOBAL_DAILY_LIMIT` |
+| global, all users | 20 | `GLOBAL_DAILY_LIMIT` |
+| upstream attempts per IP, failed ones included | 60 | `ATTEMPT_DAILY_LIMIT` |
+| burst, per IP | 3 / minute | `[[ratelimits]]` `BURST` binding |
 
-Over the limit the proxy answers HTTP 429 and the app quietly serves its cached/bundled recipes.
-The Worker also pins the model, caps the prompt (6000 chars), body (16 KB) and output tokens.
+**`GLOBAL_DAILY_LIMIT` must not exceed the Gemini key's own daily quota** — the free tier allows only
+20 `generateContent` requests a day for the model, which is why the default is 20. Enable billing on
+the Gemini project before raising it. Also note the free tier lets Google use prompts to improve its
+products; the prompt contains the user's diet and allergens, so a paid tier is the right choice for
+a public release (see [`docs/PRIVACY.md`](docs/PRIVACY.md)).
+
+Over a limit the proxy answers HTTP 429 (with `Retry-After`) and the app quietly serves its cached
+recipes or the bundled ones that fit the user's diet and allergens, and doesn't ask again until the
+`Retry-After` (or 5 minutes after any other failure) has passed. A Gemini 503 is retried once.
+The Worker also pins the model and caps the body (2 KB) and output tokens.
 
 One-time setup (needs a Cloudflare account and a Gemini key from Google AI Studio):
 
@@ -64,8 +79,10 @@ npx wrangler deploy                            # prints https://levelchef-recipe
 Then set `RECIPE_PROXY_URL=<that url>` in `local.properties` (dev builds) and as the repository
 **variable** `RECIPE_PROXY_URL` (release builds; not a secret). Also set a monthly budget alert and
 quota cap on the Gemini API project in Google Cloud as the last line of defence. `npm test` in
-`proxy/` runs the Worker's unit tests. KV is eventually consistent, so limits are approximate under
-bursts of simultaneous requests — fine at this scale.
+`proxy/` runs the Worker's unit tests. KV is eventually consistent and not atomic; reserving the quota
+before the upstream call plus the per-IP burst limiter keep concurrent requests from overshooting
+meaningfully. **The app and the Worker share the request contract — deploy the Worker together with
+an app release that changes it.**
 
 ## Signing a release build
 
@@ -84,7 +101,13 @@ RELEASE_KEY_PASSWORD=<key password>
 ```
 
 With all four set, `./gradlew :androidApp:bundleRelease` / `assembleRelease` produce a
-properly-signed artifact.
+properly-signed artifact. `bundleRelease` (the Play upload) **fails** without them rather than
+produce a debug-signed bundle.
+
+Release builds are shrunk, optimized and obfuscated by R8 (`androidApp/proguard-rules.pro`). To
+smoke-test exactly that minified build on a device without the release key — and without wiping a
+debug install — use the `qa` build type: `./gradlew :androidApp:installQa` installs it as
+`com.levelchef.android.qa`, next to the debug app (QA script SM-27).
 
 ### Publishing a GitHub release
 
