@@ -83,7 +83,7 @@ private const val INSTALL_ID_KEY = "levelchef.installId"
 /** A random per-install id the recipe proxy meters its daily quota by (see androidMain's `installId`). */
 private fun installId(): String {
     val defaults = NSUserDefaults.standardUserDefaults
-    return defaults.stringForKey(INSTALL_ID_KEY) ?: NSUUID().UUIDString().also {
+    return defaults.stringForKey(INSTALL_ID_KEY) ?: NSUUID().UUIDString.also {
         defaults.setObject(it, forKey = INSTALL_ID_KEY)
     }
 }
