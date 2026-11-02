@@ -244,7 +244,9 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 3. Start a short timer and leave it running until it reaches 0:00, without touching the phone.
    - **The screen does not turn off while the timer runs** (even past the device's screen timeout).
    - **At 0:00 the phone plays its notification sound and vibrates**, a **"Timer done!"** message
-     appears in the snackbar, and the chip reverts to idle. (In silent mode: vibration only.)
+     appears in the snackbar, and the chip reverts to idle. It uses the **alarm** channel like the Clock
+     app's timer, so it sounds **even with the ringer muted** (only Do Not Disturb blocking alarms
+     silences it); its volume follows the alarm volume.
 3a. Start a timer, press Home to leave the app for about a minute, then return.
    - **The countdown shows the real remaining time** (it didn't pause while away), and if it ran out
      while you were away **the alert played** and the chip is idle.
