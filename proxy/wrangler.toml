@@ -4,6 +4,11 @@ compatibility_date = "2025-01-01"
 
 [vars]
 GEMINI_MODEL = "gemini-3.8-flash"
+# Used when GEMINI_MODEL is still overloaded after a retry (503/500), out of its daily quota (429) or
+# gone (404). Free-tier daily limits are per model, so this also adds its quota to the day. "" = off.
+GEMINI_FALLBACK_MODEL = "gemini-3.5-flash-lite"
+# Thinking level for the fallback; "" = model default (a lite model may not accept GEMINI_THINKING_LEVEL).
+GEMINI_FALLBACK_THINKING_LEVEL = ""
 # Single-user phase: one device may use the whole free-tier day. Lower it (e.g. to 5) before more
 # people use the app, so one device can't starve everyone else.
 DEVICE_DAILY_LIMIT = "20"

@@ -19,6 +19,12 @@
 // still not atomic, so the optional BURST rate-limiting binding (see wrangler.toml) caps how many
 // requests one IP can have in flight per minute. GLOBAL_DAILY_LIMIT must not exceed the Gemini key's
 // own daily quota (the free tier allows 20 requests/day) or the excess users just get 502s.
+//
+// Model fallback: GEMINI_MODEL is tried first (a 500/503 is retried once). If it is still
+// overloaded, out of its daily quota (429) or no longer exists (404), and GEMINI_FALLBACK_MODEL is
+// set, the request goes to that model instead — with GEMINI_FALLBACK_THINKING_LEVEL, since a lighter
+// model may not support the primary's thinking setting. The response says which model answered
+// (X-Gemini-Model).
 
 const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -26,6 +32,8 @@ const MAX_BODY_BYTES = 2 * 1024;
 const KEY_TTL_SECONDS = 2 * 24 * 60 * 60;
 const RECOMMENDATION_COUNT = 5;
 const RETRYABLE_UPSTREAM = new Set([500, 503]);
+/** Upstream statuses that switch to GEMINI_FALLBACK_MODEL: overloaded, out of quota, model gone. */
+const FALLBACK_TRIGGERS = new Set([404, 429, 500, 503]);
 const RETRY_DELAY_MS = 1000;
 
 export const SURVEY_ENUMS = {
@@ -251,25 +259,34 @@ export async function handleRequest(
   const quotaKeys = [deviceKey, ipKey, globalKey];
   await Promise.all([...quotaKeys, attemptKey].map((key) => add(kv, key, 1)));
 
-  const model = env.GEMINI_MODEL || "gemini-3.8-flash";
-  const body = JSON.stringify(
-    buildUpstreamBody(recipeRequest, intVar(env.MAX_OUTPUT_TOKENS, 4096), env.GEMINI_THINKING_LEVEL ?? ""),
-  );
-  const callUpstream = () =>
+  const maxOutputTokens = intVar(env.MAX_OUTPUT_TOKENS, 4096);
+  const callModel = (model, thinkingLevel) =>
     fetchImpl(`${GEMINI_BASE}/${model}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-      body,
+      body: JSON.stringify(buildUpstreamBody(recipeRequest, maxOutputTokens, thinkingLevel)),
     });
+  // Gemini's error body names the cause (bad key, quota, unknown model); it never echoes the key.
+  const logFailure = async (model, response) =>
+    console.error(`Gemini ${response.status} (${model}): ${(await response.text()).slice(0, 500)}`);
 
-  let upstream = await callUpstream();
+  let model = env.GEMINI_MODEL || "gemini-3.8-flash";
+  let upstream = await callModel(model, env.GEMINI_THINKING_LEVEL ?? "");
   if (RETRYABLE_UPSTREAM.has(upstream.status)) {
     await sleep(retryDelayMs);
-    upstream = await callUpstream();
+    upstream = await callModel(model, env.GEMINI_THINKING_LEVEL ?? "");
+  }
+  // Still overloaded, out of its own daily quota, or gone: try the fallback model, if configured. The
+  // free tier's daily limit is per model, so this also adds the fallback's quota to the day.
+  const fallbackModel = env.GEMINI_FALLBACK_MODEL ?? "";
+  if (fallbackModel && fallbackModel !== model && FALLBACK_TRIGGERS.has(upstream.status)) {
+    await logFailure(model, upstream);
+    await add(kv, attemptKey, 1);
+    model = fallbackModel;
+    upstream = await callModel(model, env.GEMINI_FALLBACK_THINKING_LEVEL ?? "");
   }
   if (!upstream.ok) {
-    // Gemini's error body names the cause (bad key, quota, unknown model); it never echoes the key.
-    console.error(`Gemini ${upstream.status}: ${(await upstream.text()).slice(0, 500)}`);
+    await logFailure(model, upstream);
     await Promise.all(quotaKeys.map((key) => add(kv, key, -1)));
     // The app treats every non-2xx as "use the fallback"; a 429 also tells it to back off.
     if (upstream.status === 429) return json({ error: "quota_exceeded" }, 429, { "Retry-After": "3600" });
@@ -281,6 +298,7 @@ export async function handleRequest(
     headers: {
       "Content-Type": "application/json",
       "X-RateLimit-Remaining": String(Math.max(0, deviceLimit - deviceCount - 1)),
+      "X-Gemini-Model": model,
     },
   });
 }

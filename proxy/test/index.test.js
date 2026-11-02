@@ -171,6 +171,77 @@ test("a 503 from Gemini is retried once", async () => {
   assert.equal(calls.length, 2);
 });
 
+/** A fake Gemini whose answer depends on the model in the URL: `statuses[model]` is a list of
+ * statuses returned in turn (the last one repeats). */
+function upstreamByModel(statuses) {
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    const model = url.match(/models\/([^:]+):/)[1];
+    calls.push({ model, body: JSON.parse(init.body) });
+    const queue = statuses[model] ?? [404];
+    const status = queue.length > 1 ? queue.shift() : queue[0];
+    return new Response('{"candidates":[]}', { status });
+  };
+  return { calls, fetchImpl };
+}
+
+const FALLBACK = { GEMINI_MODEL: "big", GEMINI_FALLBACK_MODEL: "lite", GEMINI_THINKING_LEVEL: "low" };
+
+test("a primary still overloaded after its retry falls back to the fallback model", async () => {
+  const { calls, fetchImpl } = upstreamByModel({ big: [503], lite: [200] });
+  const response = await handleRequest(request(), env(FALLBACK), opts(fetchImpl));
+
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("X-Gemini-Model"), "lite");
+  assert.deepEqual(calls.map((c) => c.model), ["big", "big", "lite"]);
+});
+
+test("a primary out of its daily quota or gone falls back without a retry", async () => {
+  for (const status of [429, 404]) {
+    const { calls, fetchImpl } = upstreamByModel({ big: [status], lite: [200] });
+    const response = await handleRequest(request(), env(FALLBACK), opts(fetchImpl));
+    assert.equal(response.status, 200, `primary ${status}`);
+    assert.deepEqual(calls.map((c) => c.model), ["big", "lite"]);
+  }
+});
+
+test("the fallback gets its own thinking level, not the primary's", async () => {
+  const { calls, fetchImpl } = upstreamByModel({ big: [429], lite: [200] });
+  await handleRequest(request(), env(FALLBACK), opts(fetchImpl));
+
+  assert.deepEqual(calls[0].body.generationConfig.thinkingConfig, { thinkingLevel: "low" });
+  assert.equal("thinkingConfig" in calls[1].body.generationConfig, false);
+  const { calls: withLevel, fetchImpl: f2 } = upstreamByModel({ big: [429], lite: [200] });
+  await handleRequest(request(), env({ ...FALLBACK, GEMINI_FALLBACK_THINKING_LEVEL: "minimal" }), opts(f2));
+  assert.deepEqual(withLevel[1].body.generationConfig.thinkingConfig, { thinkingLevel: "minimal" });
+});
+
+test("a client error from the primary does not fall back", async () => {
+  const { calls, fetchImpl } = upstreamByModel({ big: [400], lite: [200] });
+  const response = await handleRequest(request(), env(FALLBACK), opts(fetchImpl));
+
+  assert.equal(response.status, 502);
+  assert.deepEqual(calls.map((c) => c.model), ["big"]);
+});
+
+test("when both models fail the quota is refunded and the fallback's status decides the answer", async () => {
+  const e = env({ ...FALLBACK, DEVICE_DAILY_LIMIT: "1" });
+  const failing = upstreamByModel({ big: [503], lite: [429] });
+  const response = await handleRequest(request(), e, opts(failing.fetchImpl));
+  assert.equal(response.status, 429);
+
+  const ok = upstreamByModel({ big: [200] });
+  assert.equal((await handleRequest(request(), e, opts(ok.fetchImpl))).status, 200);
+});
+
+test("without a fallback model configured, a failing primary is final", async () => {
+  const { calls, fetchImpl } = upstreamByModel({ big: [503] });
+  const response = await handleRequest(request(), env({ GEMINI_MODEL: "big" }), opts(fetchImpl));
+
+  assert.equal(response.status, 502);
+  assert.deepEqual(calls.map((c) => c.model), ["big", "big"]);
+});
+
 test("an upstream 429 (Gemini quota) is passed on as 429 with Retry-After, without the upstream status", async () => {
   const { fetchImpl } = upstream(429);
   const response = await handleRequest(request(), env(), opts(fetchImpl));

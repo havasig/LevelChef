@@ -64,7 +64,11 @@ a public release (see [`docs/PRIVACY.md`](docs/PRIVACY.md)).
 
 Over a limit the proxy answers HTTP 429 (with `Retry-After`) and the app quietly serves its cached
 recipes or the bundled ones that fit the user's diet and allergens, and doesn't ask again until the
-`Retry-After` (or 5 minutes after any other failure) has passed. A Gemini 503 is retried once.
+`Retry-After` (or 5 minutes after any other failure) has passed. A Gemini 503 is retried once; if the model is still overloaded, out of its own daily quota or gone,
+the Worker switches to `GEMINI_FALLBACK_MODEL` (default `gemini-3.5-flash-lite`; `""` turns it off) —
+free-tier daily limits are per model, so the fallback also adds its quota to the day (raise
+`GLOBAL_DAILY_LIMIT` by the fallback's daily limit to use it). The answering model is in the
+`X-Gemini-Model` response header.
 The Worker also pins the model and caps the body (2 KB) and output tokens.
 
 One-time setup (needs a Cloudflare account and a Gemini key from Google AI Studio):
