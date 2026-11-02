@@ -4,9 +4,12 @@ compatibility_date = "2025-01-01"
 
 [vars]
 GEMINI_MODEL = "gemini-3.8-flash"
-DEVICE_DAILY_LIMIT = "5"
+# Single-user phase: one device may use the whole free-tier day. Lower it (e.g. to 5) before more
+# people use the app, so one device can't starve everyone else.
+DEVICE_DAILY_LIMIT = "20"
 IP_DAILY_LIMIT = "20"
-# Must not exceed the Gemini key's own daily quota (free tier: 20 requests/day). Raise after enabling billing.
+# Must not exceed the Gemini key's own daily quota: the free tier allows 20 requests/day for this
+# model, a hard limit on Google's side — raising this number alone gains nothing.
 GLOBAL_DAILY_LIMIT = "20"
 # Upstream attempts per IP per day, failed ones included — stops hammering a failing Gemini.
 ATTEMPT_DAILY_LIMIT = "60"

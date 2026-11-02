@@ -50,7 +50,7 @@ refunded if it fails):
 
 | Limit | Default | Setting (`proxy/wrangler.toml`) |
 |---|---|---|
-| per device (random per-install id) | 5 | `DEVICE_DAILY_LIMIT` |
+| per device (random per-install id) | 20 while the app has a single user (lower to e.g. 5 before sharing it) | `DEVICE_DAILY_LIMIT` |
 | per client IP | 20 | `IP_DAILY_LIMIT` |
 | global, all users | 20 | `GLOBAL_DAILY_LIMIT` |
 | upstream attempts per IP, failed ones included | 60 | `ATTEMPT_DAILY_LIMIT` |
@@ -83,6 +83,9 @@ quota cap on the Gemini API project in Google Cloud as the last line of defence.
 before the upstream call plus the per-IP burst limiter keep concurrent requests from overshooting
 meaningfully. **The app and the Worker share the request contract — deploy the Worker together with
 an app release that changes it.**
+
+Releasing on Google Play — tracks, policy forms, store texts: [`docs/PLAY_RELEASE.md`](docs/PLAY_RELEASE.md),
+[`docs/STORE_LISTING.md`](docs/STORE_LISTING.md), [`docs/PRIVACY.md`](docs/PRIVACY.md), [`docs/TERMS.md`](docs/TERMS.md).
 
 ## Signing a release build
 
