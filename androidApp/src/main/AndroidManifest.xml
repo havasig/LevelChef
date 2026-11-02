@@ -13,6 +13,7 @@
         android:theme="@style/Theme.LevelChef">
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:theme="@style/Theme.LevelChef">
             <intent-filter>

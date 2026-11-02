@@ -13,14 +13,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 private const val SECONDS_PER_MINUTE = 60
 private const val TICK_MS = 1000L
+private const val MS_PER_SECOND = 1000L
 
 class RecipeDetailViewModel(
     private val recipeId: String,
     recipeRepository: RecipeRepository,
     private val savedRecipeRepository: SavedRecipeRepository,
+    /** Wall-clock milliseconds. The countdown is measured against it rather than counting ticks, so
+     * it stays correct when the app is backgrounded or the coroutine is delayed. */
+    private val nowMillis: () -> Long = { Clock.System.now().toEpochMilliseconds() },
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RecipeDetailUiState())
@@ -59,16 +64,24 @@ class RecipeDetailViewModel(
         }
     }
 
-    /** Starts a countdown for [stepIndex]; a timer already running on another step is cancelled. */
+    /** Starts a countdown for [stepIndex]; a timer already running on another step is cancelled.
+     * The remaining time is recomputed from the wall clock on every tick, so a late tick (the app was
+     * in the background, the device dozed) never makes the timer run long. */
     fun startTimer(stepIndex: Int, minutes: Int) {
         timerJob?.cancel()
+        val endsAt = nowMillis() + minutes * SECONDS_PER_MINUTE * MS_PER_SECOND
         _uiState.update { it.copy(runningTimerStepIndex = stepIndex, timerSecondsRemaining = minutes * SECONDS_PER_MINUTE) }
         timerJob = viewModelScope.launch {
-            while (_uiState.value.timerSecondsRemaining > 0) {
+            while (true) {
                 delay(TICK_MS)
-                _uiState.update { it.copy(timerSecondsRemaining = it.timerSecondsRemaining - 1) }
+                val remainingMs = endsAt - nowMillis()
+                if (remainingMs <= 0) break
+                val remainingSeconds = ((remainingMs + MS_PER_SECOND - 1) / MS_PER_SECOND).toInt()
+                _uiState.update { it.copy(timerSecondsRemaining = remainingSeconds) }
             }
-            _uiState.update { it.copy(runningTimerStepIndex = null, transientMessage = TransientMessage.TIMER_DONE) }
+            _uiState.update {
+                it.copy(runningTimerStepIndex = null, timerSecondsRemaining = 0, transientMessage = TransientMessage.TIMER_DONE)
+            }
         }
     }
 

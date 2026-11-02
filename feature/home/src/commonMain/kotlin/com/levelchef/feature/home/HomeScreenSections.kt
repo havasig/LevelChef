@@ -107,6 +107,11 @@ internal fun WeeklyChallengeSection(state: HomeUiState, onDoneClick: () -> Unit)
         xp = state.challengeXp,
         inProgress = true,
         completed = state.challengeCompleted,
+        description = weeklyChallengeDescription(state.challengeId, fallback = state.challengeDescription)
+            .takeIf { it.isNotBlank() },
+        progress = state.challengeProgressTarget.takeIf { it > 0 }?.let { target ->
+            "${state.challengeProgressCurrent.coerceAtMost(target)} / $target"
+        },
         action = if (state.challengeCompleted) {
             null
         } else {

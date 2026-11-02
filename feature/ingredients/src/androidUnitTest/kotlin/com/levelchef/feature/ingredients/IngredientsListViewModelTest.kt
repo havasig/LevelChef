@@ -56,6 +56,23 @@ class IngredientsListViewModelTest {
     }
 
     @Test
+    fun a_newly_added_ingredient_opens_its_category_so_it_is_visible() = runTest(dispatcher) {
+        val repository = FakeIngredientRepository(
+            listOf(ingredient("apple", IngredientCategory.FRUIT), ingredient("beef", IngredientCategory.MEAT)),
+        )
+        val vm = IngredientsListViewModel(repository)
+        advanceUntilIdle()
+        assertTrue(vm.uiState.value.sections.none { it.expanded })
+
+        repository.save(ingredient("zucchini-from-form", IngredientCategory.FRUIT))
+        advanceUntilIdle()
+
+        val sections = vm.uiState.value.sections.associateBy { it.category }
+        assertTrue(sections.getValue(IngredientCategory.FRUIT).expanded)
+        assertFalse(sections.getValue(IngredientCategory.MEAT).expanded)
+    }
+
+    @Test
     fun is_empty_when_nothing_is_stored() = runTest(dispatcher) {
         val vm = IngredientsListViewModel(FakeIngredientRepository())
 

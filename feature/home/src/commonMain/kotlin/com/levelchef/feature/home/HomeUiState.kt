@@ -15,6 +15,10 @@ data class HomeUiState(
     val challengeXp: Int = 200,
     val challengeCompleted: Boolean = false,
     val challengeEligible: Boolean = false,
+    /** Catalog description, an English fallback — the screen localizes it by [challengeId]. */
+    val challengeDescription: String = "",
+    val challengeProgressCurrent: Int = 0,
+    val challengeProgressTarget: Int = 0,
     val recommendations: List<RecipeRecommendation> = sampleRecommendations,
     val lastCooked: LastCooked? = LastCooked("Tofu stir-fry", daysAgo = 3, stars = 3),
     /** True while recommendations are being fetched (a live generation can take tens of seconds). */

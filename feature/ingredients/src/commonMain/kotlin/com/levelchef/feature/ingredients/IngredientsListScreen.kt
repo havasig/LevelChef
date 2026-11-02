@@ -27,6 +27,7 @@ import com.levelchef.feature.ingredients.generated.resources.Res
 import com.levelchef.feature.ingredients.generated.resources.ingredients_add
 import com.levelchef.feature.ingredients.generated.resources.ingredients_empty
 import com.levelchef.feature.ingredients.generated.resources.ingredients_list_title
+import com.levelchef.feature.ingredients.generated.resources.ingredients_tried_hint
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -60,6 +61,13 @@ fun IngredientsListScreen(
                     .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
+                // The Home card counts only ingredients you added; this explains why the starter
+                // pantry listed here doesn't raise it.
+                Text(
+                    stringResource(Res.string.ingredients_tried_hint),
+                    color = LevelChefTheme.colors.textSecondary,
+                    style = LevelChefTextStyles.bodySmall,
+                )
                 state.sections.forEach { section ->
                     IngredientCategoryBlock(section = section, onIngredientClick = onIngredientClick)
                 }

@@ -58,6 +58,9 @@ class HomeViewModel(
                 challengeXp = challenge.xpReward,
                 challengeCompleted = challenge.isCompleted,
                 challengeEligible = challenge.progressCurrent >= challenge.progressTarget,
+                challengeDescription = challenge.description,
+                challengeProgressCurrent = challenge.progressCurrent,
+                challengeProgressTarget = challenge.progressTarget,
                 lastCooked = lastCookedSession?.toLastCooked(nameOverride = lastCookedName),
                 recommendationsLoading = true,
                 )

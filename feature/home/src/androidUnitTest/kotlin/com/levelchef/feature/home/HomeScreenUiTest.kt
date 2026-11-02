@@ -40,6 +40,39 @@ class HomeScreenUiTest {
     }
 
     @Test
+    fun the_weekly_challenge_says_what_to_do_and_how_far_along_it_is() {
+        launch(
+            HomeUiState.Initial.copy(
+                challengeId = "three-meals",
+                challengeTitle = "Three Home-Cooked Meals",
+                challengeXp = 150,
+                challengeProgressCurrent = 1,
+                challengeProgressTarget = 3,
+                recommendationsLoading = false,
+            ),
+        )
+
+        compose.onNodeWithText("Log 3 cooking sessions before the week is out.").performScrollTo().assertExists()
+        compose.onNodeWithText("In progress · 1 / 3").assertExists()
+    }
+
+    @Test
+    fun a_completed_challenge_drops_the_progress_counter() {
+        launch(
+            HomeUiState.Initial.copy(
+                challengeId = "quick-fire",
+                challengeCompleted = true,
+                challengeProgressCurrent = 1,
+                challengeProgressTarget = 1,
+                recommendationsLoading = false,
+            ),
+        )
+
+        compose.onNodeWithText("Cook a meal in 20 minutes or less.").performScrollTo().assertExists()
+        compose.onNodeWithText("Completed").assertExists()
+    }
+
+    @Test
     fun loaded_recommendations_replace_the_loading_row() {
         val loaded = HomeUiState.Initial.copy(recommendations = sampleRecommendations, recommendationsLoading = false)
         launch(loaded)

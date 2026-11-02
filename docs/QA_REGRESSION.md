@@ -10,7 +10,7 @@ For architecture see [`AGENTS.md`](../AGENTS.md); for the Git/CI workflow see
 > user‑visible behaviour updates this script in the same PR — see
 > [Extending this script](#extending-this-script) at the bottom.
 
-_Last updated: 2026-11-02 (release-readiness review — SM-24 diet/allergen-safe fallback, SM-25 accessibility, SM-26 ingredient form limits, SM-27 minified release smoke test, SM-28 proxy abuse checks; SM-11/17/20/23 updated) · covers through a third round of manual-QA fixes (iOS: the starter
+_Last updated: 2026-11-02 (open-issue fixes — timer alert/keep-awake/wall clock in SM-07, weekly-challenge goal and progress in SM-02, pantry hint and auto-expand in SM-08, portrait lock in SM-15; release-readiness review — SM-24 diet/allergen-safe fallback, SM-25 accessibility, SM-26 ingredient form limits, SM-27 minified release smoke test, SM-28 proxy abuse checks; SM-11/17/20/23 updated) · covers through a third round of manual-QA fixes (iOS: the starter
 pantry is now seeded on first launch same as Android, the Settings "Version" row shows a real
 number instead of a bare "v", and Settings' Danger Zone section now re-localizes with the rest of
 the screen on a language switch), a second round of manual-QA fixes (Trophy Room's
@@ -144,8 +144,10 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 4. Look at the weekly‑challenge card.
    - **Shows the current week's real challenge** (title + "+N XP" badge) — one of a rotating catalog
      of 9, picked deterministically per calendar week (**Monday–Sunday in the device's time zone**),
-     so the exact title/target varies by when you test. The status line reads **"In progress"**
-     until its condition is met.
+     so the exact title/target varies by when you test. **Under the title a line says what to do**
+     (e.g. "Log 3 cooking sessions before the week is out."), and the status line reads
+     **"In progress · N / M"** (progress toward the target) until it's done, then **"Completed"**.
+     In Hungarian the description is translated too.
    - The **"Done"** button is **disabled** until the challenge's condition is actually met (e.g. log
      enough cooking sessions, per the challenge's own description) — tapping it before then is
      expected to do nothing, since it's disabled.
@@ -239,8 +241,13 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 2. Start a timer, then tap a **different** step's timer chip before the first finishes.
    - **The first step's chip reverts to idle and the newly-tapped step's chip starts counting down
      instead** — only one timer runs at a time.
-3. Start a short timer and leave it running until it reaches 0:00.
-   - **A "Timer done!" message appears in the snackbar**, and the chip reverts to idle.
+3. Start a short timer and leave it running until it reaches 0:00, without touching the phone.
+   - **The screen does not turn off while the timer runs** (even past the device's screen timeout).
+   - **At 0:00 the phone plays its notification sound and vibrates**, a **"Timer done!"** message
+     appears in the snackbar, and the chip reverts to idle. (In silent mode: vibration only.)
+3a. Start a timer, press Home to leave the app for about a minute, then return.
+   - **The countdown shows the real remaining time** (it didn't pause while away), and if it ran out
+     while you were away **the alert played** and the chip is idle.
 4. Tap the **"Related video"** row.
    - **The device leaves the app and opens the link** in a browser / YouTube.
 5. Return to the app.
@@ -253,6 +260,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
 
 1. Open the Ingredients list (Home → "Ingredients tried" card).
    - **The screen title reads "Ingredients tried"** — matching the Home card, not "Used Ingredients".
+   - **A line under the title explains** that the starter ingredients don't count as tried and that
+     **+** adds the ones you cook with — which is why the Home card can read 0 while the list is full.
    - **On a fresh install the list is pre‑populated** (~18 items) **and grouped by category** (Meat, Dairy, Vegetables, …). No bottom bar.
    - **No ingredient shows a missing‑glyph ("tofu") box in place of its emoji.** Bell pepper is a
      known exception on an un‑updated device (its emoji predates this app's `minSdk`, see
@@ -267,6 +276,8 @@ A crash = an `AndroidRuntime` fatal exception and/or the app disappearing. Alway
    - **Returns to the list; the item is gone.**
 6. From the list, tap **＋**, enter a name, pick a category and unit, optionally enter macros, tap **Save**.
    - **The new item appears in the correct category group**, with an emoji derived from the category.
+   - **That category is already expanded** (no "Show all" tap needed), so the new item is visible
+     even when the category has more than four items.
 7. Try to save the form with a **blank name**.
    - **Save is blocked / a validation error is shown.**
 7a. With the Hungarian keyboard (or any keyboard that offers `,`), type protein **"2,5"**.
@@ -380,8 +391,9 @@ following the raw system appearance regardless).
    - **Lands directly on Home** — Recipe Detail and Meal Review are both popped, so Back from Home does not return to either.
 5. Switch between the Home / Recipes / Trophies tabs repeatedly.
    - **Each tab restores its previous state;** no duplicate stacking of a tab.
-6. Rotate the device on Recipe Detail and on the Ingredients list.
-   - **No crash;** scroll position is roughly kept; **layout still clears the system bars.**
+6. With auto‑rotate on, turn the device sideways on Recipe Detail and on the Ingredients list.
+   - **The screen stays in portrait** (the app is portrait‑locked, see SM-15); scroll position is kept;
+     **layout still clears the system bars.**
 7. Recipes tab → tap a saved recipe → Back.
    - **Opens Recipe Detail, then returns to the Recipes tab** with the bottom bar visible again — see
      **SM-18**.
@@ -416,8 +428,10 @@ following the raw system appearance regardless).
 
 1. In Developer Options, enable **"Don't keep activities"**. Open a Recipe Detail, change servings and tick some ingredients, switch to another app, then return.
    - **The screen restores without crashing.** (Servings/checklist resetting to defaults is acceptable.)
-2. Toggle the theme in Settings, then rotate the device several times quickly.
-   - **No crash; the theme stays consistent.**
+2. Toggle the theme in Settings, then rotate the device several times quickly (auto‑rotate on).
+   - **The app stays in portrait on every screen** — it is locked to portrait — with no crash and the
+     theme unchanged. (On tablets/foldables of 600 dp+ width Android 16 ignores the lock; the app must
+     still lay out without crashing there.)
 3. Turn on airplane mode, open a Recipe Detail, tap **"Related video"**.
    - **The app does not crash;** the browser shows its own offline error.
 4. Disable "Don't keep activities" when done.
