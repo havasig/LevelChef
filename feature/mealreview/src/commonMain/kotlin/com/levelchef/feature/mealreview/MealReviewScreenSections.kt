@@ -3,6 +3,7 @@ package com.levelchef.feature.mealreview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -59,9 +61,11 @@ import com.levelchef.feature.mealreview.generated.resources.meal_review_rating_l
 import com.levelchef.feature.mealreview.generated.resources.meal_review_rating_star
 import com.levelchef.feature.mealreview.generated.resources.meal_review_rating_value
 import com.levelchef.feature.mealreview.generated.resources.meal_review_save
+import com.levelchef.feature.mealreview.generated.resources.meal_review_save_hint
 import com.levelchef.feature.mealreview.generated.resources.meal_review_unit_grams
 import com.levelchef.feature.mealreview.generated.resources.meal_review_unit_kcal
 import com.levelchef.feature.mealreview.generated.resources.meal_review_xp_badge
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /** Section composables for [MealReviewScreen], kept internal to this feature. */
@@ -92,21 +96,23 @@ internal fun RecipeHeaderCard(recipeName: String, xpReward: Int) {
 internal fun RatingSection(rating: Int, onRatingChange: (Int) -> Unit) {
     SectionCard {
         SectionLabel(stringResource(Res.string.meal_review_rating_label))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             val colors = LevelChefTheme.colors
             repeat(MAX_RATING) { index ->
                 val starValue = index + 1
                 // A bare 20dp Icon.clickable{} falls well under Android's 48dp touch-target
-                // guidance; the surrounding Box gives each star a properly sized tap area
-                // (matching NeutralStepperButton/SurfaceStepperButton below) while the icon
-                // itself stays visually 20dp.
+                // guidance; the surrounding 48dp Box gives each star a full-size tap area while the
+                // icon itself stays visually 20dp. `selectable` + RadioButton lets TalkBack announce
+                // which star is the current rating.
                 Box(
-                    modifier = Modifier.size(32.dp).clickable { onRatingChange(starValue) },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .selectable(selected = starValue == rating, role = Role.RadioButton) { onRatingChange(starValue) },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         Icons.Filled.Star,
-                        contentDescription = stringResource(Res.string.meal_review_rating_star, starValue),
+                        contentDescription = pluralStringResource(Res.plurals.meal_review_rating_star, starValue, starValue),
                         tint = if (starValue <= rating) colors.accentPrimary else colors.border,
                         modifier = Modifier.size(20.dp),
                     )
@@ -367,12 +373,22 @@ private fun SurfaceStepperButton(symbol: String, contentDescription: String, onC
 }
 
 @Composable
-internal fun SaveButton(enabled: Boolean, onClick: () -> Unit) {
-    LevelChefButton(
-        label = stringResource(Res.string.meal_review_save),
-        type = ButtonType.PRIMARY,
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.fillMaxWidth(),
-    )
+internal fun SaveButton(enabled: Boolean, showRatingHint: Boolean, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LevelChefButton(
+            label = stringResource(Res.string.meal_review_save),
+            type = ButtonType.PRIMARY,
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        // The rating is scrolled out of view by the time Save is reached — say why Save is disabled.
+        if (showRatingHint) {
+            Text(
+                stringResource(Res.string.meal_review_save_hint),
+                color = LevelChefTheme.colors.textSecondary,
+                style = LevelChefTextStyles.bodySmall,
+            )
+        }
+    }
 }

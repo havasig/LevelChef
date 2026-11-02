@@ -44,19 +44,19 @@ private const val SETTINGS_ROUTE = "settings"
 
 private const val RECIPE_ID_ARG = "recipeId"
 private const val RECIPE_DETAIL_ROUTE = "recipeDetail/{$RECIPE_ID_ARG}"
-private fun recipeDetailPath(id: String) = "recipeDetail/$id"
+private fun recipeDetailPath(id: String) = "recipeDetail/${encodeRouteArg(id)}"
 
 private const val MEAL_REVIEW_ROUTE = "mealReview/{$RECIPE_ID_ARG}"
-private fun mealReviewPath(id: String) = "mealReview/$id"
+private fun mealReviewPath(id: String) = "mealReview/${encodeRouteArg(id)}"
 
 private const val INGREDIENTS_ROUTE = "ingredients"
 private const val INGREDIENT_ID_ARG = "ingredientId"
 private const val INGREDIENT_DETAIL_ROUTE = "ingredients/{$INGREDIENT_ID_ARG}"
 private const val INGREDIENT_FORM_ROUTE = "ingredientForm?$INGREDIENT_ID_ARG={$INGREDIENT_ID_ARG}"
 
-private fun ingredientDetailPath(id: String) = "ingredients/$id"
+private fun ingredientDetailPath(id: String) = "ingredients/${encodeRouteArg(id)}"
 private fun ingredientFormPath(id: String? = null) =
-    if (id == null) "ingredientForm" else "ingredientForm?$INGREDIENT_ID_ARG=$id"
+    if (id == null) "ingredientForm" else "ingredientForm?$INGREDIENT_ID_ARG=${encodeRouteArg(id)}"
 
 /**
  * The iOS counterpart of androidApp's `LevelChefAppContent` — same route graph (Home, Recipes,

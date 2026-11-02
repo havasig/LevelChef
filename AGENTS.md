@@ -44,16 +44,22 @@ core:database  ◀── data only
   day or week (badges, streaks, weekly challenges) reads dates in the **device time zone** via an
   injected `timeZone` provider (tests pass a fixed zone); challenge weeks run Monday to Sunday.
   The starter pantry (`DEFAULT_INGREDIENTS`) doesn't count as ingredients tried or toward badges.
-  `RecipeRepositoryImpl` builds a prompt from the stored `SurveyResponse` (see `SurveyRepository`)
-  and the current app language (an injected `languageTag` provider — `data` can't depend on
+  `RecipeRepositoryImpl` posts the stored `SurveyResponse` (see `SurveyRepository`) as enum names
+  plus the content language (an injected `languageTag` provider — `data` can't depend on
   `feature:settings`, so `databaseModule` reads `AppCompatDelegate.getApplicationLocales()`
-  directly), calls the Gemini API **through the `proxy/` Cloudflare Worker** (structured JSON output; the app
-  never holds the Gemini key — the Worker does, and enforces the per-device/IP/global daily quota,
-  429 → fallback; the app sends a random per-install `X-Device-Id`), and caches the result in
-  `generatedRecipe`; a repeat call with an unchanged survey *and* language is served from the
-  cache instead of calling Gemini again. A blank `RECIPE_PROXY_URL` (see root `README.md`), no
-  survey yet, or any Gemini/cache failure falls back to a small bundled recipe set — English or
-  Hungarian, matching the app language — recommendations are never empty. `SavedRecipeRepositoryImpl`
+  directly, falling back to the device language for "System") to the **`proxy/` Cloudflare Worker**.
+  **The app never sends a prompt** — the Worker validates the enums, builds the prompt and schema
+  itself and calls Gemini (the app never holds the key; the Worker enforces the
+  per-device/IP/global daily quota, 429 → fallback; the app sends a random per-install
+  `X-Device-Id`). Changing the request shape means changing `proxy/src/index.js` in the same PR and
+  deploying both together. Generated recipes are **untrusted**: each gets an app-generated UUID id
+  (never the model's slug) and is sanitized (`GeneratedRecipeSanitizer.kt`: numbers clamped, video
+  link rebuilt from the name) before it's cached in `generatedRecipe`, keyed by a survey+language
+  fingerprint — any earlier batch for the same fingerprint is reused. After a failure it backs off
+  (5 min, or a 429's `Retry-After`). A blank `RECIPE_PROXY_URL` (see root `README.md`), no survey yet,
+  or any proxy/Gemini failure falls back to the bundled recipes (`BundledRecipes.kt`, English or
+  Hungarian) **filtered to the survey's diet and allergens** — every bundled recipe needs a
+  `Suitability` entry, and the vegan, allergen-free ones guarantee recommendations are never empty. `SavedRecipeRepositoryImpl`
   backs the recipe-detail "Save" bookmark.
 - **`core:ui`** — Compose Multiplatform theme only (`Color`, `Theme`, `Type`). Follows the system light/dark setting; flat design.
 - **`core:designsystem`** — reusable Compose Multiplatform components (`LevelChefBadge`, `LevelChefTag`, `LevelChefRecipeCard`, …). Their built-in text (screen-reader labels, status chips, default button labels) comes from `core:designsystem`'s own `commonMain/composeResources/values{,-hu}/strings.xml`. Depends on `core:ui`. **One public type per file** (like `core:model`); a component's data classes go in their own files (`LevelChefNavItem.kt`, `LevelChefListEntry.kt`).
@@ -65,7 +71,11 @@ core:database  ◀── data only
   pantry: list / detail / add-edit / delete, Figma nodes `437:1054` / `453:1520` / `447:1484`,
   reached from the Home "Ingredients tried" card); `feature:recipedetail` (Figma node `371:728` —
   data-driven recipe detail: servings stepper, ingredient checklist, numbered steps, "Save"
-  bookmark, "I made it"; reached by tapping a Home recommendation card, `recipeDetail/{recipeId}`);
+  bookmark, "I made it"; the step timer counts down against the wall clock, keeps the screen on and
+  alerts with sound + vibration via the `expect`/`actual` `KeepScreenOn`/`rememberTimerAlarm` in
+  `TimerEffects*.kt`; reached by tapping a Home recommendation card, `recipeDetail/{recipeId}` —
+  ids are `Uri.encode`d into routes in `LevelChefNav.kt`; external links open only via
+  `openWebLinkSafely`);
   `feature:mealreview` (Figma node `385:586` — "Log experience": rate a just-cooked recipe, add a
   note, adjust cook time/macros, then Save records the `CookingSession`; reached from recipe
   detail's "I made it", `mealReview/{recipeId}`, pops back to Home on save); `feature:trophyroom`
@@ -115,6 +125,10 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 - **Source sets** — every module (`core:model`, `core:database`, `domain`, `data`, `core:ui`/`core:designsystem`, and every `feature:*`) is now KMP, using `src/commonMain/kotlin` (+ `src/androidMain`/`src/iosMain`/`src/androidUnitTest` for the few things that are genuinely platform-specific, such as Robolectric/Roborazzi screenshot tests, or — `feature:settings` only — real platform APIs like `AppCompatDelegate`/`SharedPreferences` with no multiplatform equivalent). `feature:*` modules that need a platform binding for something like this follow `data`'s `databaseModule` pattern: the same top-level `val`/binding name declared once per source set (`androidMain`, `iosMain`), not an `expect`/`actual` class — Gradle links whichever source set matches the compile target, so a pure-Android consumer like `androidApp` needs no changes to keep resolving the Android one.
 - **Package root** — `com.levelchef.<module path>` (e.g. `com.levelchef.feature.home`, `com.levelchef.core.designsystem`).
 - **Compose screen pattern** (see `feature:home`): stateless `XScreen(state, on…)` + stateful `XRoute(viewModel = koinViewModel())` that collects `uiState`. UI state is a single `XUiState` data class with sensible defaults. Section composables live in `XScreenSections.kt`.
+- **Orientation** — the app is **portrait-only**: `android:screenOrientation="portrait"` on `MainActivity`
+  and portrait-only `UISupportedInterfaceOrientations` (+ `UIRequiresFullScreen` for iPad) in
+  `iosApp/iosApp/Info.plist`. Don't design for landscape; Android 16 still ignores the lock on
+  600dp+ screens, so layouts must not crash there.
 - **Screen chrome** — each feature screen renders its **own** top app bar (`LevelChefTopAppBar{Home,Inner,Search}`) as the first child of its root layout, with `Modifier.statusBarsPadding()`. The bottom navigation bar is *not* per-screen: it lives in `androidApp`'s app-level `Scaffold` (`LevelChefNav.kt`) and shows only on the top-level destinations (Home, Recipes, Trophies). A drill-down screen (back arrow, no bottom bar) also adds `Modifier.navigationBarsPadding()`.
 - **DI** — each feature that needs a ViewModel exposes a Koin `xModule` (`di/XModule.kt`) with `viewModel { … }`; register it in `LevelChefApplication.startKoin { modules(…) }`.
 - **Theme** — `LevelChefTheme` reads `isSystemInDarkTheme()`. The in-app Settings theme choice
@@ -161,6 +175,7 @@ Hard rules (enforced by `:konsist:test` — see `konsist/src/test/kotlin/com/lev
 ./gradlew :feature:home:recordRoborazziDebug   # (re)generate screenshot baselines
 ./gradlew :feature:home:verifyRoborazziDebug   # fail if a screen no longer matches its baseline
 ./gradlew :androidApp:installDebug      # deploy to a connected device/emulator
+./gradlew :androidApp:installQa         # R8-minified release build, debug-signed, id suffix .qa (QA SM-27)
 ```
 
 Run `./gradlew build detekt :konsist:test koverVerify` before every push (CI runs the same). detekt config

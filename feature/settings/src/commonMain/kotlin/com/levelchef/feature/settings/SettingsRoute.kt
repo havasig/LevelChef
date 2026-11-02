@@ -34,6 +34,7 @@ fun SettingsRoute(
             onReviewClick = openPlayStoreListing,
             onDeleteAccount = viewModel::deleteAccount,
             onClearOnboardingStorage = viewModel::clearOnboarding,
+            onRetakeSurvey = viewModel::clearOnboarding,
         ),
         onBackClick = onBackClick,
     )

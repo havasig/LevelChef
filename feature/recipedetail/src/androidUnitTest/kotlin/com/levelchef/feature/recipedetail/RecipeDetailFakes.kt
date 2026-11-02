@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 internal class FakeRecipeRepository(private val recipes: List<Recipe>) : RecipeRepository {
     override suspend fun getRecommendations(): List<Recipe> = recipes
     override suspend fun getById(id: String): Recipe? = recipes.firstOrNull { it.id == id }
+    override suspend fun deleteAll() = Unit
 }
 
 internal class FakeSavedRecipeRepository(initial: Set<String> = emptySet()) : SavedRecipeRepository {

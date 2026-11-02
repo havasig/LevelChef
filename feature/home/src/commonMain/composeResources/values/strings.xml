@@ -35,4 +35,14 @@
     <string name="home_last_cooked_today">today</string>
     <string name="home_last_cooked_one_day_ago">1 day ago</string>
     <string name="home_last_cooked_days_ago">%1$d days ago</string>
+    <string name="home_recommendations_loading">Finding recipes for you…</string>
+    <string name="home_challenge_three_meals_desc">Log 3 cooking sessions before the week is out.</string>
+    <string name="home_challenge_five_star_plate_desc">Rate one meal a full 5 stars.</string>
+    <string name="home_challenge_protein_push_desc">Cook a meal with at least 25 g of protein.</string>
+    <string name="home_challenge_xp_sprint_desc">Earn 400 XP from cooking this week.</string>
+    <string name="home_challenge_quick_fire_desc">Cook a meal in 20 minutes or less.</string>
+    <string name="home_challenge_light_bite_desc">Log a meal under 400 kcal.</string>
+    <string name="home_challenge_rate_three_desc">Rate 3 different meals this week.</string>
+    <string name="home_challenge_kitchen_journal_desc">Write an improvement note on a meal you cooked.</string>
+    <string name="home_challenge_four_day_streak_desc">Cook on 4 different days this week.</string>
 </resources>

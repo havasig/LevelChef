@@ -52,4 +52,5 @@
 
     <string name="ingredient_dialog_cancel">Cancel</string>
     <string name="ingredient_dialog_delete">Delete</string>
+    <string name="ingredients_tried_hint">The starter ingredients don't count as tried — tap + to add the ones you cook with.</string>
 </resources>

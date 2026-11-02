@@ -6,7 +6,9 @@ import com.levelchef.core.model.Ingredient
 import com.levelchef.core.model.IngredientCategory
 import com.levelchef.core.model.WeeklyChallenge
 import com.levelchef.domain.repository.BadgeRepository
+import com.levelchef.core.model.Recipe
 import com.levelchef.domain.repository.CookingSessionRepository
+import com.levelchef.domain.repository.RecipeRepository
 import com.levelchef.domain.repository.SavedRecipeRepository
 import com.levelchef.domain.repository.WeeklyChallengeRepository
 import kotlinx.coroutines.flow.Flow
@@ -66,6 +68,14 @@ private class FakeWeeklyChallengeRepository(private val log: CallLog) : WeeklyCh
     }
 }
 
+private class FakeRecipeRepository(private val log: CallLog) : RecipeRepository {
+    override suspend fun getRecommendations(): List<Recipe> = emptyList()
+    override suspend fun getById(id: String): Recipe? = null
+    override suspend fun deleteAll() {
+        log.calls += "generatedRecipes"
+    }
+}
+
 class DeleteAccountDataUseCaseTest {
 
     @Test
@@ -93,12 +103,13 @@ class DeleteAccountDataUseCaseTest {
             FakeSavedRecipeRepository(log),
             FakeBadgeRepository(log),
             FakeWeeklyChallengeRepository(log),
+            FakeRecipeRepository(log),
         )()
 
         assertTrue(ingredientRepository.stored.isEmpty())
         assertTrue(cookingSessionRepository.stored.isEmpty())
         assertEquals(listOf("apple"), ingredientRepository.deleted)
-        assertEquals(listOf("savedRecipes", "badges", "weeklyChallenges"), log.calls)
+        assertEquals(listOf("savedRecipes", "badges", "weeklyChallenges", "generatedRecipes"), log.calls)
         assertEquals(1, ingredientRepository.seededCount)
     }
 }

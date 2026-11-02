@@ -11,14 +11,14 @@ CREATE TABLE generatedRecipe (
     surveyFingerprint TEXT NOT NULL
 );
 
-selectRecent:
-SELECT * FROM generatedRecipe ORDER BY generatedAt DESC LIMIT :limit;
-
 selectById:
 SELECT * FROM generatedRecipe WHERE id = ?;
 
-latestFingerprint:
-SELECT surveyFingerprint FROM generatedRecipe ORDER BY generatedAt DESC LIMIT 1;
-
 insert:
 INSERT OR REPLACE INTO generatedRecipe(id, recipeJson, generatedAt, surveyFingerprint) VALUES (?, ?, ?, ?);
+
+selectRecentByFingerprint:
+SELECT * FROM generatedRecipe WHERE surveyFingerprint = ? ORDER BY generatedAt DESC LIMIT ?;
+
+deleteAll:
+DELETE FROM generatedRecipe;

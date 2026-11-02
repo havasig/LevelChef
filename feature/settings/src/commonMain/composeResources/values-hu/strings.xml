@@ -63,4 +63,6 @@
 
     <string name="settings_dialog_cancel">Mégse</string>
     <string name="settings_dialog_confirm">Megerősítés</string>
+    <string name="settings_retake_survey_title">Kérdőív újrakitöltése</string>
+    <string name="settings_retake_survey_subtitle">Allergiák, konyhák, csípősség és a többi módosítása</string>
 </resources>

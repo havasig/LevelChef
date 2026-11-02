@@ -1,5 +1,6 @@
 package com.levelchef.android.ui.nav
 
+import android.net.Uri
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -47,22 +48,24 @@ private const val SETTINGS_ROUTE = "settings"
 
 private const val RECIPE_ID_ARG = "recipeId"
 private const val RECIPE_DETAIL_ROUTE = "recipeDetail/{$RECIPE_ID_ARG}"
-private fun recipeDetailPath(id: String) = "recipeDetail/$id"
+// Ids are percent-encoded: a recipe id is data (cached JSON), and a `/`, `?`, `#` or `%` in it would
+// otherwise match no route and crash `navigate`. Navigation decodes path/query args itself.
+private fun recipeDetailPath(id: String) = "recipeDetail/${Uri.encode(id)}"
 
 // `servings` is the recipe-detail stepper value, so "Log experience" lists the amounts actually cooked.
 private const val SERVINGS_ARG = "servings"
 private const val NO_SERVINGS = -1
 private const val MEAL_REVIEW_ROUTE = "mealReview/{$RECIPE_ID_ARG}?$SERVINGS_ARG={$SERVINGS_ARG}"
-private fun mealReviewPath(id: String, servings: Int) = "mealReview/$id?$SERVINGS_ARG=$servings"
+private fun mealReviewPath(id: String, servings: Int) = "mealReview/${Uri.encode(id)}?$SERVINGS_ARG=$servings"
 
 private const val INGREDIENTS_ROUTE = "ingredients"
 private const val INGREDIENT_ID_ARG = "ingredientId"
 private const val INGREDIENT_DETAIL_ROUTE = "ingredients/{$INGREDIENT_ID_ARG}"
 private const val INGREDIENT_FORM_ROUTE = "ingredientForm?$INGREDIENT_ID_ARG={$INGREDIENT_ID_ARG}"
 
-private fun ingredientDetailPath(id: String) = "ingredients/$id"
+private fun ingredientDetailPath(id: String) = "ingredients/${Uri.encode(id)}"
 private fun ingredientFormPath(id: String? = null) =
-    if (id == null) "ingredientForm" else "ingredientForm?$INGREDIENT_ID_ARG=$id"
+    if (id == null) "ingredientForm" else "ingredientForm?$INGREDIENT_ID_ARG=${Uri.encode(id)}"
 
 /** Hidden route for [DesignSystemShowcaseScreen] — not in [bottomNavItems], reachable only in debug
  * builds by tapping the Home nav item 5x quickly (see [HomeTapCounter] below). */

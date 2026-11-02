@@ -15,4 +15,6 @@ data class SettingsActions(
     val onReviewClick: () -> Unit = {},
     val onDeleteAccount: () -> Unit = {},
     val onClearOnboardingStorage: () -> Unit = {},
+    /** Re-runs the onboarding survey — the way to change allergens, cuisines, spice, goal and time. */
+    val onRetakeSurvey: () -> Unit = {},
 )

@@ -35,4 +35,14 @@
     <string name="home_last_cooked_today">ma</string>
     <string name="home_last_cooked_one_day_ago">1 napja</string>
     <string name="home_last_cooked_days_ago">%1$d napja</string>
+    <string name="home_recommendations_loading">Receptek keresése neked…</string>
+    <string name="home_challenge_three_meals_desc">Rögzíts 3 főzést a hét végéig.</string>
+    <string name="home_challenge_five_star_plate_desc">Értékelj egy ételt teljes 5 csillagra.</string>
+    <string name="home_challenge_protein_push_desc">Főzz egy legalább 25 g fehérjét tartalmazó ételt.</string>
+    <string name="home_challenge_xp_sprint_desc">Szerezz 400 XP-t főzéssel ezen a héten.</string>
+    <string name="home_challenge_quick_fire_desc">Főzz egy ételt legfeljebb 20 perc alatt.</string>
+    <string name="home_challenge_light_bite_desc">Rögzíts egy 400 kcal alatti ételt.</string>
+    <string name="home_challenge_rate_three_desc">Értékelj 3 különböző ételt ezen a héten.</string>
+    <string name="home_challenge_kitchen_journal_desc">Írj fejlesztési jegyzetet egy elkészített ételhez.</string>
+    <string name="home_challenge_four_day_streak_desc">Főzz 4 különböző napon ezen a héten.</string>
 </resources>

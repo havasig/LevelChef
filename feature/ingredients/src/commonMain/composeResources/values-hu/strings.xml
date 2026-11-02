@@ -52,4 +52,5 @@
 
     <string name="ingredient_dialog_cancel">Mégse</string>
     <string name="ingredient_dialog_delete">Törlés</string>
+    <string name="ingredients_tried_hint">A kezdő alapanyagok nem számítanak kipróbáltnak — a + gombbal add hozzá azokat, amelyekkel főzöl.</string>
 </resources>

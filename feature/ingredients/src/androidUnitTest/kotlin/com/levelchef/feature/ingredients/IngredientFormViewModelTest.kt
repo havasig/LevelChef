@@ -136,4 +136,49 @@ class IngredientFormViewModelTest {
         assertEquals("2.5", vm.uiState.value.protein)
         assertEquals("1.23", vm.uiState.value.carbs)
     }
+
+    @Test
+    fun an_overlong_calorie_value_is_capped_instead_of_silently_saving_zero() = runTest(dispatcher) {
+        val repository = FakeIngredientRepository()
+        val vm = viewModel(null, repository)
+        advanceUntilIdle()
+
+        vm.setName("Butter")
+        vm.setCalories("99999999999")
+        vm.setFat("12345.6789")
+        vm.save()
+        advanceUntilIdle()
+
+        assertEquals("9999", vm.uiState.value.calories)
+        assertEquals("123.67", vm.uiState.value.fat)
+        val macros = repository.stored.single().macros!!
+        assertEquals(9999, macros.calories)
+        assertEquals(123.67, macros.fatGrams)
+    }
+
+    @Test
+    fun the_name_is_capped_at_the_maximum_length() = runTest(dispatcher) {
+        val vm = viewModel(null, FakeIngredientRepository())
+        advanceUntilIdle()
+
+        vm.setName("x".repeat(500))
+
+        assertEquals(IngredientFormUiState.MAX_NAME_LENGTH, vm.uiState.value.name.length)
+    }
+
+    @Test
+    fun tapping_save_repeatedly_adds_the_ingredient_only_once() = runTest(dispatcher) {
+        val repository = FakeIngredientRepository()
+        val vm = viewModel(null, repository)
+        advanceUntilIdle()
+
+        vm.setName("Tofu")
+        vm.save()
+        vm.save()
+        advanceUntilIdle()
+        vm.save()
+        advanceUntilIdle()
+
+        assertEquals(1, repository.stored.size)
+    }
 }

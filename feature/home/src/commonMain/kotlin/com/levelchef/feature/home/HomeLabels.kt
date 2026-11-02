@@ -5,14 +5,23 @@ import com.levelchef.core.model.ChefLevel
 import com.levelchef.core.model.Difficulty
 import com.levelchef.feature.home.generated.resources.Res
 import com.levelchef.feature.home.generated.resources.home_challenge_five_star_plate
+import com.levelchef.feature.home.generated.resources.home_challenge_five_star_plate_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_four_day_streak
+import com.levelchef.feature.home.generated.resources.home_challenge_four_day_streak_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_kitchen_journal
+import com.levelchef.feature.home.generated.resources.home_challenge_kitchen_journal_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_light_bite
+import com.levelchef.feature.home.generated.resources.home_challenge_light_bite_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_protein_push
+import com.levelchef.feature.home.generated.resources.home_challenge_protein_push_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_quick_fire
+import com.levelchef.feature.home.generated.resources.home_challenge_quick_fire_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_rate_three
+import com.levelchef.feature.home.generated.resources.home_challenge_rate_three_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_three_meals
+import com.levelchef.feature.home.generated.resources.home_challenge_three_meals_desc
 import com.levelchef.feature.home.generated.resources.home_challenge_xp_sprint
+import com.levelchef.feature.home.generated.resources.home_challenge_xp_sprint_desc
 import com.levelchef.feature.home.generated.resources.home_difficulty_easy
 import com.levelchef.feature.home.generated.resources.home_difficulty_hard
 import com.levelchef.feature.home.generated.resources.home_difficulty_medium
@@ -80,6 +89,24 @@ private fun weeklyChallengeTitleRes(id: String): StringResource? = when (id) {
 @Composable
 internal fun weeklyChallengeTitle(id: String, fallback: String): String =
     weeklyChallengeTitleRes(id)?.let { stringResource(it) } ?: fallback
+
+private fun weeklyChallengeDescriptionRes(id: String): StringResource? = when (id) {
+    "three-meals" -> Res.string.home_challenge_three_meals_desc
+    "five-star-plate" -> Res.string.home_challenge_five_star_plate_desc
+    "protein-push" -> Res.string.home_challenge_protein_push_desc
+    "xp-sprint" -> Res.string.home_challenge_xp_sprint_desc
+    "quick-fire" -> Res.string.home_challenge_quick_fire_desc
+    "light-bite" -> Res.string.home_challenge_light_bite_desc
+    "rate-three" -> Res.string.home_challenge_rate_three_desc
+    "kitchen-journal" -> Res.string.home_challenge_kitchen_journal_desc
+    "four-day-streak" -> Res.string.home_challenge_four_day_streak_desc
+    else -> null
+}
+
+/** What the challenge asks for, localized by catalog [id]; [fallback] is the catalog's English text. */
+@Composable
+internal fun weeklyChallengeDescription(id: String, fallback: String): String =
+    weeklyChallengeDescriptionRes(id)?.let { stringResource(it) } ?: fallback
 
 /** "today", "1 day ago" or "N days ago". */
 @Composable

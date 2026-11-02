@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ backup / device-transfer rules. The database and settings are backed up so a
+     restored phone keeps the cooking history; the per-install proxy id (levelchef_install) is not,
+     so two devices never share one quota identity. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="levelchef_install.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="levelchef_install.xml" />
+    </device-transfer>
+</data-extraction-rules>

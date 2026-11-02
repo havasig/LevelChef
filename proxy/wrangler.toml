@@ -6,7 +6,10 @@ compatibility_date = "2025-01-01"
 GEMINI_MODEL = "gemini-3.8-flash"
 DEVICE_DAILY_LIMIT = "5"
 IP_DAILY_LIMIT = "20"
-GLOBAL_DAILY_LIMIT = "200"
+# Must not exceed the Gemini key's own daily quota (free tier: 20 requests/day). Raise after enabling billing.
+GLOBAL_DAILY_LIMIT = "20"
+# Upstream attempts per IP per day, failed ones included — stops hammering a failing Gemini.
+ATTEMPT_DAILY_LIMIT = "60"
 MAX_OUTPUT_TOKENS = "4096"
 # Gemini 3 reasoning depth; the model default can exceed Cloudflare's 100 s response limit. "" = model default.
 GEMINI_THINKING_LEVEL = "low"
@@ -17,3 +20,12 @@ binding = "RATE_LIMITS"
 id = "6d07290781764d46a39aae90fd3c4636"
 
 # The Gemini key is a secret, never committed: `npx wrangler secret put GEMINI_API_KEY`.
+
+# Per-IP burst limiter (KV counters are not atomic): at most 3 requests per minute per IP.
+[[ratelimits]]
+name = "BURST"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 3
+  period = 60

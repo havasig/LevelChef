@@ -22,6 +22,7 @@ internal class FakeRecipeRepository(
 ) : RecipeRepository {
     override suspend fun getRecommendations(): List<Recipe> = recommendations
     override suspend fun getById(id: String): Recipe? = catalog.firstOrNull { it.id == id }
+    override suspend fun deleteAll() = Unit
 }
 
 internal class FakeSavedRecipeRepository(initialIds: List<String> = emptyList()) : SavedRecipeRepository {

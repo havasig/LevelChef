@@ -63,7 +63,7 @@ fun MealReviewScreen(
                 onFatChange = actions.onFatChange,
             )
             IngredientsChecklist(state.ingredientLines)
-            SaveButton(enabled = state.rating > 0, onClick = actions.onSaveClick)
+            SaveButton(enabled = state.canSave, showRatingHint = state.rating == 0, onClick = actions.onSaveClick)
         }
     }
 }

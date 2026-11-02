@@ -25,6 +25,7 @@ import kotlinx.datetime.Instant
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -42,6 +43,43 @@ class HomeViewModelTest {
 
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
+
+    @Test
+    fun before_the_first_load_the_screen_shows_zeros_never_the_preview_sample_data() = runTest(dispatcher) {
+        val initial = viewModel().uiState.value
+
+        assertEquals(0, initial.currentXp)
+        assertEquals(0, initial.cookingSessions)
+        assertEquals(null, initial.lastCooked)
+        assertTrue(initial.recommendations.isEmpty())
+        assertTrue(initial.recommendationsLoading)
+    }
+
+    @Test
+    fun stats_appear_without_waiting_for_a_slow_recommendation_generation() = runTest(dispatcher) {
+        val gate = CompletableDeferred<Unit>()
+        val slowRecipes = object : RecipeRepository {
+            override suspend fun getRecommendations(): List<Recipe> {
+                gate.await()
+                return listOf(Recipe("r1", "Miso soup", "🍜", xpReward = 30, timeMinutes = 10, difficulty = Difficulty.EASY))
+            }
+            override suspend fun getById(id: String): Recipe? = null
+            override suspend fun deleteAll() = Unit
+        }
+        val viewModel = viewModel(
+            profile = UserProfile(totalXp = 800, cookingSessionsCount = 12, newIngredientsCount = 5),
+            recipeRepository = slowRecipes,
+        )
+
+        testScheduler.advanceUntilIdle()
+        assertEquals(12, viewModel.uiState.value.cookingSessions)
+        assertTrue(viewModel.uiState.value.recommendationsLoading)
+
+        gate.complete(Unit)
+        testScheduler.advanceUntilIdle()
+        assertEquals("Miso soup", viewModel.uiState.value.recommendations.single().name)
+        assertFalse(viewModel.uiState.value.recommendationsLoading)
+    }
 
     @Test
     fun ui_state_loads_and_maps_domain_data_into_the_screen_model() = runTest(dispatcher) {
@@ -186,12 +224,13 @@ class HomeViewModelTest {
         recommendations: List<Recipe> = emptyList(),
         challenge: WeeklyChallenge = challenge(),
         weeklyChallengeRepository: WeeklyChallengeRepository = FakeWeeklyChallengeRepository(challenge),
+        recipeRepository: RecipeRepository = FakeRecipeRepository(recommendations),
     ): HomeViewModel {
         val userProfileRepository = FakeUserProfileRepository(profile)
         return HomeViewModel(
             userProfileRepository = userProfileRepository,
             cookingSessionRepository = FakeCookingSessionRepository(lastCooked),
-            recipeRepository = FakeRecipeRepository(recommendations),
+            recipeRepository = recipeRepository,
             weeklyChallengeRepository = weeklyChallengeRepository,
             getChefLevelUseCase = GetChefLevelUseCase(userProfileRepository),
         )
@@ -241,6 +280,7 @@ private class FakeCookingSessionRepository(private val recent: CookingSession?) 
 private class FakeRecipeRepository(private val recommendations: List<Recipe>) : RecipeRepository {
     override suspend fun getRecommendations(): List<Recipe> = recommendations
     override suspend fun getById(id: String): Recipe? = recommendations.find { it.id == id }
+    override suspend fun deleteAll() = Unit
 }
 
 private class FakeWeeklyChallengeRepository(initial: WeeklyChallenge) : WeeklyChallengeRepository {

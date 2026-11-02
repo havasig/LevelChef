@@ -49,7 +49,13 @@ class RecipeDetailViewModelTest {
         recipeId = "lemon-chicken",
         recipeRepository = FakeRecipeRepository(recipes),
         savedRecipeRepository = savedRepo,
+        // The test scheduler's virtual time doubles as the wall clock.
+        nowMillis = { wallClockOffsetMs + dispatcher.scheduler.currentTime },
     )
+
+    /** Lets a test jump the wall clock without virtual time passing (the device slept, the app was
+     * backgrounded and the coroutine resumed late). */
+    private var wallClockOffsetMs = 0L
 
     @Test
     fun loads_the_recipe_and_adopts_its_serving_count() = runTest(dispatcher) {
@@ -169,6 +175,29 @@ class RecipeDetailViewModelTest {
 
         assertEquals(1, vm.uiState.value.runningTimerStepIndex)
         assertEquals(30, vm.uiState.value.timerSecondsRemaining)
+    }
+
+    @Test
+    fun the_countdown_follows_the_wall_clock_not_the_number_of_ticks() = runTest(dispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        vm.startTimer(stepIndex = 0, minutes = 1)
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(58, vm.uiState.value.timerSecondsRemaining)
+
+        // 40 s pass on the wall clock while the coroutine was held back; the next tick catches up.
+        wallClockOffsetMs += 40_000
+        advanceTimeBy(1_000)
+        runCurrent()
+        assertEquals(17, vm.uiState.value.timerSecondsRemaining)
+
+        wallClockOffsetMs += 60_000
+        advanceTimeBy(1_000)
+        runCurrent()
+        assertEquals(null, vm.uiState.value.runningTimerStepIndex)
+        assertEquals(TransientMessage.TIMER_DONE, vm.uiState.value.transientMessage)
     }
 
     @Test

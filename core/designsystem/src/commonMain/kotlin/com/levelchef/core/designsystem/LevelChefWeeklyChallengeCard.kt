@@ -30,6 +30,8 @@ import org.jetbrains.compose.resources.stringResource
  * confirmed unchanged between the dark original and the light duplicate — not theme-flipping.
  * [completed] overrides [inProgress]'s "In progress"/"Not started" text with "Completed" once the
  * challenge has been marked done, so a just-finished challenge isn't mislabeled "Not started".
+ * [description] says what to do and [progress] (e.g. "1 / 3") how far along it is — without them a
+ * title like "Quick-Fire Round" doesn't tell the user what the challenge actually asks for.
  */
 @Composable
 fun LevelChefWeeklyChallengeCard(
@@ -39,6 +41,8 @@ fun LevelChefWeeklyChallengeCard(
     modifier: Modifier = Modifier,
     category: String = stringResource(Res.string.designsystem_weekly_challenge),
     completed: Boolean = false,
+    description: String? = null,
+    progress: String? = null,
     action: (@Composable () -> Unit)? = null,
 ) {
     val colors = LevelChefTheme.colors
@@ -52,6 +56,9 @@ fun LevelChefWeeklyChallengeCard(
             LevelChefBadge("+$xp XP", style = BadgeStyle.DARK)
         }
         Text(title, color = colors.textPrimary, style = LevelChefTextStyles.bodyRegularBold)
+        if (description != null) {
+            Text(description, color = colors.textSecondary, style = LevelChefTextStyles.bodySmall)
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -61,12 +68,13 @@ fun LevelChefWeeklyChallengeCard(
                 Box(modifier = Modifier
                     .size(8.dp)
                     .background(SuccessGreen, RoundedCornerShape(50)))
+                val status = when {
+                    completed -> stringResource(Res.string.designsystem_challenge_completed)
+                    inProgress -> stringResource(Res.string.designsystem_challenge_in_progress)
+                    else -> stringResource(Res.string.designsystem_challenge_not_started)
+                }
                 Text(
-                    when {
-                        completed -> stringResource(Res.string.designsystem_challenge_completed)
-                        inProgress -> stringResource(Res.string.designsystem_challenge_in_progress)
-                        else -> stringResource(Res.string.designsystem_challenge_not_started)
-                    },
+                    if (progress != null && !completed) "$status · $progress" else status,
                     color = colors.textSecondary,
                     style = LevelChefTextStyles.bodySmallBold,
                 )

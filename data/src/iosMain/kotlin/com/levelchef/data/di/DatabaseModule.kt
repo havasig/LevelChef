@@ -17,6 +17,7 @@ import com.levelchef.domain.repository.SavedRecipeRepository
 import com.levelchef.domain.repository.SurveyRepository
 import com.levelchef.domain.repository.WeeklyChallengeRepository
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
@@ -43,7 +44,15 @@ private val ioDispatcher = Dispatchers.Default
 val databaseModule = module {
     single { DatabaseDriverFactory().createDriver() }
     single { LevelChefDatabase(get()) }
-    single { HttpClient(Darwin) { install(ContentNegotiation) { json() } } }
+    single {
+        HttpClient(Darwin) {
+            install(ContentNegotiation) { json() }
+            install(HttpTimeout) {
+                connectTimeoutMillis = 10_000L
+                requestTimeoutMillis = 60_000L
+            }
+        }
+    }
     single<CookingSessionRepository> { CookingSessionRepositoryImpl(get(), dispatcher = ioDispatcher) }
     single<SurveyRepository> { SurveyResponseRepositoryImpl(get(), dispatcher = ioDispatcher) }
     single<IngredientRepository> { IngredientRepositoryImpl(get(), dispatcher = ioDispatcher) }

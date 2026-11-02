@@ -17,9 +17,19 @@ class IngredientsListViewModel(
     private val _uiState = MutableStateFlow(IngredientsListUiState())
     val uiState: StateFlow<IngredientsListUiState> = _uiState.asStateFlow()
 
+    /** Ids seen so far; null until the first emission (whose items are not "new"). */
+    private var knownIds: Set<String>? = null
+
+    /** Categories that received an ingredient while this screen was open (e.g. via the add form). */
+    private val expandedCategories = mutableSetOf<IngredientCategory>()
+
     init {
         viewModelScope.launch {
             ingredientRepository.observeAll().collect { all ->
+                knownIds?.let { known ->
+                    all.filter { it.id !in known }.mapTo(expandedCategories) { it.category }
+                }
+                knownIds = all.mapTo(mutableSetOf()) { it.id }
                 _uiState.value = IngredientsListUiState(loading = false, sections = groupByCategory(all))
             }
         }
@@ -29,6 +39,6 @@ class IngredientsListViewModel(
         IngredientCategory.entries.mapNotNull { category ->
             all.filter { it.category == category }
                 .takeIf { it.isNotEmpty() }
-                ?.let { IngredientCategorySection(category, it) }
+                ?.let { IngredientCategorySection(category, it, expanded = category in expandedCategories) }
         }
 }

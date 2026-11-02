@@ -18,13 +18,17 @@ import com.levelchef.core.model.WeeklyChallenge
 import com.levelchef.core.model.WeeknightTime
 import com.levelchef.domain.repository.BadgeRepository
 import com.levelchef.domain.repository.CookingSessionRepository
+import com.levelchef.core.model.Recipe
 import com.levelchef.domain.repository.IngredientRepository
+import com.levelchef.domain.repository.RecipeRepository
 import com.levelchef.domain.repository.SavedRecipeRepository
 import com.levelchef.domain.repository.SurveyRepository
 import com.levelchef.domain.repository.WeeklyChallengeRepository
 import com.levelchef.domain.usecase.ClearSurveyResponseUseCase
 import com.levelchef.domain.usecase.DeleteAccountDataUseCase
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -147,6 +151,16 @@ private class FakeCookingSessionRepository(initial: List<CookingSession> = empty
     }
 }
 
+private class FakeRecipeRepository : RecipeRepository {
+    var cleared = false
+        private set
+    override suspend fun getRecommendations(): List<Recipe> = emptyList()
+    override suspend fun getById(id: String): Recipe? = null
+    override suspend fun deleteAll() {
+        cleared = true
+    }
+}
+
 private val storedResponse = SurveyResponse(
     completedAt = Instant.parse("2026-01-01T00:00:00Z"),
     cookingExperience = CookingExperience.PRO,
@@ -177,6 +191,7 @@ class SettingsViewModelTest {
         savedRecipeRepository: FakeSavedRecipeRepository = FakeSavedRecipeRepository(),
         badgeRepository: FakeBadgeRepository = FakeBadgeRepository(),
         weeklyChallengeRepository: FakeWeeklyChallengeRepository = FakeWeeklyChallengeRepository(),
+        recipeRepository: FakeRecipeRepository = FakeRecipeRepository(),
     ) = SettingsViewModel(
         controller,
         ClearSurveyResponseUseCase(surveyRepository),
@@ -187,6 +202,7 @@ class SettingsViewModelTest {
             savedRecipeRepository,
             badgeRepository,
             weeklyChallengeRepository,
+            recipeRepository,
         ),
     )
 
@@ -319,6 +335,26 @@ class SettingsViewModelTest {
         assertEquals(ThemeMode.SYSTEM, controller.themeMode())
         assertEquals(AppLanguage.SYSTEM, controller.language())
         assertEquals(SettingsSnackbarMessage.ACCOUNT_DELETION_SUCCESS, vm.uiState.value.snackbarMessage)
+    }
+
+    @Test
+    fun delete_account_finishes_even_when_the_screen_is_left_during_the_success_message() = runTest(dispatcher) {
+        val controller = FakeAppSettingsController(ThemeMode.DARK, AppLanguage.HUNGARIAN)
+        val surveyRepository = FakeSurveyRepository(storedResponse)
+        val recipeRepository = FakeRecipeRepository()
+        val vm = viewModel(controller, surveyRepository, recipeRepository = recipeRepository)
+        advanceUntilIdle()
+
+        vm.deleteAccount()
+        runCurrent()
+        // Back press during the 2 s message: the ViewModel is cleared and its scope cancelled.
+        vm.viewModelScope.cancel()
+        advanceUntilIdle()
+
+        assertTrue(recipeRepository.cleared)
+        assertNull(surveyRepository.stored)
+        assertEquals(ThemeMode.SYSTEM, controller.themeMode())
+        assertEquals(AppLanguage.SYSTEM, controller.language())
     }
 
     @Test

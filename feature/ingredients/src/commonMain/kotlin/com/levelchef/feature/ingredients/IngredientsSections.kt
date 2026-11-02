@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +48,8 @@ internal fun IngredientCategoryBlock(
     onIngredientClick: (String) -> Unit,
 ) {
     val colors = LevelChefTheme.colors
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember(section.category) { mutableStateOf(section.expanded) }
+    LaunchedEffect(section.expanded) { if (section.expanded) expanded = true }
     val visible = if (expanded) section.ingredients else section.ingredients.take(COLLAPSED_COUNT)
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
