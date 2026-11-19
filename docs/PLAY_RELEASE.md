@@ -39,8 +39,8 @@ all: stay on internal testing.
    `release.jks` becomes the *upload key*. Back `release.jks` and its passwords up somewhere safe
    (password manager) — losing the upload key needs a support request to reset.
 4. **Policy → App content** — every form must be complete before any release, including internal:
-   - **Privacy policy**: public URL of [`PRIVACY.md`](PRIVACY.md)'s policy text (a GitHub Pages
-     page, Google Sites or a public Notion page all work).
+   - **Privacy policy**: <https://havasig.github.io/LevelChef/policy/privacy.html> (GitHub Pages,
+     serving `docs/` on `main` — see [`PRIVACY.md`](PRIVACY.md)).
    - **App access**: "All functionality is available without special access" (no login).
    - **Ads**: No.
    - **Content rating**: questionnaire → category *Utility, Productivity, Communication, or Other*;
@@ -81,7 +81,7 @@ all: stay on internal testing.
 ## Open items
 
 - **In-app "report this recipe"** for AI-generated content (Play generative-AI policy).
-- Publish the privacy policy and terms of use ([`TERMS.md`](TERMS.md)) at public URLs, and link
-  both from Settings.
+- Link the privacy policy and [terms of use](TERMS.md) pages from Settings (both are now published
+  — see above).
 - First-release DB policy flip: from the first production release on, schema changes need
   migrations (AGENTS.md "Not yet done" #2).
