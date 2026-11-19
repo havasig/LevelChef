@@ -718,7 +718,9 @@ next to a debug build. Run this before every Play upload.
 4. Send 4 valid requests within a minute from one IP.
    - **The 4th returns 429 `too_many_requests`** (per‑IP burst limiter).
 5. `npx wrangler tail` while the app generates.
-   - Gemini errors show as `Gemini <status>: …`; a `429 … free_tier_requests` line means the key's own
+   - Gemini errors show as `Gemini <status> (<model>): …`; a primary-model failure followed by a
+     successful answer means the fallback model (`GEMINI_FALLBACK_MODEL`) took over — the 200 response
+     carries `X-Gemini-Model: <fallback>`; a `429 … free_tier_requests` line means the key's own
      daily quota (20 on the free tier) is used up — **GLOBAL_DAILY_LIMIT in `wrangler.toml` must not
      exceed it**.
 

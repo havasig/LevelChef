@@ -1,8 +1,8 @@
-# Privacy — policy draft and Play Console "Data safety" answers
+# Privacy — policy and Play Console "Data safety" answers
 
-> **Status: draft for the maintainer to review before the first Play release.** It describes what
-> the code in this repository actually does; it is not legal advice. Publish the policy section at a
-> public URL (Google Play requires one) and keep it in sync with the code.
+> It describes what the code in this repository actually does; it is not legal advice. Published at
+> <https://havasig.github.io/LevelChef/policy/privacy.html> (`docs/policy/privacy.html`, GitHub Pages
+> serving `docs/` on `main`) — keep that page in sync with this file and with the code.
 
 ## What the app stores, and where
 
@@ -56,33 +56,7 @@ proxy's anonymous daily counters, which expire on their own after 2 days.
 | Can users request deletion? | **Yes** — in-app (Settings → Delete account) |
 | Purpose | **App functionality** (personalised recipe recommendations); the device id: **Fraud prevention, security** (rate limiting) |
 
-## Policy text (template)
+## Policy text
 
-> **LevelChef privacy policy** — last updated: _date_
->
-> LevelChef stores your cooking data only on your device. To suggest recipes, the app sends your
-> onboarding answers — cooking level, diet, food allergies, favourite cuisines, spice tolerance,
-> goal, available cooking time and household size — and the app language to our server, which
-> asks Google's Gemini service to generate recipes. We use Gemini's free tier, under which Google may
-> use these answers and the generated recipes to improve its products, and they may be read by
-> Google's human reviewers (see Google's Gemini API terms). We do not send your name, contacts, location
-> or any other personal information, and we don't use advertising or analytics. Our server keeps
-> only anonymous daily request counts (with a random app-install id and your IP address) for up to
-> two days to prevent abuse. Android may include your LevelChef data in your device backup. You can
-> delete all your data at any time in Settings → Delete account. Contact: _email_.
-
-### Magyar változat
-
-> **LevelChef adatvédelmi tájékoztató** — utolsó frissítés: _dátum_
->
-> A LevelChef a főzési adataidat csak a készülékeden tárolja. A receptjavaslatokhoz az alkalmazás
-> elküldi a bevezető kérdőívre adott válaszaidat — főzési szint, étrend, ételallergiák, kedvenc
-> konyhák, csípősségtűrés, cél, főzésre szánt idő és háztartás mérete — valamint az alkalmazás
-> nyelvét a szerverünknek, amely a Google Gemini szolgáltatásától kér recepteket. A Gemini ingyenes
-> csomagját használjuk, amelynek feltételei szerint a Google ezeket a válaszokat és a generált
-> recepteket a termékei fejlesztésére használhatja, és a Google emberi ellenőrei is olvashatják
-> őket. Nem küldjük el a neved, névjegyeidet, helyadataidat vagy más személyes adatodat, és nem
-> használunk hirdetést vagy analitikát. A szerverünk a visszaélések megelőzésére legfeljebb két
-> napig csak névtelen napi kérésszámokat tárol (egy véletlenszerű telepítési azonosítóval és az
-> IP-címeddel). Az Android a LevelChef adataidat a készülék biztonsági mentésébe is beleteheti.
-> Adataidat bármikor törölheted a Beállítások → Fiók törlése menüpontban. Kapcsolat: _e-mail_.
+Published at [`docs/policy/privacy.html`](policy/privacy.html) —
+<https://havasig.github.io/LevelChef/policy/privacy.html>. Contact: levelchef.app@gmail.com.
